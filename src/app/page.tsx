@@ -11,9 +11,9 @@ export default function Home() {
   return (
     
     <main className={darkMode==true?"dark":""}>
+    
       <Navbar/>
-      
-      <div className=''></div>
+      <div className=''> hello </div>
     </main>
     
   );

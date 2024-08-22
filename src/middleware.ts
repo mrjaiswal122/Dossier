@@ -27,5 +27,5 @@ if (token) {
   }
 }
 export const config={
-    matcher:'/'
+    matcher:'/dashboard'
 }

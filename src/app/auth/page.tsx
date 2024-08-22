@@ -2,7 +2,7 @@
 import Link from "next/link";
 import axios from "axios";
 import { useState } from "react";
-import { redirect,useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export default function Auth() {
 const [formData,setFormData]=useState<{email:string,password:string}>({email:'',password:''});

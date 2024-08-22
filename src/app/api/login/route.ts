@@ -6,7 +6,7 @@ import { cookies } from "next/headers";
 import jsonwebtoken from 'jsonwebtoken';
 export async function POST(req: Request){
     const {email, password } = await req.json();
-    const { sign, verify, decode } = jsonwebtoken;
+    const { sign} = jsonwebtoken;
     if(!email||!password){
       return NextResponse.json({ error: 'Email and Password is required!!' }, { status: 404 });
   }
@@ -22,11 +22,11 @@ export async function POST(req: Request){
               const hashedPassword= crypto.createHmac('sha256', user.salt).update(password).digest('hex');
               if(hashedPassword===user.password){
                console.log('good password was matched and it is correct');
-               let jwtToken=sign({userId: user.id}, `${process.env.JWT_SECRET}`,{ expiresIn: '2d' });
+               let jwtToken=sign({userId: user.id}, `${process.env.JWT_SECRET}`,{ expiresIn: '6h' });
                cookies().set("access-token", jwtToken,{ 
                 httpOnly: true, 
                 secure: process.env.NODE_ENV === 'production',
-                maxAge: 2 * 24 * 60 * 60,  // 2 days in seconds
+                maxAge:5*24*60*60,  //1 days in seconds
                 path: '/',
             } );
                

@@ -6,11 +6,15 @@ import { BsFillMoonStarsFill } from "react-icons/bs";
 import { MdSunny } from "react-icons/md";
 import { HiComputerDesktop } from "react-icons/hi2";
 import Link from "next/link";
-import { cookies } from "next/headers";
+import axios from "axios";
+import Profile from "./profile";
+
 export default function Navbar() {
   const [darkMode, setDarkMode] = useAtom(atomDarkMode);
   const [prefersDarkScheme, setPrefersDarkScheme] = useState(false);
   const [theme, setTheme] = useState<"true" | "false" | "system">('system');
+  const [user,setUser] = useState<{name:string,email:string,imageUrl:string,role:string}>();
+  const [login,setLogin] = useState<boolean>();
 
   useEffect(() => {
     setPrefersDarkScheme(window.matchMedia("(prefers-color-scheme: dark)").matches);
@@ -31,7 +35,17 @@ export default function Navbar() {
         localStorage.setItem("theme", 'system');
         setDarkMode(prefersDarkScheme);
     }
-    
+    axios.get('/api/check-login').then((response)=>{
+      
+      
+     if(response.data.msg==="Show User"){
+       setUser(response.data.data);
+     }else if(response.data.msg==="Show Login"){
+       setLogin(true);
+     }else{
+      setLogin(false);
+     }
+    })
   }, [prefersDarkScheme, setDarkMode]);
 
   const handleTheme = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -77,8 +91,10 @@ export default function Navbar() {
               <div className="text-theme">
                 {darkMode === true ? <MdSunny /> : <BsFillMoonStarsFill />}
               </div>
-            </span>
-            <span><Link href='/auth'>LogIn/SignUp</Link></span>
+            </span>{
+            user==undefined?
+            <LoginOrSignup login={login}/>:<Profile user={user}/>
+            }
           </div>
         </div>
 
@@ -125,4 +141,9 @@ export default function Navbar() {
       </nav>
     </>
   );
+}
+function LoginOrSignup({login}:{login:boolean|undefined}){
+  return(
+    <span>{login==true?<Link href='/auth'>LogIn</Link>:<Link href='/auth/signup'>Signup</Link>}</span>
+  )
 }

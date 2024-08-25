@@ -1,6 +1,6 @@
 import crypto from "crypto";
-import UserModel from "@/app/models/user"; // Ensure this uses the updated user model code
-import dbConnect from '@/app/lib/database';
+import UserModel from "@/app/_models/user"; // Ensure this uses the updated user model code
+import dbConnect from '@/app/_lib/database';
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {

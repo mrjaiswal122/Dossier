@@ -8,45 +8,67 @@ import { HiComputerDesktop } from "react-icons/hi2";
 import Link from "next/link";
 import axios from "axios";
 import Profile from "./profile";
+import { setThemeRedux } from "../_features/theme/themeSlice";
+import {toggleDarkMode} from '../_features/darkMode/darkSlice';
+import { useAppSelector,useAppDispatch } from "../_store/hooks";
+
 
 export default function Navbar() {
+  const dispatch = useAppDispatch();
+  const reduxTheme=useAppSelector((state)=>state.theme);
+  const darkModeRedux=useAppSelector(state=>state.darkModeRedux);
   const [darkMode, setDarkMode] = useAtom(atomDarkMode);
   const [prefersDarkScheme, setPrefersDarkScheme] = useState(false);
   const [theme, setTheme] = useState<"true" | "false" | "system">('system');
   const [user,setUser] = useState<{name:string,email:string,imageUrl:string,role:string}>();
   const [login,setLogin] = useState<boolean>();
-
-  useEffect(() => {
+   
+    
+useEffect(()=>{
+  axios.get('/api/check-login').then((response)=>{
+      
     setPrefersDarkScheme(window.matchMedia("(prefers-color-scheme: dark)").matches);
+    if(response.data.msg==="Show User"){
+      setUser(response.data.data);
+    }else if(response.data.msg==="Show Login"){
+      setLogin(true);
+    }else{
+     setLogin(false);
+    }
+   }).catch(Error=>{console.log(Error);
+   })
+
+},[])
+  useEffect(() => {
+    
     switch (localStorage.getItem("theme")) {
       case "system":
         setTheme("system");
         setDarkMode(prefersDarkScheme);
+        dispatch(toggleDarkMode(prefersDarkScheme))
+        dispatch(setThemeRedux('system'));
         break;
       case "dark":
         setTheme("true");
         setDarkMode(true);
+        dispatch(toggleDarkMode(true));
+        dispatch(setThemeRedux('dark'));
         break;
       case "light":
         setTheme("false");
         setDarkMode(false);
+        dispatch(toggleDarkMode(false));
+        dispatch(setThemeRedux('light'));
         break;
       default:
         localStorage.setItem("theme", 'system');
         setDarkMode(prefersDarkScheme);
+        dispatch(toggleDarkMode(prefersDarkScheme));
+        dispatch(setThemeRedux('system'));
+     
     }
-    axios.get('/api/check-login').then((response)=>{
-      
-      
-     if(response.data.msg==="Show User"){
-       setUser(response.data.data);
-     }else if(response.data.msg==="Show Login"){
-       setLogin(true);
-     }else{
-      setLogin(false);
-     }
-    })
-  }, [prefersDarkScheme, setDarkMode]);
+   
+  }, [dispatch, prefersDarkScheme,setDarkMode]);
 
   const handleTheme = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     const target = e.target as HTMLElement;
@@ -55,16 +77,22 @@ export default function Navbar() {
       case "dark":
         setDarkMode(true);
         setTheme("true");
+        dispatch(toggleDarkMode(true));
+        dispatch(setThemeRedux('dark'));
         localStorage.setItem("theme", 'dark');
         break;
       case "system":
         setDarkMode(prefersDarkScheme);
         setTheme("system");
+        dispatch(toggleDarkMode(prefersDarkScheme));
+        dispatch(setThemeRedux('system'));
         localStorage.setItem("theme", 'system');
         break;
       case "light":
         setDarkMode(false);
         setTheme("false");
+        dispatch(toggleDarkMode(false));
+        dispatch(setThemeRedux('light'));
         localStorage.setItem("theme", 'light');
         break;
       default:

@@ -125,10 +125,10 @@ useEffect(() => {
           </div>
         </div>
 
-        <section id="themeSection" className="hidden absolute top-0 right-0 inset-0 w-[100vw] h-[100vh]" onClick={handleThemeSection}>
+        <section id="themeSection" className="hidden absolute top-0 right-0 z-[1]  w-[100vw] h-[100vh]" onClick={handleThemeSection}>
           <div className="fixed w-full h-full mx-auto" >
             <div className="csw h-full relative">
-              <section className=" absolute  dark:bg-black-bg dark:border-none border-black-icon border dark:text-white w-36 h-24 py-2  rounded-lg top-20 right-3 ">
+              <section className=" absolute z-10 dark:bg-black-bg dark:border-none border-black-icon border dark:text-white w-36 h-24 py-2  rounded-lg top-20 right-3 ">
                 <div
                   id="light"
                   className={`theme-options ${reduxTheme == 'light' && 'text-theme'}`}

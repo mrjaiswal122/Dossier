@@ -1,16 +1,22 @@
 'use client';
-import React, { ReactNode } from 'react'
+import { ReactNode } from 'react'
 import { Provider } from 'react-redux';
 import {store } from '../_store/store';
+import DarkMode from './DarkMode';
 
 
+export default function Providers({children}:{children:ReactNode}) {
 
-export default function Providers({children}:{children:React.ReactNode}) {
   return (
-    <section>
-
-       <Provider store={store}>{children}</Provider>
-    </section>
+    
+   <>
+       <Provider store={store}>
+        <DarkMode>
+        {children}
+        </DarkMode>
+        </Provider>
+  
+   </>
 
 
   )

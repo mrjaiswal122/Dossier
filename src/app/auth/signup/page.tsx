@@ -1,12 +1,13 @@
 'use client'
 import axios from "axios";
 import Link from "next/link";
-import { useState } from "react";
-
-
+import { useState, } from "react";
+import { useRouter } from "next/navigation";
+import Err from "@/app/_components/Err";
 export default function SignupPage() {
 const[formData,setFormData] =useState<{name:string,password:string,email:string}>({name:"",password:"",email:""});
-
+const [msg,setMsg]=useState<string>();
+const router=useRouter();
 const handleChange=(e:React.ChangeEvent<HTMLInputElement>)=>{
   const input= e.target as HTMLInputElement;
   const label = document.querySelector(`label[for='${input.id}']`);
@@ -31,22 +32,39 @@ const  handleSubmit=async(e: React.FormEvent<HTMLFormElement>)=>{
   try{
 
     const response=await axios.post('/api/signup', formData);
-    console.log(response);
-    
+   
+    if(response.data.msg=='Account Created Successfully'){
+     router.push('/auth');
+    }else if(response.data.msg=='User Already Exists'){
+      setMsg('User Already Exists');
+      
+    }else{
+      setMsg('Something went wrong. It\'s not you it\'s us.');
+      }
+   
   }catch(error){
     console.log(error)
   }
   setFormData({name:"",password:"",email:""})
+   const labelArray =document.querySelectorAll('.input-div label');
+   labelArray.forEach((label)=>{
+    label.classList.add('top-1/2');
+      label.classList.remove('text-xs');
+   })
 
   }
-
+const closeMessageBox=()=>{
+  setMsg('');
+}
   return (
-    <section className=" csw dark:bg-black flex justify-center items-center dark:text-white h-[calc(100vh-4rem)]">
+    <section className="relative csw dark:bg-black flex justify-center items-center dark:text-white h-[calc(100vh-4rem)]">
+          {msg && <Err msg={msg} handleClick={closeMessageBox}/>}
+          
 
-    <form onSubmit={handleSubmit} className="flex flex-col  items-center border border-black-bg h-[55%] w-[50%] rounded-lg ">
+    <form onSubmit={handleSubmit} className="flex flex-col  items-center border h-[400px] w-[300px] border-black-bg md:h-[60%] md:w-[50%] rounded-lg hover:border-black dark:hover:border-white gap-2">
       <h1 className="text-3xl mt-5 mb-7">SignUp</h1>
       
-      <div className="relative mb-1 input-div">
+         <div className="relative mb-1 input-div">
             <input
               className="dark:bg-black my-1 pl-1 py-1 w-full peer "
               type="text"
@@ -78,9 +96,9 @@ const  handleSubmit=async(e: React.FormEvent<HTMLFormElement>)=>{
           </div>
 
       
-      <div className="relative">
+      <div className="relative input-div">
             <input
-              className="dark:bg-black my-1 pl-1 py-1 w-full peer "
+              className="dark:bg-black my-1 pl-1 py-1 w-full peer  "
               type="email"
               id="email"
               name="email"
@@ -108,7 +126,7 @@ const  handleSubmit=async(e: React.FormEvent<HTMLFormElement>)=>{
             </label>
           </div>      
      
-          <div className="relative mb-7">
+          <div className="relative mb-7 input-div">
             <input
               className="dark:bg-black my-1 pl-1 py-1 w-full peer "
               type="password"

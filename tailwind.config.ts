@@ -8,7 +8,16 @@ const config: Config = {
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-    extend: {
+    extend: { 
+      animation: {
+      timedMsg: 'timedMsg 2.5s ease-in-out 1',
+    },
+    keyframes: {
+      timedMsg: {
+        from: { width:'100%' },
+        to: { width: '0%' },
+      }
+    },
       backgroundImage: {
        
       },

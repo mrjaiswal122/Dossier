@@ -3,9 +3,11 @@ import Link from "next/link";
 import axios from "axios";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Err from "../_components/Err";
 
 export default function Auth() {
 const [formData,setFormData]=useState<{email:string,password:string}>({email:'',password:''});
+const [msg,setMsg]=useState<string>();
 const router = useRouter();
 
   const handleChange=(e:React.ChangeEvent<HTMLInputElement>)=>{
@@ -26,33 +28,55 @@ const router = useRouter();
     try{
 
       const response=await axios.post('/api/login',formData);
-      console.log(response);
+     
+   
       
       if(response.data?.msg=='User Found'){
-        router.push('/');
+        window.location.href='/';
+      }else if(response.data?.msg=='Invalid Password!!'){
+      
+        
+        setMsg('Invalid Password !!');
+      }else if(response.data?.msg=='No User Found!!'){
+        setMsg('No User Found !!');
+       
+      }else{
+        setMsg('Something went wrong.It\'s not you, it\s us')
       }
 
     }catch(error){
       console.log(error);
       
+    }finally{
+      setFormData({email:"",password:""});
+      const labelArray =document.querySelectorAll('.input-div label');
+      labelArray.forEach((label)=>{
+       label.classList.add('top-1/2');
+         label.classList.remove('text-xs');
+      })
+      
     }
-    // setFormData({email:'',password:''});
+    
   }
-
+const closeMessageBox=()=>{
+  setMsg('');
+}
   return (
     <>
-      <section className=" csw dark:bg-black flex justify-center items-center dark:text-white h-[calc(100vh-4rem)]">
+      <section className="relative csw dark:bg-black flex justify-center items-center dark:text-white h-[calc(100vh-4rem)]">
+      {msg && <Err msg={msg} handleClick={closeMessageBox}/>}
         <form
           onSubmit={handleSubmit}
-          className="flex flex-col  items-center border border-black-bg hover:border-black dark:hover:border-white  h-[50%] w-[50%] rounded-lg "
+          className="flex flex-col  items-center border  hover:border-black dark:hover:border-white   h-[400px] w-[300px] border-black-bg md:h-[55%] md:w-[50%]  rounded-lg "
         >
           <h1 className="text-3xl mt-5 mb-7">Login</h1>
-          <div className="relative">
+          <div className="relative mb-2 input-div">
             <input
               className="dark:bg-black my-1 pl-1 py-1 w-full peer "
               type="email"
               id="email"
               name="email"
+              value={formData.email}
               onChange={handleChange}
               required
             />
@@ -75,12 +99,13 @@ const router = useRouter();
               Email
             </label>
           </div>
-          <div className="relative mb-7">
+          <div className="relative mb-7 input-div">
             <input
               className="dark:bg-black my-1 pl-1 py-1 w-full peer "
               type="password"
               id="password"
               name="password"
+              value={formData.password}
               onChange={handleChange}
               required
             />
@@ -108,7 +133,7 @@ const router = useRouter();
             type="submit"
             className=" py-1 font-semibold text-black w-[215px] rounded-lg bg-theme mb-2"
           >
-            Submit
+            Login
           </button>
           <span className="text-xs">
             Don&apos;t have account?{" "}

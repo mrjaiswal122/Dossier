@@ -10,6 +10,7 @@ import Profile from "./profile";
 import { setThemeRedux } from "../_features/theme/themeSlice";
 import {toggleDarkMode} from '../_features/darkMode/darkSlice';
 import { useAppSelector,useAppDispatch } from "../_store/hooks";
+
 type ThemeType='system'|'dark'|'light';
 
 export default function Navbar() {
@@ -110,7 +111,7 @@ useEffect(() => {
         <div className="flex justify-between items-center csw">
           {/* left */}
           <div className="flex justify-between items-center gap-3">
-            <h1 className="text-xl">PickGro</h1>
+            <Link href="/" className="text-xl">Dossier</Link>
           </div>
           {/* right */}
           <div className="flex justify-center items-center gap-3">

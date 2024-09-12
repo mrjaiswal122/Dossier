@@ -25,18 +25,31 @@ export default function Home() {
         // You could add user feedback here, like a toast or message
       }
     } else {
-      router.push('/auth');
+      // router.push('/auth');
+      try{
+      const response = await axios.get('/api/check-login');
+      if(response.data.msg=='Show User'){
+        router.push(`/${response.data.data.username}`)
+      }else{
+        router.push('/auth'); 
+      }
+      }catch(error){
+       console.log(error);
+       
+      }
     }
   };
 
   return (
-    <main className="h-[100vh] bg-black dark:text-white flex gap-6 justify-center items-center">
+    <main className="h-[100vh] dark:bg-black dark:text-white flex gap-6 justify-center items-center">
       <button className=" bg-theme rounded-lg p-3" onClick={handlePortfolioCreation}>
         Create Portfolio
       </button>
-      <button className="backdrop-blur-sm border p-3 rounded-lg">
+    {session?.user?"": <a href="/auth" className="backdrop-blur-sm border p-3 rounded-lg">
         LOGIN
-      </button>
+      </a>}
+     
+
     </main>
   );
 }

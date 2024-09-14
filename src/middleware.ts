@@ -1,31 +1,34 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
+import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from './app/api/auth/[...nextauth]/route';
+// Ensure you use this if needed
 
-import { jwtVerify } from 'jose';
-export function middleware(request:NextRequest){
-const token=cookies().get("access-token");
-
-
-if (token) {
-    try {
-      jwtVerify(`${token.value}`,new TextEncoder().encode(process.env.JWT_SECRET as string));
-      return NextResponse.next(); // Allow the request to proceed if the token is valid
-    } catch (error) {
-        if(error instanceof Error){
-      if (error.message.includes('jwt expired')) {
-        console.error('Token expired:', error);
-        return NextResponse.redirect('http://localhost:3000/auth?msg=Session expired, Please Login again.');
-      } else {
-        console.error('Token verification failed:', error);
-        return NextResponse.redirect('http://localhost:3000/auth?msg=Verification failed, Please Login again.');
-      }}
-    }
-  } else {
-    console.log('No token found');
-    
-    return NextResponse.redirect('http://localhost:3000/auth/signup?msg=No session found, Please Signup.');
+export async function middleware(request: NextRequest) {
+  const token = cookies().get('access-token');
+  const homeUrl = process.env.HOME_URL;
+  if (!homeUrl) {
+    throw new Error('HOME_URL environment variable is not defined.');
   }
+  const { pathname } = request.nextUrl;
+  const session = await getServerSession(authOptions);
+
+  // To stop the user from going to this route if they are already logged in
+  if (pathname === '/auth' || pathname === '/auth/signup' || pathname === '/api/auth/signin') {
+    if (token || session?.user) {
+      console.log('USER ALREADY LOGGED IN !!');
+      // return NextResponse.redirect(new URL(process.env.HOME_URL!, request.url));
+      const redirectUrl = new URL(homeUrl);
+      return NextResponse.redirect(redirectUrl);
+    } else {
+      console.log('No user found on the client side');
+      return NextResponse.next();
+    }
+  }
+
+  return NextResponse.next();
 }
-export const config={
-    matcher:'/dashboard'
-}
+
+export const config = {
+  matcher: ['/auth', '/auth/signup', '/api/auth/signin']
+};

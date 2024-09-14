@@ -57,7 +57,7 @@ export default function SignupPage() {
     setMsg("");
   };
   return (
-    <section className="relative csw dark:bg-black flex justify-center items-center dark:text-white h-[calc(100vh-4rem)]">
+    <section className="relative csw dark:bg-black flex justify-center items-center dark:text-white h-[100vh]">
       {msg && <Err msg={msg} handleClick={closeMessageBox} />}
 
       <form

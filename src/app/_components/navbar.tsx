@@ -20,16 +20,17 @@ export default function Navbar() {
   
   const [prefersDarkScheme, setPrefersDarkScheme] = useState(false);
   
-  const [user,setUser] = useState<{name:string,email:string,imageUrl:string,role:string}>();
+  const [user,setUser] = useState<{name:string,email:string,imageUrl:string,role:string,username:string}>();
   const [login,setLogin] = useState<boolean>();
    
     
 useEffect(() => {
   const fetchData = async () => {
     try {
+      setPrefersDarkScheme(window.matchMedia("(prefers-color-scheme: dark)").matches);
+      // api call
       const response = await axios.get('/api/check-login');
       
-      setPrefersDarkScheme(window.matchMedia("(prefers-color-scheme: dark)").matches);
 
       if (response.data.msg === "Show User") {
         setUser(response.data.data);
@@ -107,7 +108,7 @@ useEffect(() => {
 
   return (
     <>
-      <nav className="w-full h-16 dark:text-white dark:bg-black flex justify-between items-center relative">
+      <nav className="w-full h-16 dark:text-white dark:bg-black flex justify-between items-center relative ">
         <div className="flex justify-between items-center csw">
           {/* left */}
           <div className="flex justify-between items-center gap-3">

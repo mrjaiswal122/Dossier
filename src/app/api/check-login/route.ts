@@ -20,7 +20,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ msg: "Show Signup" }, { status: 200 });
     } else {
       console.log("User found in session, returning user info");
-      await dbConnect();
+      try{
+        
+        await dbConnect();
+      }catch(error){console.log('Error connecting db :', error)}
       const user = await userModel
         .findOne({ email: session.user.email })
         .exec();

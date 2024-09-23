@@ -13,7 +13,7 @@ export default function AuthLayout({
         <>
       
        
-         <div className="dark:bg-black">
+         <div className="dark:bg-black bg-theme-light" >
 
         {children}
          </div>

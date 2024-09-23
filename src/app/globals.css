@@ -37,4 +37,35 @@
 
        }
   }
- 
+
+  input, textarea,select,option{
+    @apply text-white dark:bg-black dark:outline-none  pl-3 py-2 rounded-md  bg-gray-700 
+  }
+  .portfolio{
+     display: flex;
+     flex-direction: column;
+     gap: 8px;
+
+    h2{
+     @apply text-center text-2xl
+   }
+    span{
+     @apply text-red-600 text-sm
+   }
+   .buttons{
+    @apply flex flex-row justify-between mt-5
+  
+   }
+   .deleteExp{
+  
+    width: fit-content;
+    float: right;
+    svg{
+     @apply   w-6 h-6
+    }
+   }
+  
+  }
+  .nav{
+    @apply bg-theme p-3 rounded-lg
+  }

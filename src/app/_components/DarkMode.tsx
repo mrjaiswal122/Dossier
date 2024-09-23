@@ -19,13 +19,13 @@ export default function DarkMode({children}:{children: ReactNode}) {
   </nav> 
   <div className="w-full h-16"></div>
    <SessionProvider>
-   <div className="dark:bg-black">
+   <div className="dark:bg-black bg-theme-light">
 
     {children}
    </div>
    </SessionProvider>
   
-   <footer className="w-full h-14 dark:bg-black dark:text-white border "> the end</footer>
+   <footer className="w-full h-14 dark:bg-black bg-theme-light  dark:text-white  flex items-center justify-center text-xs">@Copywrite Ankush jaiswal #2024 </footer>
 </section>
 )
 }

@@ -8,6 +8,9 @@ import userModel from "@/app/_models/user";
 
 export async function GET(request: NextRequest) {
   const token = cookies().get("access-token")?.value;
+
+
+  
   const session = await getServerSession(authOptions);
 
   // console.log('Session:', session);

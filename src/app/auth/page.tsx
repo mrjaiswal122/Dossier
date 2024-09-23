@@ -65,7 +65,7 @@ export default function Auth() {
           <h1 className="text-3xl mt-5 mb-7">Login</h1>
           <div className="relative mb-2 input-div">
             <input
-              className="dark:bg-black my-1 pl-1 py-1 w-full peer "
+             className="dark:bg-black bg-theme-light  my-1 pl-1 py-1 w-full peer dark:border border border-[#000000] hover:outline-none  "
               type="email"
               id="email"
               name="email"
@@ -83,18 +83,18 @@ export default function Auth() {
               peer-focus:top-0 
               peer-focus:left-3 
               peer-focus:-translate-y-1/3 
-              peer-focus:text-xs 
+              peer-focus:text-sm 
               peer-focus:font-semibold 
-              peer-focus:text-black 
-              dark:peer-focus:text-white 
-              bg-white dark:bg-black"
+            dark:peer-focus:text-grays
+            peer-focus:text-grays 
+              bg-theme-light dark:bg-black"
             >
               Email
             </label>
           </div>
           <div className="relative mb-7 input-div">
             <input
-              className="dark:bg-black my-1 pl-1 py-1 w-full peer "
+               className="dark:bg-black bg-theme-light  my-1 pl-1 py-1 w-full peer dark:border border border-[#000000] hover:outline-none  "
               type="password"
               id="password"
               name="password"
@@ -112,11 +112,11 @@ export default function Auth() {
               peer-focus:top-0 
               peer-focus:left-3 
               peer-focus:-translate-y-1/3 
-              peer-focus:text-xs 
-              peer-focus:font-semibold 
-              peer-focus:text-black 
-              dark:peer-focus:text-white 
-              bg-white dark:bg-black"
+              peer-focus:text-sm 
+                peer-focus:font-semibold 
+            dark:peer-focus:text-grays
+            peer-focus:text-grays 
+              bg-theme-light dark:bg-black"
             >
               Password
             </label>

@@ -108,7 +108,7 @@ useEffect(() => {
 
   return (
     <>
-      <nav className="w-full h-16 dark:text-white dark:bg-black flex justify-between items-center relative ">
+      <nav className="w-full h-16 dark:text-white dark:bg-black bg-theme-light shadow-2xl flex justify-between items-center relative backdrop-blur-lg">
         <div className="flex justify-between items-center csw">
           {/* left */}
           <div className="flex justify-between items-center gap-3">
@@ -130,7 +130,7 @@ useEffect(() => {
         <section id="themeSection" className="hidden absolute top-0 right-0 z-[1]  w-[100vw] h-[100vh]" onClick={handleThemeSection}>
           <div className="fixed w-full h-full mx-auto" >
             <div className="csw h-full relative">
-              <section className=" absolute z-10 dark:bg-black-bg dark:border-none border-black-icon border dark:text-white w-36 h-24 py-2  rounded-lg top-20 right-3 ">
+              <section className=" absolute z-10 dark:bg-black-bg dark:border-none bg-theme-light shadow-lg border-black-icon border dark:text-white w-36 h-24 py-2  rounded-lg top-20 right-3 ">
                 <div
                   id="light"
                   className={`theme-options ${reduxTheme == 'light' && 'text-theme'}`}

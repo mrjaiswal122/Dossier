@@ -28,10 +28,12 @@ export default function Home() {
       // router.push('/auth');
       try{
       const response = await axios.get('/api/check-login');
-      if(response.data.msg=='Show User'){
+      if(response.data.msg=='Show User' && response.data.data.username!==''){
         router.push(`/${response.data.data.username}`)
+      }else if(response.data.msg=='Show User' && response.data.data.username===""){
+        router.push('/create-portfolio'); 
       }else{
-        router.push('/auth'); 
+            router.push('/auth');
       }
       }catch(error){
        console.log(error);

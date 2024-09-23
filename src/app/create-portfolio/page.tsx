@@ -1,201 +1,441 @@
-'use client'
-import React from 'react'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z }from 'zod';
-// import { useForm} from "react-hook-form";
-import { useForm } from "react-hook-form";
-type Props = {}
-const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
-const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"]
-const fromSchema =z.object({
-  username:z.string().min(3,"Username should be longer than 3 characters").max(30,"Username can't exceed 30 characters"),
-  fullName: z.string().min(2, 'Full name must be at least 2 characters'),
-  email: z.string().email('Invalid email address'),
-  profession: z.string().min(2, 'Profession must be at least 2 characters'),
-  bio: z.string().min(10, 'Bio must be at least 10 characters'),
-  phoneNumber: z.string().regex(/^\+?[1-9]\d{1,14}$/, 'Invalid phone number').optional(),
-  website: z.string().url('Invalid URL').optional().or(z.literal('')),
-  linkedin: z.string().url('Invalid LinkedIn URL').optional().or(z.literal('')),
-  github: z.string().url('Invalid GitHub URL').optional().or(z.literal('')),
-  profilePicture: z
-    .any()
-    .refine((files) => files?.length == 0 || (files?.[0]?.size <= MAX_FILE_SIZE), 
-      `Max file size is 5MB.`)
-    .refine(
-      (files) => files?.length == 0 || ACCEPTED_IMAGE_TYPES.includes(files?.[0]?.type),
-      "Only .jpg, .jpeg, .png and .webp formats are supported."
-    )
-    .optional(),
-})
-type formData =z.infer<typeof fromSchema>;
-export default function Page({}: Props) {
-  // initialed useForm
- const {register,handleSubmit,formState:{errors}}=useForm<formData>({
-  resolver:zodResolver(fromSchema),
- });
-// submit handler
-const submit =(data:formData)=>{
-console.log(data);
-console.log('jshdsjhdsdsdsdsdsd')
+"use client";
+import React, { useEffect, useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {  z } from "zod";
+import { SubmitHandler, useForm, FormProvider } from "react-hook-form";
+
+import Education from "../_components/form/Education";
+import Experience from "../_components/form/Experience";
+import Projects from "../_components/form/Projects";
+import Certifications from "../_components/form/Certifications";
+import Publications from "../_components/form/Publications";
+import Skills from "../_components/form/Skills";
+import FormNavigation from "../_components/form/FormNavigation";
+import axios from "axios";
+import { useSession } from "next-auth/react"
+
+const personalInfoSchema = z.object({
+  fullName: z.string().min(1, "Full name is required"),
+  profilePicture: z.string().url("Must be a valid URL").or(z.literal('')).default(''),
+  title: z.string().min(1, "Professional title is required"),
+  location: z.string().optional(),
+  email: z.string().email("Invalid email address"),
+  phone: z
+    .string()
+    .regex(/^\+?[1-9]\d{1,14}$/, "Invalid phone number")
+    .optional()
+    .or(z.literal("")),
+  socialLinks: z.object({
+    linkedIn: z.string().url("Must be a valid URL").or(z.literal('')).default(''),
+    github: z.string().url("Must be a valid URL").or(z.literal('')).default(''),
+    twitter: z.string().url("Must be a valid URL").or(z.literal('')).default(''),
+  }),
+});
+
+const summarySchema = z.object({
+  aboutMe: z.string(),
+  careerObjective: z.string().optional(),
+});
+
+const skillSchema = z.object({
+  category: z.string(),
+  skills: z.array(z.string()),
+  proficiency: z.enum(["Beginner", "Intermediate", "Advanced"]),
+});
+
+const experienceSchema = z.object({
+  jobTitle: z.string().min(1, "Job title is required").optional(), // Job title is optional but validated if filled
+  companyName: z.string().min(1, "Company name is required").optional(), // Company name is optional but validated if filled
+  companyLogo: z.string().optional(),
+  location: z.string().optional(),
+  startDate: z.date().optional().nullable(), // Optional initially, required if the experience is filled
+  endDate: z.union([z.date(), z.literal("Currently Working")]).optional().default("Currently Working").nullable(), // Defaults to "Currently Working" if no end date
+  responsibilities: z.string().optional(),
+}).refine(
+  (data) => {
+    // If jobTitle or companyName is provided, startDate must be provided
+    if (data.jobTitle || data.companyName) {
+      return !!data.startDate; // startDate is required if jobTitle or companyName is filled
+    }
+    return true; // If nothing is filled, it's valid
+  },
+  {
+    message: "Start date is required if job title or company name is provided",
+    path: ["startDate"], // Points to the startDate field for the error
+  }
+);
+
+
+const educationSchema = z.object({
+  degree: z.string().min(1, "Degree is required"),
+  institutionName: z.string().min(1, "Institution name is required"),
+  institutionLogo: z.string().url("Must be a valid URL").or(z.literal('')).default(''),
+  location: z.string().optional(),
+  startDate: z.date().nullable(),
+  endDate: z.date().optional().nullable(),
+  achievements: z.string().optional(),
+});
+
+const projectSchema = z.object({
+  title: z.string().min(1, "Project title is required"),
+  description: z.string().min(1, "Project description is required"),
+  technologies: z.array(z.string()),
+projectUrl:z.string().url("Must be a valid URL").or(z.literal('')).default(''),
+  githubUrl: z.string().url("Must be a valid URL").or(z.literal('')).default(''),
+  image:z.string().url("Must be a valid URL").or(z.literal('')).default(''),
+});
+
+const certificationSchema = z.object({
+  title: z.string().min(1, "Certification title is required"),
+  organization: z.string().min(1, "Organization is required"),
+  dateEarned: z.date(),
+  certificateUrl: z.string().url("Must be a valid URL").or(z.literal('')).default(''),
+});
+
+const publicationSchema = z.object({
+  title: z.string().min(1, "Publication title is required"),
+  description: z.string().optional(),
+  datePublished: z.date(),
+  url:z.string().url("Must be a valid URL").or(z.literal('')).default(''),
+});
+
+// const awardSchema = z.object({
+//   title: z.string().min(1, "Award title is required"),
+//   organization: z.string().min(1, "Organization is required"),
+//   dateReceived: z.date(),
+//   description: z.string().optional(),
+// });
+
+// const testimonialSchema = z.object({
+//   name: z.string().min(1, "Name is required"),
+//   jobTitle: z.string().optional(),
+//   company: z.string().optional(),
+//   contactInfo: z.string().optional(),
+//   testimonialText: z.string().min(1, "Testimonial text is required"),
+// });
+
+// const contactSchema = z.object({
+//   email: z.string().email("Invalid email address"),
+//   message: z.string().optional(),
+// });
+
+const resumeSchema = z.object({
+  fileUrl: z.string().url("Must be a valid URL").or(z.literal('')).default(''),
+});
+
+// Combine all schemas
+const portfolioSchema = z.object({
+  personalInfo: personalInfoSchema, // Required
+  summary: summarySchema, // Required
+  skills: z.array(skillSchema), // Required
+  languages: z.array(z.string()).optional().default([]), 
+  interests: z.array(z.string()).optional().default([]), 
+  resume: resumeSchema, // Required
+  routeName: z.string().min(3,'Route Name should be more than 3 characters').max(30,'Route Name should be less than 30 characters'), // Required
+});
+
+export type FormData = z.infer<typeof portfolioSchema>;
+
+export default function Page() {
+  // Initialize useForm
+  const [isDisabled, setIsDisabled] = useState(true);
+  const [formData, setFormData] = useState<FormData>();
+  const [step, setStep] = useState(1);
+  const {data:session}=useSession()
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors },
+    watch,
+    setValue,
+    setError,
+    clearErrors,
+  } = useForm<FormData>({
+    resolver: zodResolver(portfolioSchema),
+    mode: "onChange",
+    defaultValues: {
+      personalInfo: {
+        fullName: "",
+        title: "",
+        email: "",
+      },
+      summary:{
+        
+        careerObjective:"none"
+      },
+      skills: [
+        {
+          category: "",
+          skills: [],
+          proficiency: "Beginner", // Default value from enum
+        },
+      ],
+      languages: ["English"], // Default language
+      interests: ["chess"], // Default interest
+      resume: {
+        fileUrl: "", // Default empty string for resume file URL
+      },
+    },
+  });
+  
+  const currentFormData = watch();
+
+  useEffect(() => {
+    console.log('watching :',currentFormData); // You can store this data somewhere to persist
+    console.log(errors)
+  }, [currentFormData,errors]);
+
+const handleAvailability=async()=>{
+   const routename = (watch('routeName') || "").trim();
+  console.log(routename,"   ",routename.length);
+  
+  // Validate the length of the route name
+  if (routename.length < 3 || routename.length>30) {  
+    return;
+  }
+
+ try {
+    // Send a POST request to the server with the route name
+    const response = await axios.post('/api/check-availability', {
+      routeName: routename
+    });
+    console.log(response.data.available)
+    // Handle the response, assuming the API sends a success or error message
+    if (response.data.available) {
+      await setIsDisabled(false);
+      console.log('Route is available');
+      setError('routeName', {
+        type: "custom",
+        message: "Route name is available"
+      });
+    } else if(response.data.available==false) {
+      // Example: Route is not available
+      setError('routeName', {
+        type: "custom",
+        message: "Route name is already taken"
+      });
+    }else{
+      setError('routeName', {
+        type: "custom",
+        message: "Something happend wrong !!"
+      });
+    }
+  } catch (error) {
+    // Handle any network or server errors
+    setError('routeName', {
+      type: "custom",
+      message: "An error occurred while checking availability"
+    });
+    console.error(error);
+  }  
+};
+const handleChange=()=>{
+
+  setIsDisabled(true);
 
 }
+  // Submit handler
+  const submit: SubmitHandler<FormData> =  (values: FormData) => {
+       if (session){
+        console.log(session.user)
+       }
+    console.log('submitting :',values)
+  };
+
+  const nextStep = () =>{ setStep(step + 1)};
+  const prevStep = () => setStep(step - 1);
+
   return (
-   
+    <>
+      <h1 className="text-xl md:text-3xl csw font-bold mb-1 pt-2 text-center dark:text-whites">
+        Create Your Portfolio
+      </h1>
+       <FormNavigation setStep={setStep} step={step}/>
+    <div className="csw mx-auto p-4  dark:bg-gray-800 bg-theme-light text-gray-900 dark:text-gray-100 min-h-screen">
+      <form className="max-w-3xl mx-auto" onSubmit={handleSubmit(submit)}>
+        {step === 1 && (
+          <div className="portfolio">
+         
+            <input
+              {...register("personalInfo.fullName")}
+              placeholder="Full Name"
+              
+            />
+            {errors.personalInfo?.fullName && (
+              <span>{errors.personalInfo.fullName.message}</span>
+            )}
+            <input
+              {...register("personalInfo.profilePicture")}
+              placeholder="Profile Picture URL"
+              
+            />
+            <input
+              {...register("personalInfo.title")}
+              placeholder="Professional Title"
+             
+            />
+            {errors.personalInfo?.title && (
+              <span>{errors.personalInfo.title.message}</span>
+            )}
+            <input
+              {...register("personalInfo.location")}
+              placeholder="Location"
+            
+            />
+            <input {...register("personalInfo.email")} placeholder="Email" id="email" />
+            {errors.personalInfo?.email && (
+              <span>{errors.personalInfo.email.message}</span>
+            )}
+            <input {...register("personalInfo.phone")} placeholder="Phone" />
+            <input
+              {...register("personalInfo.socialLinks.linkedIn")}
+              placeholder="LinkedIn URL"
+             
+            />
+            <input
+              {...register("personalInfo.socialLinks.github",{required:false})}
+              placeholder="GitHub URL"
+             
+            />
+            <input
+              {...register("personalInfo.socialLinks.twitter")}
+              placeholder="Twitter URL"
+             
+            />
+         
+            <button type="button" onClick={nextStep} className="bg-theme p-3 rounded-lg">
+              Next
+            </button>
+          </div>
+        )}
 
-    <div className="max-w-2xl mx-auto p-4 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
-      <h1 className="text-3xl font-bold mb-6 text-center">Create Your Portfolio</h1>
-      <form onSubmit={handleSubmit(submit)} className="space-y-6">
-        <div>
-          <label htmlFor="fullName" className="block text-sm font-medium">
-            Full Name
-          </label>
-          <input
-            type="text"
-            id="fullName"
-            {...register('fullName')}
-            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 bg-white dark:bg-gray-700"
+        {step === 2 && (
+          <div className="portfolio">
+        
+            <textarea {...register("summary.aboutMe")} placeholder="About Me"  />
+             {errors.summary?.aboutMe &&
+             <span>{errors.summary.aboutMe.message}</span>
+             }
+            <div className="buttons">
+              <button type="button" onClick={prevStep} className="nav">
+                Previous
+              </button>
+              <button type="button" onClick={nextStep} className="nav">
+                Next
+              </button>
+            </div>
+          </div>
+        )}
+
+        {step === 3 && (
+          <Skills control={control}
+            register={register}
+            errors={errors}
+            prevStep={prevStep}
+            nextStep={nextStep}
+            watch={watch}
+            setValue={setValue}
+            setError={setError}
+            clearErrors={clearErrors}
           />
-          {errors.fullName && (
-            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.fullName.message}</p>
-          )}
-        </div>
+        )}
 
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium">
-            Email
-          </label>
-          <input
-            type="email"
-            id="email"
-            {...register('email')}
-            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 bg-white dark:bg-gray-700"
+        {/* {step === 4 && (
+          <Experience control={control}
+            register={register}
+            errors={errors}
+            prevStep={prevStep}
+            nextStep={nextStep}
+            watch={watch}
           />
-          {errors.email && (
-            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.email.message}</p>
-          )}
-        </div>
+        )}
 
-        <div>
-          <label htmlFor="profession" className="block text-sm font-medium">
-            Profession
-          </label>
-          <input
-            type="text"
-            id="profession"
-            {...register('profession')}
-            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 bg-white dark:bg-gray-700"
+        {step === 5 && (
+          <Education control={control}
+            register={register}
+            errors={errors}
+            prevStep={prevStep}
+            nextStep={nextStep}
           />
-          {errors.profession && (
-            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.profession.message}</p>
-          )}
-        </div>
-
-        <div>
-          <label htmlFor="bio" className="block text-sm font-medium">
-            Bio
-          </label>
-          <textarea
-            id="bio"
-            {...register('bio')}
-            rows={4}
-            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 bg-white dark:bg-gray-700"
-          ></textarea>
-          {errors.bio && (
-            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.bio.message}</p>
-          )}
-        </div>
-
-        <div>
-          <label htmlFor="phoneNumber" className="block text-sm font-medium">
-            Phone Number (optional)
-          </label>
-          <input
-            type="tel"
-            id="phoneNumber"
-            {...register('phoneNumber')}
-            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 bg-white dark:bg-gray-700"
+        )}
+        {step === 6 && (
+          <Projects control={control}
+            register={register}
+            errors={errors}
+            prevStep={prevStep}
+            nextStep={nextStep}
+            watch={watch}
+            setValue={setValue}
+            setError={setError}
+            clearErrors={clearErrors}
           />
-          {errors.phoneNumber && (
-            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.phoneNumber.message}</p>
-          )}
-        </div>
-
-        <div>
-          <label htmlFor="website" className="block text-sm font-medium">
-            Website URL (optional)
-          </label>
-          <input
-            type="url"
-            id="website"
-            {...register('website')}
-            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 bg-white dark:bg-gray-700"
+        )}
+        {step === 7 && (
+          <Certifications control={control}
+            register={register}
+            errors={errors}
+            prevStep={prevStep}
+            nextStep={nextStep}
           />
-          {errors.website && (
-            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.website.message}</p>
-          )}
-        </div>
-
-        <div>
-          <label htmlFor="linkedin" className="block text-sm font-medium">
-            LinkedIn Profile (optional)
-          </label>
-          <input
-            type="url"
-            id="linkedin"
-            {...register('linkedin')}
-            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 bg-white dark:bg-gray-700"
+        )}
+        {step === 8 && (
+          <Publications control={control}
+            register={register}
+            errors={errors}
+            prevStep={prevStep}
+            nextStep={nextStep}
           />
-          {errors.linkedin && (
-            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.linkedin.message}</p>
-          )}
-        </div>
+        )} */}
+        {/* resume */}
+        {step === 4 && (
+          <div className="portfolio">
+         
+            <input
+              {...register("resume.fileUrl")}
+              placeholder="Resume URL (public google drive link)"
+            />
+            {errors.resume?.fileUrl && (
+              <span>{errors.resume.fileUrl.message}</span>
+            )}
+           <div className="buttons">
+              <button type="button" onClick={prevStep} className="nav">
+                Previous
+              </button>
+              <button type="button" onClick={nextStep} className="nav">
+                Next
+              </button>
+            </div>
+          </div>
+        )}
+        {/* route */}
+        {step === 5 &&( 
+        <div className="portfolio">
+           <h2>Choose your route name</h2>
+           <div className="flex w-full justify-between ">
+           <div className="w-[60%]" >
 
-        <div>
-          <label htmlFor="github" className="block text-sm font-medium">
-            GitHub Profile (optional)
-          </label>
-          <input
-            type="url"
-            id="github"
-            {...register('github')}
-            className="mt-1 block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 bg-white dark:bg-gray-700"
-          />
-          {errors.github && (
-            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.github.message}</p>
-          )}
-        </div>
-
-        <div>
-          <label htmlFor="profilePicture" className="block text-sm font-medium">
-            Profile Picture (optional)
-          </label>
-          <input
-            type="file"
-            id="profilePicture"
-            accept="image/*"
-            {...register('profilePicture')}
-            className="mt-1 block w-full text-sm text-gray-500 dark:text-gray-400
-              file:mr-4 file:py-2 file:px-4
-              file:rounded-full file:border-0
-              file:text-sm file:font-semibold
-              file:bg-indigo-50 file:text-indigo-700
-              dark:file:bg-indigo-900 dark:file:text-indigo-300
-              hover:file:bg-indigo-100 dark:hover:file:bg-indigo-800"
-          />
-          {errors.profilePicture && (
-            <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.profilePicture.message}</p>
-          )}
-        </div>
-
-        <div>
-          <button
-            type="submit"
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-600 dark:focus:ring-offset-gray-800"
-          >
-            Create Portfolio
-          </button>
-        </div>
+        <input {...register('routeName')}  placeholder="dossier.com/..."  className="w-full"
+        onChange={handleChange}/>
+        {errors.routeName && (
+          <span>{errors.routeName.message}</span>
+        )}
+           </div>
+        <button className="w-[30%] h-fit p-2 bg-yellows rounded-lg" onClick={handleAvailability}>Check availability</button>
+           </div>
+        
+            <div className="buttons">
+              <button type="button" onClick={prevStep} className="nav">
+                Previous
+              </button>
+              <button type="submit"  disabled={isDisabled} className={`${isDisabled?'bg-grays':'bg-greens'} p-3 rounded-lg`}>
+                Done
+              </button>
+            </div>
+        </div>)
+        }
       </form>
     </div>
-  )
+    </>
+  );
 }

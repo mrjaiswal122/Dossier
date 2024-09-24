@@ -108,7 +108,7 @@ useEffect(() => {
 
   return (
     <>
-      <nav className="w-full h-16 dark:text-white dark:bg-black bg-theme-light shadow-2xl flex justify-between items-center relative backdrop-blur-lg">
+      <nav className="w-full h-16 dark:text-white shadow-2xl flex justify-between items-center relative backdrop-blur-lg">
         <div className="flex justify-between items-center csw">
           {/* left */}
           <div className="flex justify-between items-center gap-3">

@@ -10,7 +10,7 @@ const config: Config = {
   theme: {
     extend: { 
       animation: {
-      timedMsg: 'timedMsg 2.5s ease-in-out 1',
+      timedMsg: 'timedMsg 4s ease-in-out 1',
     },
     keyframes: {
       timedMsg: {

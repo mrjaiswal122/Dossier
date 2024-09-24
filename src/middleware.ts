@@ -30,8 +30,14 @@ export async function middleware(request: NextRequest) {
     }
   }else if(pathname==='/create-portfolio'){
     if(token||nextToken){
-
+      console.log('letting gooo!!!!!');
+      
+         return NextResponse.next();
     }
+    console.log('redirect to home');
+    
+    // return NextResponse.redirect(new URL(process.env.HOME_URL!+'/auth'));
+        return NextResponse.redirect(new URL('/auth', request.url).toString());
 
   }
 
@@ -39,5 +45,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/auth', '/auth/signup', '/api/auth/signin']
+  matcher: ['/auth', '/auth/signup', '/api/auth/signin','/create-portfolio']
 };

@@ -11,9 +11,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ msg: 'Email is required' }, { status: 400 });
   }
 
-  await dbConnect();
-
+  
   try {
+    await dbConnect();
     // Find a user by email
     const user: User | null = await userModel.findOne({ email });
 

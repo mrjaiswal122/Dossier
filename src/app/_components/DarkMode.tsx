@@ -13,13 +13,13 @@ export default function DarkMode({children}:{children: ReactNode}) {
   
   return (
 <section className={darkMode==true?'dark':''}>
+   <SessionProvider>
+   <div className="dark:bg-black bg-theme-light">
 <nav className="fixed w-full  z-20 ">
 <Navbar/>
 
   </nav> 
   <div className="w-full h-16"></div>
-   <SessionProvider>
-   <div className="dark:bg-black bg-theme-light">
 
     {children}
    </div>

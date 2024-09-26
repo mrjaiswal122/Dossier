@@ -12,6 +12,7 @@ export async function POST(request: Request) {
   
   try {
       await dbConnect();
+      //this is for if user is logedin using google
     if (type === 1) {
       const user = await userModel.findOne({ email });
       if (!user) {
@@ -23,10 +24,15 @@ export async function POST(request: Request) {
         user: user._id,
       });
 
-      await portfolio.save();
+      const created= await portfolio.save();
+      console.log('portfolo:',created)
+      //updating the user 
+      await userModel.findOneAndUpdate({email},{$set:{username:data.routeName,portfolios:created._id}})
+
       console.log('Portfolio created for type 1');
       return NextResponse.json({ message: 'Portfolio Created' }, { status: 200 });
-    } else if (type === 2) {
+    }//this is of user is loged in using credentials
+    else if (type === 2) {
       const token = cookies().get('access-token')?.value;
 
       if (!token) {
@@ -45,7 +51,10 @@ export async function POST(request: Request) {
         user: userId,
       });
 
-      await portfolio.save();
+      const created=await portfolio.save();
+      //updating the user
+      await userModel.findOneAndUpdate({_id:userId},{$set:{username:data.routeName,portfolios:created._id}})
+
       console.log('Portfolio created for type 2');
       return NextResponse.json({ message: 'Portfolio Created' }, { status: 200 });
     } else {

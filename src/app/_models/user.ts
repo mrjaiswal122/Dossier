@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import portfolioModel from "./portfolio";
 export type User = {
   _id: mongoose.Types.ObjectId;  // Required for MongoDB documents
   name: string;
@@ -22,9 +23,9 @@ export type User = {
     imageUrl: { type: String, default: '/user.webp' },  // Default image URL
     salt: { type: String },  // Optional field used in password hashing
     role: { type: String, enum: ['admin', 'user'], default: 'user' },  // Role with default 'user'
-    portfolios: { type: mongoose.Types.ObjectId, ref: 'Portfolio' },  // Portfolio references
+    portfolios: {type:mongoose.Types.ObjectId,ref:'portfolioModel'}, // Portfolio references
   }, { timestamps: true });
 
-const userModel = mongoose.models.User || mongoose.model('User', userSchema);
+const userModel = mongoose.models.User || mongoose.model<User>('User', userSchema);
 
 export default userModel;

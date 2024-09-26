@@ -29,7 +29,9 @@ export async function middleware(request: NextRequest) {
       return NextResponse.next();
     }
   }else if(pathname==='/create-portfolio'){
-    if(token||nextToken){
+    if(token||nextToken)
+      {
+       
       console.log('letting gooo!!!!!');
       
          return NextResponse.next();

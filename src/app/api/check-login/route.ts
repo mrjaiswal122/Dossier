@@ -5,6 +5,7 @@ import { NextResponse, NextRequest } from "next/server";
 import { verify, decode, TokenExpiredError } from "jsonwebtoken";
 import dbConnect from "@/app/_lib/database";
 import userModel from "@/app/_models/user";
+import { json } from "stream/consumers";
 
 export async function GET(request: NextRequest) {
   const token = cookies().get("access-token")?.value;
@@ -63,17 +64,19 @@ export async function GET(request: NextRequest) {
           console.log("User not found with token ID");
           return NextResponse.json({ msg: "Show Login" }, { status: 200 });
         }
-
+       console.log('sending user .......');
+       const obj = {
+        name: user.name,
+        email: user.email,
+        imageUrl: user.imageUrl,
+        role: user.role,
+        username:user.username,
+      }
+      console.log(JSON.stringify(obj));
         return NextResponse.json(
           {
             msg: "Show User",
-            data: {
-              name: user.name,
-              email: user.email,
-              imageUrl: user.imageUrl,
-              role: user.role,
-              username:user.username,
-            },
+            data:obj,
           },
           { status: 200 }
         );

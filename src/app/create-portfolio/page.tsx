@@ -13,6 +13,7 @@ import Skills from "../_components/form/Skills";
 import FormNavigation from "../_components/form/FormNavigation";
 import axios from "axios";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 const personalInfoSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),
@@ -178,9 +179,9 @@ export default function Page() {
   const [isDisabled, setIsDisabled] = useState(true);
   const [isAvailable,setIsAvailable]=useState(false);
   const [showError, setShowError] = useState(false);
-  const [formData, setFormData] = useState<FormData>();
   const [step, setStep] = useState(1);
   const { data: session } = useSession();
+  const router=useRouter();
   const {
     register,
     handleSubmit,
@@ -217,7 +218,43 @@ export default function Page() {
       },
     },
   });
+   
+  useEffect(()=>{
+   const check= async()=>{
+    try{
+      if(session){
+        console.log('session is there');
+        
+        const response= await axios.get(`/existing-portfolio?email=${session.user?.email}`);
+        if(response.data.msg=='new user'){
+         return;
+        }else{
+          router.push('/')
+        }
+      }else{
+                console.log('token is there');
 
+        const response=await axios.get('/api/check-login');
+        console.log(response);
+        console.log('trying:', response.data);
+        
+        if( response.data?.data?.username === ''){
+          console.log('i was here');
+          
+          return;
+        }else{     
+          router.push('/')
+
+        }
+      }
+    }catch(error){
+      console.log('i am in the catch',error)
+    }
+  }
+  check();
+},[])
+  
+    
   const handleAvailability = async () => {
     const routename = (watch("routeName") || "").trim();
     console.log(routename, "   ", routename.length);

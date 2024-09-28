@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import { Types } from 'mongoose';
 
 // TypeScript interface for the Portfolio schema
-export type Portfolio= {
+export type IPortfolio= {
   user: Types.ObjectId; // Reference to the user
   personalInfo: {
     fullName: string;
@@ -207,6 +207,6 @@ const portfolioSchema=new mongoose.Schema({
 
 
 
-const portfolioModel=mongoose.models.Portfolio||mongoose.model<Portfolio>('Portfolio',portfolioSchema);
+const portfolioModel=mongoose.models.Portfolio||mongoose.model<IPortfolio>('Portfolio',portfolioSchema);
 
 export default portfolioModel;

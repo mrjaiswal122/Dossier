@@ -88,6 +88,7 @@ export type Portfolio = {
     fileUrl?: string;
   };
   routeName: string;
+  isOwner:boolean;
   createdAt?: Date;
   updatedAt?: Date;
 };
@@ -102,6 +103,7 @@ const initialState: Portfolio = {
   },
   languages: [],
   routeName: '',
+  isOwner:false
 };
 
 // Create a slice
@@ -116,34 +118,14 @@ const portfolioSlice = createSlice({
         ...action.payload,
       };
     },
-    // Update personal information
-    updatePersonalInfo: (state, action: PayloadAction<Partial<Portfolio['personalInfo']>>) => {
-      state.personalInfo = {
-        ...state.personalInfo,
-        ...action.payload,
-      };
-    },
-    // Add a new skill
-    addSkill: (state, action: PayloadAction<Portfolio['skills'][number]>) => {
-      if (!state.skills) state.skills = [];
-      state.skills.push(action.payload);
-    },
-    // Add a new experience
-    addExperience: (state, action: PayloadAction<Portfolio['experience'][number]>) => {
-      if (!state.experience) state.experience = [];
-      state.experience.push(action.payload);
-    },
-    // Update a specific experience by index
- updateExperience: (state, action: PayloadAction<{ index: number; experience: Partial<Portfolio['experience'][number]> }>) => {
-  // Ensure the experience array exists and is an array
-  if (Array.isArray(state.experience) && state.experience[action.payload.index]) {
-    // Update the specific experience by index
-    state.experience[action.payload.index] = {
-      ...state.experience[action.payload.index],
-      ...action.payload.experience,
-    };
-  }
-}
+    
+     updateIsOwner:(state,action:PayloadAction<Partial<Portfolio['isOwner']>>)=>{
+      
+       state.isOwner = action.payload;
+    
+     },
+    
+   
 
     // Add other reducers similarly...
   },
@@ -152,10 +134,7 @@ const portfolioSlice = createSlice({
 // Export actions
 export const {
   updatePortfolio,
-  updatePersonalInfo,
-  addSkill,
-  addExperience,
-  updateExperience,
+ updateIsOwner
 } = portfolioSlice.actions;
 
 // Export the reducer

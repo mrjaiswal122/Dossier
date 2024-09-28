@@ -18,7 +18,7 @@ export async function GET(req: NextRequest) {
     const user: User | null = await userModel.findOne({ email });
 
     if (user?.username === '') {
-      return NextResponse.json({ msg: 'new user' }, { status: 200 });
+      return NextResponse.json({ msg:'new user'}, { status: 200 });
     }
 
     return NextResponse.json({ msg: 'existing user', username: user?.username }, { status: 200 });

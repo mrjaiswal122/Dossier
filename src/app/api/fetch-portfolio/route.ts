@@ -14,7 +14,7 @@ if(!pathname)return NextResponse.json({msg:'Pathname is required'},{status:401})
 
     try{
        await dbConnect();
-       const result= await portfolioModel.findOne({routeName:pathname.trim().substring(1)}).lean();
+       const result= await portfolioModel.findOne({routeName:pathname}).lean();
        return NextResponse.json(result,{status:200});   
     }catch(error){
      console.log('Error at api/fetch-portfolio :',error);

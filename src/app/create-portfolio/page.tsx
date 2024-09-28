@@ -14,6 +14,7 @@ import FormNavigation from "../_components/form/FormNavigation";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { log } from "console";
 
 const personalInfoSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),
@@ -222,13 +223,17 @@ export default function Page() {
   useEffect(()=>{
    const check= async()=>{
     try{
-      if(session){
+      if(session?.user){
         console.log('session is there');
         
-        const response= await axios.get(`/existing-portfolio?email=${session.user?.email}`);
+        const response= await axios.get('/api/existing-portfolio',{params:{email:session.user.email}});
+        console.log(response);
+        
         if(response.data.msg=='new user'){
          return;
         }else{
+          console.log(' i am in the else block');
+          
           router.push('/')
         }
       }else{

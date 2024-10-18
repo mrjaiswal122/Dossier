@@ -1,0 +1,109 @@
+import React, { Dispatch, SetStateAction, useState } from 'react'
+import { TiDeleteOutline } from 'react-icons/ti'
+import Image from "next/image";
+import { useAppDispatch, useAppSelector } from '@/app/_store/hooks';
+import { MdDelete } from 'react-icons/md';
+import { uploadImageAsync,deleteImageAsync } from '@/app/_features/portfolio/portfolioSlice';
+import { IoCloudUploadOutline } from 'react-icons/io5';
+
+
+type props={
+    setUploadingImage:Dispatch<SetStateAction<boolean>>
+}
+
+
+function UploadImage({setUploadingImage}:props) {
+    const portfolio=useAppSelector(state=>state.portfolioSlice)
+    const dispatch = useAppDispatch();
+    const [image,setImage]=useState<File>()
+    const handleClick=(e:React.MouseEvent<HTMLElement, MouseEvent>)=>{
+        const section=e.target as HTMLBodyElement
+        if(section.id=='uploadImage')setUploadingImage(false);
+        else return;
+     
+    }
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]; 
+        if (file) {
+            setImage(file);
+        };
+    };
+    const handleUpload=async()=>{
+        if(image){
+            const uniqueKey = `${portfolio.routeName}/${Date.now()}_${image.name}`;
+            await dispatch(uploadImageAsync({portfolioId:portfolio._id.toString(),image,key:uniqueKey}));
+            await setUploadingImage(false);
+        
+        };
+    };
+    const handleDelete=async()=>{
+        if(portfolio.personalInfo.profilePicture)
+        await dispatch(deleteImageAsync(portfolio.personalInfo.profilePicture));
+        await setUploadingImage(false);
+         
+    };
+  return (
+    <section className='fixed w-full h-full top-0 left-0  bg-transparent' onClick={handleClick} id='uploadImage'>
+
+        <section className='fixed top-[50%] left-[50%] w-[50vw] h-[60vh] border  translate-x-[-50%] translate-y-[-50%] bg-theme-dark dark:bg-black rounded-lg flex flex-col justify-between '>
+            <div className='flex justify-between items-center ml-3 text-lg md:text-2xl cursor-pointer dark:text-theme'>
+             Profile Picture
+             <span  onClick={()=>setUploadingImage(false)}>
+
+            <TiDeleteOutline className=' scale-150 dark:text-white m-5'/>
+             </span>
+            </div>
+            <div className='flex justify-center items-center  '>
+                  <div className=" w-[150px] h-[150px] md:w-[175px] md:h-[175px] lg:w-[225px] lg:h-[225px] rounded-full overflow-hidden">
+
+                <Image
+           alt="User Image"
+           src={`${portfolio.personalInfo.profilePicture?portfolio.personalInfo.profilePicture:'/profile1.webp'}`}
+           width={300}
+           height={300}
+           className="object-fill"
+           >
+                
+            </Image>
+               </div>
+            </div>
+            <div className='mb-1 mx-3 text-sm' >
+    
+            {/* delete button */}
+                <button className='bg-reds flex justify-center items-center gap-2 p-2 rounded-lg float-left ' onClick={handleDelete}>
+                    <MdDelete className='scale-125' /> Delete
+                </button>
+            {/* add new button */}
+                <div className='float-right flex gap-3 items-center'>
+                     <span className='dark:text-white text-xs'> 
+                        {
+                            image&& (image.name)
+                        }
+                        </span>
+                        {image?
+                        <button onClick={handleUpload} className='bg-greens flex justify-center items-center gap-2 p-2 rounded-lg  cursor-pointer'>
+                            <IoCloudUploadOutline/> Upload
+                        </button>:
+
+                            <label className='bg-greens flex justify-center items-center gap-2 p-2 rounded-lg  cursor-pointer'>
+                        <span className='scale-125 flex items-center justify-center'>
+                           +
+                        </span>
+                       Add new
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleFileChange}
+                            className="hidden" // Hides the actual file input
+                            />
+                    </label>
+                        }
+                </div>
+            </div>
+        </section> 
+         
+    </section> 
+  )
+}
+
+export default UploadImage

@@ -13,13 +13,18 @@ const pathname=searchParams.get('pathname')
 console.log(pathname);
 
 const session=await getServerSession(authOptions);
+
 const token= cookies().get('access-token')?.value;
+console.log(session,token);
 if(!pathname){
+    console.log('1st');
+    
     return NextResponse.json({msg:'No pathname found in request Url'},{status:404})
 }
 if(!session && !token){
+    console.log('2nd');
 
-    return NextResponse.json({isOwner:false},{status:404})
+    return NextResponse.json({isOwner:false},{status:200})
 }
 try{
 await dbConnect();

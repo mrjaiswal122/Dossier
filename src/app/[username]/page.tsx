@@ -10,23 +10,25 @@ import LoadingScreen from "../_components/Loader";
 
 export default function Portfolio() {
   const [isLoading, setIsLoading] = useState(true);
-  const [isOwner,setIsOwner]=useState(false);
+
   const dispatch = useAppDispatch();
   const portfolio = useAppSelector((state) => state.portfolioSlice);
 
   const pathname = usePathname().trim().substring(1);
-  const checkingOwner=async ()=>{
-      const response= await axios.get(`/api/isOwner?pathname=${pathname}`);
 
-      if(response.data.isOwner==true){
-        dispatch(updateIsOwner(true))
-        console.log('it the owner');
-        
-      } else{
-        dispatch(updateIsOwner(false))
-      }
-  }
   useEffect(() => {
+    const checkingOwner=async ()=>{
+        const response= await axios.get(`/api/isOwner?pathname=${pathname}`);
+        // const signedUrl=await getSignedURL()
+        // console.log(signedUrl);
+        
+        if(response.data.isOwner==true){
+          dispatch(updateIsOwner(true))
+          
+        } else{
+          dispatch(updateIsOwner(false))
+        }
+    }
     const fetch = async () => {
       const response = await axios.get(
         `/api/fetch-portfolio?pathname=${pathname}`
@@ -37,7 +39,7 @@ export default function Portfolio() {
     };
     fetch();
     checkingOwner();
-  }, []);
+  }, [dispatch,pathname]);
  
   
 

@@ -1,13 +1,19 @@
 'use client';
 import { useAppSelector } from "@/app/_store/hooks";
 import Image from "next/image";
+import { useState } from "react";
 import { FaLinkedin, FaSquareGithub, FaSquareXTwitter } from "react-icons/fa6";
-import { MdOutlineMailOutline } from "react-icons/md";
+import { MdModeEditOutline, MdOutlineMailOutline } from "react-icons/md";
+import UploadImage from "./UploadImage";
 export default function Hero() {
     const portfolio = useAppSelector((state) => state.portfolioSlice);
+    const [uploadingImage,setUploadingImage]=useState(false);
+    const handleUploadImageForm=()=>{
+      setUploadingImage(!uploadingImage);
+    }
   return (
   
-<section id="hero" >
+<section id="hero" className="relativev  ">
     {/* for the pc view */}
     <section className=" csw mt-4 flex flex-col-reverse md:flex-row dark:text-whites">
   
@@ -39,18 +45,25 @@ export default function Hero() {
 
 
             </aside>
-        <aside className="md:w-[50%]  h-96  lg:h-[32rem] overflow-hidden flex justify-center items-center">
-          <div className="w-[300px] h-[300px] md:w-[350px] md:h-[350px] lg:w-[450px] lg:h-[450px] rounded-full overflow-hidden">
+        <aside className="relative md:w-[50%]  h-96  lg:h-[32rem] overflow-hidden flex justify-center items-center">
+          <div className=" w-[300px] h-[300px] md:w-[350px] md:h-[350px] lg:w-[450px] lg:h-[450px] rounded-full overflow-hidden">
 
            <Image
            alt="User Image"
-           src={`/sq.jpg`}
+           src={`${portfolio.personalInfo.profilePicture?portfolio.personalInfo.profilePicture:'/profile1.webp'}`}
            width={600}
            height={600}
            className="object-fill"
            >
             
            </Image>
+           {portfolio.isOwner &&
+
+             <span className={`${portfolio.isOwner?'':'hidden'}absolute top-[12%] right-[22%] border rounded-full scale-150`}
+             onClick={handleUploadImageForm} >
+            <MdModeEditOutline className="m-2" />
+              </span>
+          }
           </div>
             </aside>
     </section>
@@ -61,6 +74,9 @@ export default function Hero() {
     <section className="">
    
     </section>
+    {uploadingImage && 
+     <UploadImage setUploadingImage={setUploadingImage}/>
+    }
 </section>
   )
 }

@@ -52,7 +52,7 @@ export type IPortfolio= {
     technologies?: string[];
     projectUrl?: string;
     githubUrl?: string;
-    images?: string[];
+    images?: string;
   }>;
   certifications?: Array<{
     title: string;
@@ -149,7 +149,7 @@ const portfolioSchema=new mongoose.Schema({
         technologies: { type: [String] },  // Array of technologies used
         projectUrl: { type: String },  // URL to live project
         githubUrl: { type: String },  // GitHub repository link
-        images: [{ type: String }],  // Array of URLs to screenshots/images
+        images: { type: String },  // Array of URLs to screenshots/images
       },
     ],
     certifications: [

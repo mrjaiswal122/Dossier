@@ -13,7 +13,7 @@ export default function Hero() {
     }
   return (
   
-<section id="hero" className="relativev  ">
+<section id="hero" className="relative ">
     {/* for the pc view */}
     <section className=" csw mt-4 flex flex-col-reverse md:flex-row dark:text-whites">
   
@@ -46,7 +46,7 @@ export default function Hero() {
 
             </aside>
         <aside className="relative md:w-[50%]  h-96  lg:h-[32rem] overflow-hidden flex justify-center items-center">
-          <div className=" w-[300px] h-[300px] md:w-[350px] md:h-[350px] lg:w-[450px] lg:h-[450px] rounded-full overflow-hidden">
+          <div className=" w-[300px] h-[300px] md:w-[350px] md:h-[350px] lg:w-[450px] lg:h-[450px] rounded-full overflow-hidden ">
 
            <Image
            alt="User Image"
@@ -54,14 +54,16 @@ export default function Hero() {
            width={600}
            height={600}
            className="object-fill"
+           priority={true}
+          
            >
             
            </Image>
            {portfolio.isOwner &&
 
-             <span className={`${portfolio.isOwner?'':'hidden'}absolute top-[12%] right-[22%] border rounded-full scale-150`}
+             <span className={`${portfolio.isOwner?'':'hidden'}absolute top-[12%] right-[22%] border border-black rounded-full scale-150 bg-gray-600 shadow-2xl`}
              onClick={handleUploadImageForm} >
-            <MdModeEditOutline className="m-2" />
+            <MdModeEditOutline className="m-2 text-black bg-gray-600" />
               </span>
           }
           </div>

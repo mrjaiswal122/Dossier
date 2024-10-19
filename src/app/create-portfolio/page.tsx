@@ -257,7 +257,7 @@ export default function Page() {
     }
   }
   check();
-},[])
+},[router,session])
   
     
   const handleAvailability = async () => {

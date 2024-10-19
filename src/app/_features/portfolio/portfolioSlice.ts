@@ -132,7 +132,17 @@ const initialState: Portfolio = {
 const uploadImageAsync=createAppAsyncThunk<string,UploadImageArgs>('portfolio/uploadImageAsync',async({ portfolioId, image,key,oldUrl }: UploadImageArgs)=>{
  try {
       //uploading to aws
-     const signedUrl=await getSignedURL(key,oldUrl);
+      if(!image)return '';
+      const computeSHA256=async(image:Blob)=>{
+        const buffer=await image.arrayBuffer();
+        const hashBuffer=await crypto.subtle.digest('SHA-256',buffer);
+        const hashArray=Array.from(new Uint8Array(hashBuffer));
+        const hashHex=hashArray.map((b)=>b.toString(16).padStart(2,'0')).join('');
+        return hashHex;
+       
+      }
+      const checksum= await computeSHA256(image);
+     const signedUrl=await getSignedURL(key,oldUrl,image.type,image.size,checksum,portfolioId);
      await axios.put(signedUrl,image,{
       headers: {
         'Content-Type':image?.type,
@@ -183,6 +193,9 @@ const portfolioSlice = createSlice({
     updateIsOwner:(state,action:PayloadAction<Partial<Portfolio['isOwner']>>)=>{      
        state.isOwner = action.payload;    
      },
+    updateStatus:(state,action:PayloadAction<Partial<Portfolio['status']>>)=>{
+      state.status=action.payload;
+    } 
   },
 
   extraReducers: builder => {
@@ -214,7 +227,7 @@ const portfolioSlice = createSlice({
 });
 
 // Export actions
-export const {updatePortfolio, updateIsOwner,} = portfolioSlice.actions;
+export const {updatePortfolio, updateIsOwner,updateStatus} = portfolioSlice.actions;
 export {uploadImageAsync,deleteImageAsync};
 // Export the reducer
 export default portfolioSlice.reducer;

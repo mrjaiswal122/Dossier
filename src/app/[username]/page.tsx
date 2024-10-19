@@ -1,55 +1,60 @@
 "use client";
 import Hero from "../_components/portfolio/Hero";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import axios from "axios";
-import {  useAppDispatch, useAppSelector } from "@/app/_store/hooks";
-import { updatePortfolio,updateIsOwner } from "@/app/_features/portfolio/portfolioSlice";
+import { useAppDispatch, useAppSelector } from "@/app/_store/hooks";
+import { updatePortfolio, updateIsOwner, PortfolioStatus, updateStatus } from "@/app/_features/portfolio/portfolioSlice";
 import { usePathname } from "next/navigation";
 import LoadingScreen from "../_components/Loader";
-
+import Projects from "../_components/portfolio/Projects";
 
 export default function Portfolio() {
-  const [isLoading, setIsLoading] = useState(true);
-
   const dispatch = useAppDispatch();
   const portfolio = useAppSelector((state) => state.portfolioSlice);
 
   const pathname = usePathname().trim().substring(1);
 
   useEffect(() => {
-    const checkingOwner=async ()=>{
-        const response= await axios.get(`/api/isOwner?pathname=${pathname}`);
-        // const signedUrl=await getSignedURL()
-        // console.log(signedUrl);
-        
-        if(response.data.isOwner==true){
-          dispatch(updateIsOwner(true))
-          
-        } else{
-          dispatch(updateIsOwner(false))
-        }
-    }
-    const fetch = async () => {
-      const response = await axios.get(
-        `/api/fetch-portfolio?pathname=${pathname}`
-      );
-      //   console.log(response.data);
-      dispatch(updatePortfolio(response.data));
-      await setIsLoading(false);
-    };
-    fetch();
-    checkingOwner();
-  }, [dispatch,pathname]);
- 
-  
+    dispatch(updateStatus(PortfolioStatus.Pending));
+    const fetchPortfolioData = async () => {
+      try {
 
-  if (isLoading) {
+        // Fetch both owner and portfolio data in parallel
+        const [ownerResponse, portfolioResponse] = await Promise.all([
+          axios.get(`/api/isOwner?pathname=${pathname}`),
+          axios.get(`/api/fetch-portfolio?pathname=${pathname}`)
+        ]);
+
+        // Check if user is the owner
+        const isOwner = ownerResponse.data.isOwner === true;
+        dispatch(updateIsOwner(isOwner));
+
+        // Update portfolio data
+        dispatch(updatePortfolio(portfolioResponse.data));
+
+        dispatch(updateStatus(PortfolioStatus.Ideal));
+      } catch (error) {
+        console.error("Error fetching portfolio or owner data:", error);
+        dispatch(updateStatus(PortfolioStatus.Failed));
+      }
+    };
+
+    fetchPortfolioData();
+  }, [dispatch, pathname]);
+
+  // Conditional rendering based on portfolio status
+  if (portfolio.status === PortfolioStatus.Pending) {
     return <LoadingScreen />;
   }
+
+  if (portfolio.status === PortfolioStatus.Failed) {
+    return <div className="h-screen w-screen flex justify-center items-center bg-theme-light dark:bg-black text-reds text-2xl font-bold">Error loading portfolio. Please try again later.</div>;
+  }
+
   return (
     <>
-
       <Hero />
+      <Projects />
     </>
   );
 }

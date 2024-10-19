@@ -1,5 +1,6 @@
 import dbConnect from "@/app/_lib/database";
 import portfolioModel from "@/app/_models/portfolio";
+import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
@@ -23,7 +24,7 @@ if (!url) {
       { $set: { 'personalInfo.profilePicture':url } }
     );
     console.log('image uploaded sucessfull :',url);
-    
+    revalidatePath(`/${url.split('.com/')[1]}`,'page')
     // Return a success response
     return NextResponse.json({ msg: 'Image uploaded successfully'}, { status: 200 });
   } catch (error) {

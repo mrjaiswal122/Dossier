@@ -15,7 +15,8 @@ type props={
 function UploadImage({setUploadingImage}:props) {
     const portfolio=useAppSelector(state=>state.portfolioSlice)
     const dispatch = useAppDispatch();
-    const [image,setImage]=useState<File>()
+    const [image,setImage]=useState<File>();
+    const [imageUrl,setImageUrl]=useState(portfolio.personalInfo.profilePicture)
     const handleClick=(e:React.MouseEvent<HTMLElement, MouseEvent>)=>{
         const section=e.target as HTMLBodyElement
         if(section.id=='uploadImage')setUploadingImage(false);
@@ -26,16 +27,17 @@ function UploadImage({setUploadingImage}:props) {
         const file = e.target.files?.[0]; 
         if (file) {
             setImage(file);
+            setImageUrl(URL.createObjectURL(file))
         };
     };
     const handleUpload=async()=>{
         if(image){
-            const uniqueKey = `${portfolio.routeName}/${Date.now()}_${image.name}`;
-            await dispatch(uploadImageAsync({portfolioId:portfolio._id.toString(),image,key:uniqueKey}));
+            const uniqueKey = portfolio.routeName+'_'+(Date.now()+'_'+(image.name));
+            await dispatch(uploadImageAsync({portfolioId:portfolio._id.toString(),image,key:uniqueKey,oldUrl:portfolio.personalInfo.profilePicture}));
             await setUploadingImage(false);
-        
         };
-    };
+       
+     };
     const handleDelete=async()=>{
         if(portfolio.personalInfo.profilePicture)
         await dispatch(deleteImageAsync(portfolio.personalInfo.profilePicture));
@@ -45,7 +47,7 @@ function UploadImage({setUploadingImage}:props) {
   return (
     <section className='fixed w-full h-full top-0 left-0  bg-transparent' onClick={handleClick} id='uploadImage'>
 
-        <section className='fixed top-[50%] left-[50%] w-[50vw] h-[60vh] border  translate-x-[-50%] translate-y-[-50%] bg-theme-dark dark:bg-black rounded-lg flex flex-col justify-between '>
+        <section className='fixed top-[50%] left-[50%] w-[80vw] md:w-[60vw] lg: border  translate-x-[-50%] translate-y-[-50%] bg-theme-dark dark:bg-black rounded-lg flex flex-col justify-between '>
             <div className='flex justify-between items-center ml-3 text-lg md:text-2xl cursor-pointer dark:text-theme'>
              Profile Picture
              <span  onClick={()=>setUploadingImage(false)}>
@@ -53,12 +55,12 @@ function UploadImage({setUploadingImage}:props) {
             <TiDeleteOutline className=' scale-150 dark:text-white m-5'/>
              </span>
             </div>
-            <div className='flex justify-center items-center  '>
-                  <div className=" w-[150px] h-[150px] md:w-[175px] md:h-[175px] lg:w-[225px] lg:h-[225px] rounded-full overflow-hidden">
+            <div className='flex justify-center items-center mx-3 my-6  '>
+                  <div className=" w-[125px] h-[125px] md:w-[175px] md:h-[175px] lg:w-[225px] lg:h-[225px] rounded-full overflow-hidden">
 
                 <Image
            alt="User Image"
-           src={`${portfolio.personalInfo.profilePicture?portfolio.personalInfo.profilePicture:'/profile1.webp'}`}
+           src={`${imageUrl?imageUrl:''}`}
            width={300}
            height={300}
            className="object-fill"
@@ -67,7 +69,7 @@ function UploadImage({setUploadingImage}:props) {
             </Image>
                </div>
             </div>
-            <div className='mb-1 mx-3 text-sm' >
+            <div className='mb-5 mx-3 text-sm' >
     
             {/* delete button */}
                 <button className='bg-reds flex justify-center items-center gap-2 p-2 rounded-lg float-left ' onClick={handleDelete}>

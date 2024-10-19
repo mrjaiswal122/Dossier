@@ -108,7 +108,8 @@ export type Portfolio = {
 interface UploadImageArgs {
   portfolioId:string;
   image: Blob | undefined; // Base64-encoded image string
-  key:string
+  key:string;
+  oldUrl:string |undefined;
 }
 
 // Initial state
@@ -128,15 +129,17 @@ const initialState: Portfolio = {
 };
 
 //async thunk 
-const uploadImageAsync=createAppAsyncThunk<string,UploadImageArgs>('portfolio/uploadImageAsync',async({ portfolioId, image,key }: UploadImageArgs)=>{
+const uploadImageAsync=createAppAsyncThunk<string,UploadImageArgs>('portfolio/uploadImageAsync',async({ portfolioId, image,key,oldUrl }: UploadImageArgs)=>{
  try {
       //uploading to aws
-     const signedUrl=await getSignedURL(key);
+     const signedUrl=await getSignedURL(key,oldUrl);
      await axios.put(signedUrl,image,{
       headers: {
         'Content-Type':image?.type,
       },
     }); 
+
+    
   
       // Prepare the form data to update the imageUrl in the DB
     const formData = new FormData();

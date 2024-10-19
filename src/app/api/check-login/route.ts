@@ -5,7 +5,6 @@ import { NextResponse, NextRequest } from "next/server";
 import { verify, decode, TokenExpiredError } from "jsonwebtoken";
 import dbConnect from "@/app/_lib/database";
 import userModel from "@/app/_models/user";
-import { json } from "stream/consumers";
 
 export async function GET(request: NextRequest) {
   const token = cookies().get("access-token")?.value;

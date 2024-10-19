@@ -4,6 +4,8 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import dbConnect from "./database";
 import portfolioModel from "../_models/portfolio";
 
+
+//creating the s3 client
 const  s3=new S3Client({
     region:process.env.AWS_REGION,
     credentials:{
@@ -11,8 +13,11 @@ const  s3=new S3Client({
         secretAccessKey:process.env.AWS_SECRET_ACCESS_KEY!
     }
 })
-export async function getSignedURL(Key:string){
-
+//to get the signed url after deleting the previous image if any
+export async function getSignedURL(Key:string,oldUrl:string|undefined){
+if(oldUrl){
+   await deleteImage(oldUrl);
+}
 const putObjectCommand=new PutObjectCommand({
    Bucket:process.env.S3_BUCKET_NAME!,
    Key,
@@ -20,11 +25,12 @@ const putObjectCommand=new PutObjectCommand({
 const signedUrl=await getSignedUrl(s3,putObjectCommand,{
 expiresIn:60,
 })
+
 return `${signedUrl}`;
 }
 
 
-
+//to delete the image provided the unique name or key 
 export async function deleteImage(url:string){
 
 const deleteObjectCommand = new DeleteObjectCommand({

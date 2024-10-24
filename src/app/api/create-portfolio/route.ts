@@ -33,7 +33,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: 'Portfolio Created' }, { status: 200 });
     }//this is of user is loged in using credentials
     else if (type === 2) {
-      const token = cookies().get('access-token')?.value;
+      const Gettoken =await cookies()
+  const token=Gettoken.get("access-token")?.value;
 
       if (!token) {
         return NextResponse.json({ message: 'Access token not found' }, { status: 401 });

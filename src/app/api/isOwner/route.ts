@@ -1,7 +1,8 @@
 import dbConnect from "@/app/_lib/database";
 import userModel from "@/app/_models/user";
 import { NextRequest,NextResponse } from "next/server";
-import { authOptions } from "../auth/[...nextauth]/route";
+import { authOptions } from "@/app/_lib/authOptions";
+
 import { getServerSession } from "next-auth";
 import { cookies } from "next/headers";
 import { verifyToken } from "@/app/_lib/verifyToken";
@@ -13,8 +14,8 @@ const pathname=searchParams.get('pathname')
 console.log(pathname);
 
 const session=await getServerSession(authOptions);
-
-const token= cookies().get('access-token')?.value;
+const Gettoken =await cookies()
+const token=Gettoken.get("access-token")?.value;
 console.log(session,token);
 if(!pathname){
     console.log('1st');

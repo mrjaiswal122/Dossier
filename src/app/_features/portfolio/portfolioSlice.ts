@@ -1,3 +1,4 @@
+import { ProjectData } from '@/app/_components/portfolio/Projects';
 import { getSignedURL,deleteImage } from '@/app/_lib/s3';
 import { createAppAsyncThunk } from '@/app/_store/hooks';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
@@ -10,6 +11,26 @@ export enum PortfolioStatus {
   Failed = 'failed',
   Succeeded = 'succeeded',
   Pending = 'pending',
+}
+//purpose for calling imageUpload thunk
+export enum Purpose {
+  ProfileImage = 'for uploading profile picture',
+  ProjectImage= 'for uploading project image',
+  Empty='image is not provided'
+}
+export enum Upload{
+  ProfileImage='updating profile image in the DB',
+  Project='adding project to the DB',
+  WorkExperience='adding experience to the DB',
+  Education='adding education to the DB',
+  Skills='adding skill to the Db',
+  Certificate='adding Certification to the DB',
+  Publication='adding blogs to the DB',
+  Language='adding language',
+  Interest='adding hobbies',
+  Resume='updating resume',
+  Summary='updating Bio',
+  Hero='update hero section'
 }
 // Define the Portfolio type
 export type Portfolio = {
@@ -24,9 +45,12 @@ export type Portfolio = {
     phone?: string;
     socialLinks?: {
       linkedIn?: string;
+      instagram?:string;
+      youtube?:string;
+      facebook?:string;
       github?: string;
       twitter?: string;
-      
+      personalWebsite?: string;
     };
   };
   summary?: {
@@ -59,10 +83,10 @@ export type Portfolio = {
   projects?: Array<{
     title: string;
     description: string;
-    technologies?: string[];
+    technologies: string[];
     projectUrl?: string;
     githubUrl?: string;
-    images?: string[];
+    image?: string;
   }>;
   certifications?: Array<{
     title: string;
@@ -110,8 +134,22 @@ interface UploadImageArgs {
   image: Blob | undefined; // Base64-encoded image string
   key:string;
   oldUrl:string |undefined;
+  type:Purpose
 }
-
+interface UpdateProjectArgs{
+  data:ProjectData;
+  portfolioId:string;
+  pathname:string;
+  oldProjectImage:string|undefined;
+}
+export type UpdateProjectReturnType={
+  title:string;
+  description:string;
+  technologies:string[];
+  githubUrl?:string;
+  projectUrl?:string;
+  image?:string;
+}
 // Initial state
 const initialState: Portfolio = {
   user: '' as any, // Placeholder, replace with actual Types.ObjectId type if needed
@@ -129,10 +167,49 @@ const initialState: Portfolio = {
 };
 
 //async thunk 
-const uploadImageAsync=createAppAsyncThunk<string,UploadImageArgs>('portfolio/uploadImageAsync',async({ portfolioId, image,key,oldUrl }: UploadImageArgs)=>{
+const updateProjectAsync=createAppAsyncThunk<UpdateProjectReturnType,UpdateProjectArgs>('portfolio/updateProjectAsync',
+  async({data,portfolioId,pathname,oldProjectImage},{dispatch,rejectWithValue})=>{
+    try{
+    // const signedUrl=await getSignedURL()
+    const result=await dispatch(uploadImageAsync({portfolioId,image:data.image,key:pathname,oldUrl:oldProjectImage,type:Purpose.ProjectImage}))
+    const url = (result.payload as { url: string }).url;
+   
+    
+    const sendData={ 
+    title:data.title,
+    description:data.description,
+    technologies:data.technologies,
+    githubUrl:data.githubUrl,
+    projectUrl:data.projectUrl,
+    image:url
+  }
+    const formData = new FormData();
+    formData.append('portfolioId', portfolioId);
+    formData.append('data',JSON.stringify(sendData));
+    formData.append('uploadType',Upload.Project);
+        
+  
+    //calling the api for updation
+    const response = await axios.post('/api/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    console.log(response);
+        
+    //sending data to extraReducers 
+    return sendData;
+
+    }catch(e){
+      console.error('Error updating project:', e);
+        return rejectWithValue('Failed to update project.');
+    }
+  })
+const uploadImageAsync=createAppAsyncThunk<{type:Purpose,url:string},UploadImageArgs>('portfolio/uploadImageAsync',async({ portfolioId, image,key,oldUrl,type }: UploadImageArgs)=>{
  try {
       //uploading to aws
-      if(!image)return '';
+      //if image is undefined then it will get out of the thunk
+      if(!image)return {type:Purpose.Empty,url:''};
       const computeSHA256=async(image:Blob)=>{
         const buffer=await image.arrayBuffer();
         const hashBuffer=await crypto.subtle.digest('SHA-256',buffer);
@@ -152,22 +229,26 @@ const uploadImageAsync=createAppAsyncThunk<string,UploadImageArgs>('portfolio/up
     
   
       // Prepare the form data to update the imageUrl in the DB
-    const formData = new FormData();
-    formData.append('portfolioId', portfolioId);
-    formData.append('url',signedUrl.split('?')[0]);
+      if(type==Purpose.ProfileImage){
 
-      
+        const formData = new FormData();
+        formData.append('portfolioId', portfolioId);
+        formData.append('data',signedUrl.split('?')[0]);
+        formData.append('uploadType',Upload.ProfileImage);
+        
  
-      //calling the api for updation
-      const response = await axios.post('/api/upload', formData, {
+        //calling the api for updation
+        const response = await axios.post('/api/upload', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
-      });
+        });
+
+      }
   
       
       // Return the uploaded image URL
-      return signedUrl.split('?')[0];
+      return {type:type,url:signedUrl.split('?')[0]};
     } catch (error) {
       console.error('Error uploading image:', error);
       throw new Error('Image upload failed');
@@ -178,6 +259,7 @@ const deleteImageAsync=createAppAsyncThunk('portfolio/deleteImageAsync',async(ur
  return '';
 
 });
+
 // Create a slice
 const portfolioSlice = createSlice({
   name: 'portfolio',
@@ -205,7 +287,14 @@ const portfolioSlice = createSlice({
       .addCase(uploadImageAsync.fulfilled, (state, action) => {
         state.status = PortfolioStatus.Succeeded
         // Add any fetched posts to the array
-        state.personalInfo.profilePicture=action.payload
+        if(action.payload.type==Purpose.Empty){
+          return;
+        }else if(action.payload.type==Purpose.ProfileImage){
+
+          state.personalInfo.profilePicture=action.payload.url
+        }else if(action.payload.type==Purpose.ProjectImage){
+          return;
+        }
       })
       .addCase(uploadImageAsync.rejected, (state, action) => {
         state.status = PortfolioStatus.Failed
@@ -223,11 +312,23 @@ const portfolioSlice = createSlice({
         state.status = PortfolioStatus.Failed
         state.error = action.error.message ?? 'Unknown Error'
       })
+       .addCase(updateProjectAsync.pending, (state, action) => {
+        state.status =PortfolioStatus.Pending
+      })
+      .addCase(updateProjectAsync.fulfilled, (state, action) => {
+        state.status = PortfolioStatus.Succeeded
+        // Add any fetched posts to the array
+        state.projects?.push(action.payload)
+      })
+      .addCase(updateProjectAsync.rejected, (state, action) => {
+        state.status = PortfolioStatus.Failed
+        state.error = action.error.message ?? 'Unknown Error'
+      })
   }
 });
 
 // Export actions
 export const {updatePortfolio, updateIsOwner,updateStatus} = portfolioSlice.actions;
-export {uploadImageAsync,deleteImageAsync};
+export {uploadImageAsync,deleteImageAsync,updateProjectAsync};
 // Export the reducer
 export default portfolioSlice.reducer;

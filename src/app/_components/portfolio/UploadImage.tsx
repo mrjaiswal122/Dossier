@@ -3,7 +3,7 @@ import { TiDeleteOutline } from 'react-icons/ti'
 import Image from "next/image";
 import { useAppDispatch, useAppSelector } from '@/app/_store/hooks';
 import { MdDelete } from 'react-icons/md';
-import { uploadImageAsync,deleteImageAsync } from '@/app/_features/portfolio/portfolioSlice';
+import { uploadImageAsync,deleteImageAsync, Purpose } from '@/app/_features/portfolio/portfolioSlice';
 import { IoCloudUploadOutline } from 'react-icons/io5';
 
 
@@ -33,7 +33,7 @@ function UploadImage({setUploadingImage}:props) {
     const handleUpload=async()=>{
         if(image){
             const uniqueKey = portfolio.routeName+'_'+(Date.now()+'_'+(image.name));
-            await dispatch(uploadImageAsync({portfolioId:portfolio._id.toString(),image,key:uniqueKey,oldUrl:portfolio.personalInfo.profilePicture}));
+            await dispatch(uploadImageAsync({portfolioId:portfolio._id.toString(),image,key:uniqueKey,oldUrl:portfolio.personalInfo.profilePicture,type:Purpose.ProfileImage}));
             await setUploadingImage(false);
         };
        

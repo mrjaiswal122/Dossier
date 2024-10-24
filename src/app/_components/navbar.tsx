@@ -11,27 +11,19 @@ import { setThemeRedux } from "../_features/theme/themeSlice";
 import {toggleDarkMode} from '../_features/darkMode/darkSlice';
 import { useAppSelector,useAppDispatch } from "../_store/hooks";
 
-type ThemeType='system'|'dark'|'light';
-
 export default function Navbar() {
   const dispatch = useAppDispatch();
-  const reduxTheme:ThemeType=useAppSelector((state)=>state.theme);
+  const reduxTheme=useAppSelector((state)=>state.theme);
   const darkModeRedux=useAppSelector(state=>state.darkModeRedux);
-  
   const [prefersDarkScheme, setPrefersDarkScheme] = useState(false);
-  
   const [user,setUser] = useState<{name:string,email:string,imageUrl:string,role:string,username:string}>();
   const [login,setLogin] = useState<boolean>();
-   
-    
 useEffect(() => {
   const fetchData = async () => {
     try {
       setPrefersDarkScheme(window.matchMedia("(prefers-color-scheme: dark)").matches);
       // api call
-      const response = await axios.get('/api/check-login');
-      
-
+      const response = await axios.get('/api/check-login')
       if (response.data.msg === "Show User") {
         setUser(response.data.data);
       } else if (response.data.msg === "Show Login") {
@@ -69,29 +61,22 @@ useEffect(() => {
        ;
         dispatch(toggleDarkMode(prefersDarkScheme));
         dispatch(setThemeRedux('system'));
-     
     }
-   
   }, [dispatch, prefersDarkScheme]);
-
   const handleTheme = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     const target = e.target as HTMLElement;
-
     switch (target.closest('div')?.id) {
       case "dark":
-   
         dispatch(toggleDarkMode(true));
         dispatch(setThemeRedux('dark'));
         localStorage.setItem("theme", 'dark');
         break;
       case "system":
-    
         dispatch(toggleDarkMode(prefersDarkScheme));
         dispatch(setThemeRedux('system'));
         localStorage.setItem("theme", 'system');
         break;
       case "light":
-      
         dispatch(toggleDarkMode(false));
         dispatch(setThemeRedux('light'));
         localStorage.setItem("theme", 'light');
@@ -100,12 +85,10 @@ useEffect(() => {
         handleThemeSection();
     }
   };
-
   const handleThemeSection = () => {
     const themeSection = document.getElementById("themeSection");
     themeSection?.classList.toggle("hidden");
   };
-
   return (
     <>
       <nav className="w-full h-16 dark:text-white shadow-2xl flex justify-between items-center relative backdrop-blur-lg">

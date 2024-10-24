@@ -25,7 +25,7 @@ export default function DarkMode({children}:{children: ReactNode}) {
    </div>
    </SessionProvider>
   
-   <footer className="w-full h-14 dark:bg-black bg-theme-light  dark:text-white  flex items-center justify-center text-xs">@Copywrite Ankush jaiswal #2024 </footer>
+   <footer className="w-full h-14 dark:bg-black bg-theme-light  dark:text-white  flex items-center justify-center text-xs border-t border-theme">@Copywrite Ankush jaiswal #2024 </footer>
 </section>
 )
 }

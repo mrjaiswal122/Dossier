@@ -4,8 +4,9 @@ import { cookies } from 'next/headers';
 // import { authOptions } from './app/api/auth/[...nextauth]/route';
 
 export async function middleware(request: NextRequest) {
-  const token = cookies().get('access-token');
-  const nextToken =cookies().get('next-auth.session-token');
+  const cookie=await cookies()
+  const token=cookie.get('access-token');
+  const nextToken =cookie.get('next-auth.session-token');
   
 
   const { pathname } = request.nextUrl;

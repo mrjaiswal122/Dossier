@@ -36,7 +36,8 @@ export async function POST(req: Request) {
         let jwtToken = sign({ userId: user.id }, `${process.env.JWT_SECRET}`, {
           expiresIn: "12h",
         });
-        cookies().set("access-token", jwtToken, {
+      const cookie= await cookies()
+      cookie.set("access-token", jwtToken, {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
           maxAge:  12* 60 * 60, //1 days in seconds

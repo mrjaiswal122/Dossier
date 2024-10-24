@@ -2,19 +2,15 @@
 import React, { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { SubmitHandler, useForm, FormProvider } from "react-hook-form";
+import { SubmitHandler, useForm,} from "react-hook-form";
 import Err from "../_components/Err";
-import Education from "../_components/form/Education";
-import Experience from "../_components/form/Experience";
-import Projects from "../_components/form/Projects";
-import Certifications from "../_components/form/Certifications";
-import Publications from "../_components/form/Publications";
+
 import Skills from "../_components/form/Skills";
 import FormNavigation from "../_components/form/FormNavigation";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { log } from "console";
+
 
 const personalInfoSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),
@@ -57,103 +53,6 @@ const skillSchema = z.object({
   proficiency: z.enum(["Beginner", "Intermediate", "Advanced"]),
 });
 
-const experienceSchema = z
-  .object({
-    jobTitle: z.string().min(1, "Job title is required").optional(), // Job title is optional but validated if filled
-    companyName: z.string().min(1, "Company name is required").optional(), // Company name is optional but validated if filled
-    companyLogo: z.string().optional(),
-    location: z.string().optional(),
-    startDate: z.date().optional().nullable(), // Optional initially, required if the experience is filled
-    endDate: z
-      .union([z.date(), z.literal("Currently Working")])
-      .optional()
-      .default("Currently Working")
-      .nullable(), // Defaults to "Currently Working" if no end date
-    responsibilities: z.string().optional(),
-  })
-  .refine(
-    (data) => {
-      // If jobTitle or companyName is provided, startDate must be provided
-      if (data.jobTitle || data.companyName) {
-        return !!data.startDate; // startDate is required if jobTitle or companyName is filled
-      }
-      return true; // If nothing is filled, it's valid
-    },
-    {
-      message:
-        "Start date is required if job title or company name is provided",
-      path: ["startDate"], // Points to the startDate field for the error
-    }
-  );
-
-const educationSchema = z.object({
-  degree: z.string().min(1, "Degree is required"),
-  institutionName: z.string().min(1, "Institution name is required"),
-  institutionLogo: z
-    .string()
-    .url("Must be a valid URL")
-    .or(z.literal(""))
-    .default(""),
-  location: z.string().optional(),
-  startDate: z.date().nullable(),
-  endDate: z.date().optional().nullable(),
-  achievements: z.string().optional(),
-});
-
-const projectSchema = z.object({
-  title: z.string().min(1, "Project title is required"),
-  description: z.string().min(1, "Project description is required"),
-  technologies: z.array(z.string()),
-  projectUrl: z
-    .string()
-    .url("Must be a valid URL")
-    .or(z.literal(""))
-    .default(""),
-  githubUrl: z
-    .string()
-    .url("Must be a valid URL")
-    .or(z.literal(""))
-    .default(""),
-  image: z.string().url("Must be a valid URL").or(z.literal("")).default(""),
-});
-
-const certificationSchema = z.object({
-  title: z.string().min(1, "Certification title is required"),
-  organization: z.string().min(1, "Organization is required"),
-  dateEarned: z.date(),
-  certificateUrl: z
-    .string()
-    .url("Must be a valid URL")
-    .or(z.literal(""))
-    .default(""),
-});
-
-const publicationSchema = z.object({
-  title: z.string().min(1, "Publication title is required"),
-  description: z.string().optional(),
-  datePublished: z.date(),
-  url: z.string().url("Must be a valid URL").or(z.literal("")).default(""),
-});
-
-// const awardSchema = z.object({
-//   title: z.string().min(1, "Award title is required"),
-//   organization: z.string().min(1, "Organization is required"),
-//   dateReceived: z.date(),
-//   description: z.string().optional(),
-// });
-
-// const testimonialSchema = z.object({
-//   name: z.string().min(1, "Name is required"),
-//   jobTitle: z.string().optional(),
-//   company: z.string().optional(),
-//   contactInfo: z.string().optional(),
-//   testimonialText: z.string().min(1, "Testimonial text is required"),
-// });
-
-// const contactSchema = z.object({
-//   email: z.string().email("Invalid email address"),
-//   message: z.string().optional(),
-// });
 
 const resumeSchema = z.object({
   fileUrl: z.string().url("Must be a valid URL").or(z.literal("")).default(""),
@@ -370,10 +269,7 @@ export default function Page() {
               {errors.personalInfo?.fullName && (
                 <span>{errors.personalInfo.fullName.message}</span>
               )}
-              <input
-                {...register("personalInfo.profilePicture")}
-                placeholder="Profile Picture URL"
-              />
+              
               <input
                 {...register("personalInfo.title")}
                 placeholder="Professional Title"
@@ -453,52 +349,6 @@ export default function Page() {
             />
           )}
 
-          {/* {step === 4 && (
-          <Experience control={control}
-            register={register}
-            errors={errors}
-            prevStep={prevStep}
-            nextStep={nextStep}
-            watch={watch}
-          />
-        )}
-
-        {step === 5 && (
-          <Education control={control}
-            register={register}
-            errors={errors}
-            prevStep={prevStep}
-            nextStep={nextStep}
-          />
-        )}
-        {step === 6 && (
-          <Projects control={control}
-            register={register}
-            errors={errors}
-            prevStep={prevStep}
-            nextStep={nextStep}
-            watch={watch}
-            setValue={setValue}
-            setError={setError}
-            clearErrors={clearErrors}
-          />
-        )}
-        {step === 7 && (
-          <Certifications control={control}
-            register={register}
-            errors={errors}
-            prevStep={prevStep}
-            nextStep={nextStep}
-          />
-        )}
-        {step === 8 && (
-          <Publications control={control}
-            register={register}
-            errors={errors}
-            prevStep={prevStep}
-            nextStep={nextStep}
-          />
-        )} */}
           {/* resume */}
           {step === 4 && (
             <div className="portfolio">

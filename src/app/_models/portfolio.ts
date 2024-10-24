@@ -14,6 +14,9 @@ export type IPortfolio= {
     phone?: string;
     socialLinks?: {
       linkedIn?: string;
+      instagram?:string;
+      youtube?:string;
+      facebook?:string;
       github?: string;
       twitter?: string;
       personalWebsite?: string;
@@ -149,7 +152,8 @@ const portfolioSchema=new mongoose.Schema({
         technologies: { type: [String] },  // Array of technologies used
         projectUrl: { type: String },  // URL to live project
         githubUrl: { type: String },  // GitHub repository link
-        images: { type: String },  // Array of URLs to screenshots/images
+        image: { type: String },  // Array of URLs to screenshots/images
+        _id:false
       },
     ],
     certifications: [

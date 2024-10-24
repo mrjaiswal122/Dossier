@@ -27,5 +27,4 @@ export type User = {
   }, { timestamps: true });
 
 const userModel = mongoose.models.User || mongoose.model<User>('User', userSchema);
-
 export default userModel;

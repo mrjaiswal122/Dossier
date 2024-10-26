@@ -5,7 +5,10 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { Types } from 'mongoose';
 
-
+export enum DeleteImageType{
+    ProfileImage='deleting profile image',
+    ProjectImage='deleting projects image'
+}
 export enum PortfolioStatus {
   Ideal = 'ideal',
   Failed = 'failed',
@@ -31,6 +34,14 @@ export enum Upload{
   Resume='updating resume',
   Summary='updating Bio',
   Hero='update hero section'
+}
+export enum Delete{
+ Project='Deleting particular project from the DB',
+ WorkExperience='Deleting particular work experience from the DB',
+ Education='Deleting particular education from the DB',
+ Skills='Deleting particular skill from the DB',
+ Certificate='Deleting particular certification from the DB',
+ Publication='Deleting particular publication from the DB',
 }
 // Define the Portfolio type
 export type Portfolio = {
@@ -130,7 +141,7 @@ export type Portfolio = {
   updatedAt?: Date;
 };
 interface UploadImageArgs {
-  portfolioId:string;
+  routename:string;
   image: Blob | undefined; // Base64-encoded image string
   key:string;
   oldUrl:string |undefined;
@@ -138,7 +149,7 @@ interface UploadImageArgs {
 }
 interface UpdateProjectArgs{
   data:ProjectData;
-  portfolioId:string;
+  routename:string;
   pathname:string;
   oldProjectImage:string|undefined;
 }
@@ -168,10 +179,10 @@ const initialState: Portfolio = {
 
 //async thunk 
 const updateProjectAsync=createAppAsyncThunk<UpdateProjectReturnType,UpdateProjectArgs>('portfolio/updateProjectAsync',
-  async({data,portfolioId,pathname,oldProjectImage},{dispatch,rejectWithValue})=>{
+  async({data,routename,pathname,oldProjectImage},{dispatch,rejectWithValue})=>{
     try{
     // const signedUrl=await getSignedURL()
-    const result=await dispatch(uploadImageAsync({portfolioId,image:data.image,key:pathname,oldUrl:oldProjectImage,type:Purpose.ProjectImage}))
+    const result=await dispatch(uploadImageAsync({routename,image:data.image,key:pathname,oldUrl:oldProjectImage,type:Purpose.ProjectImage}))
     const url = (result.payload as { url: string }).url;
    
     
@@ -184,7 +195,7 @@ const updateProjectAsync=createAppAsyncThunk<UpdateProjectReturnType,UpdateProje
     image:url
   }
     const formData = new FormData();
-    formData.append('portfolioId', portfolioId);
+    formData.append('routename', routename);
     formData.append('data',JSON.stringify(sendData));
     formData.append('uploadType',Upload.Project);
         
@@ -205,7 +216,7 @@ const updateProjectAsync=createAppAsyncThunk<UpdateProjectReturnType,UpdateProje
         return rejectWithValue('Failed to update project.');
     }
   })
-const uploadImageAsync=createAppAsyncThunk<{type:Purpose,url:string},UploadImageArgs>('portfolio/uploadImageAsync',async({ portfolioId, image,key,oldUrl,type }: UploadImageArgs)=>{
+const uploadImageAsync=createAppAsyncThunk<{type:Purpose,url:string},UploadImageArgs>('portfolio/uploadImageAsync',async({ routename, image,key,oldUrl,type }: UploadImageArgs)=>{
  try {
       //uploading to aws
       //if image is undefined then it will get out of the thunk
@@ -219,7 +230,7 @@ const uploadImageAsync=createAppAsyncThunk<{type:Purpose,url:string},UploadImage
        
       }
       const checksum= await computeSHA256(image);
-     const signedUrl=await getSignedURL(key,oldUrl,image.type,image.size,checksum,portfolioId);
+     const signedUrl=await getSignedURL(key,oldUrl,image.type,image.size,checksum,routename);
      await axios.put(signedUrl,image,{
       headers: {
         'Content-Type':image?.type,
@@ -232,7 +243,7 @@ const uploadImageAsync=createAppAsyncThunk<{type:Purpose,url:string},UploadImage
       if(type==Purpose.ProfileImage){
 
         const formData = new FormData();
-        formData.append('portfolioId', portfolioId);
+        formData.append('routename', routename);
         formData.append('data',signedUrl.split('?')[0]);
         formData.append('uploadType',Upload.ProfileImage);
         
@@ -243,7 +254,10 @@ const uploadImageAsync=createAppAsyncThunk<{type:Purpose,url:string},UploadImage
           'Content-Type': 'multipart/form-data',
         },
         });
-
+    
+      }else if (type==Purpose.ProjectImage){ // set this for project Image upload
+        console.log('Project Image upload');
+        
       }
   
       
@@ -254,9 +268,19 @@ const uploadImageAsync=createAppAsyncThunk<{type:Purpose,url:string},UploadImage
       throw new Error('Image upload failed');
     }
 });
-const deleteImageAsync=createAppAsyncThunk('portfolio/deleteImageAsync',async(url:string)=>{
- await deleteImage(url);
- return '';
+const deleteParticularObjectAsync=createAppAsyncThunk('portfolio/deleteParticularObject',async({from,index,routeName}:{from:Delete,index:number,routeName:string})=>{
+  if(from==Delete.Project){
+   const res = await axios.delete(`/api/delete?type=${Delete.Project}&index=${index}&routeName=${routeName}`);
+   if(res?.data?.success==true) {
+    return {sucess: true,type:Delete.Project,index}
+   }
+  }
+})
+const deleteImageAsync=createAppAsyncThunk('portfolio/deleteImageAsync',async({url,deleteType,routeName}:{url:string,deleteType:DeleteImageType,routeName:string},{rejectWithValue})=>{
+ const res=await deleteImage(url,deleteType,routeName);
+ if(res?.success==true) return '';
+ else
+ return rejectWithValue('Image was not deleted')
 
 });
 
@@ -324,11 +348,25 @@ const portfolioSlice = createSlice({
         state.status = PortfolioStatus.Failed
         state.error = action.error.message ?? 'Unknown Error'
       })
+       .addCase(deleteParticularObjectAsync.pending, (state, action) => {
+        state.status =PortfolioStatus.Pending
+      })
+      .addCase(deleteParticularObjectAsync.fulfilled, (state, action) => {
+        state.status = PortfolioStatus.Succeeded
+      if(action?.payload?.type==Delete.Project)
+        state.projects?.splice(action?.payload?.index,1)
+      console.log('deleted');
+      
+      })
+      .addCase(deleteParticularObjectAsync.rejected, (state, action) => {
+        state.status = PortfolioStatus.Failed
+        state.error = action.error.message ?? 'Unknown Error'
+      })
   }
 });
 
 // Export actions
 export const {updatePortfolio, updateIsOwner,updateStatus} = portfolioSlice.actions;
-export {uploadImageAsync,deleteImageAsync,updateProjectAsync};
+export {uploadImageAsync,deleteImageAsync,updateProjectAsync,deleteParticularObjectAsync};
 // Export the reducer
 export default portfolioSlice.reducer;

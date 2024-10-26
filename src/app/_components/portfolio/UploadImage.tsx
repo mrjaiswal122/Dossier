@@ -5,7 +5,7 @@ import { useAppDispatch, useAppSelector } from '@/app/_store/hooks';
 import { MdDelete } from 'react-icons/md';
 import { uploadImageAsync,deleteImageAsync, Purpose } from '@/app/_features/portfolio/portfolioSlice';
 import { IoCloudUploadOutline } from 'react-icons/io5';
-
+import { DeleteImageType } from '@/app/_features/portfolio/portfolioSlice';
 
 type props={
     setUploadingImage:Dispatch<SetStateAction<boolean>>
@@ -33,14 +33,14 @@ function UploadImage({setUploadingImage}:props) {
     const handleUpload=async()=>{
         if(image){
             const uniqueKey = portfolio.routeName+'_'+(Date.now()+'_'+(image.name));
-            await dispatch(uploadImageAsync({portfolioId:portfolio._id.toString(),image,key:uniqueKey,oldUrl:portfolio.personalInfo.profilePicture,type:Purpose.ProfileImage}));
+            await dispatch(uploadImageAsync({routename:portfolio.routeName,image,key:uniqueKey,oldUrl:portfolio.personalInfo.profilePicture,type:Purpose.ProfileImage}));
             await setUploadingImage(false);
         };
        
      };
     const handleDelete=async()=>{
         if(portfolio.personalInfo.profilePicture)
-        await dispatch(deleteImageAsync(portfolio.personalInfo.profilePicture));
+        await dispatch(deleteImageAsync({url:portfolio.personalInfo.profilePicture,deleteType:DeleteImageType.ProfileImage,routeName:portfolio.routeName}));
         await setUploadingImage(false);
          
     };

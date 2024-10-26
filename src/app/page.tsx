@@ -1,6 +1,7 @@
 'use client';
 import axios from "axios";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export default function Home() {
@@ -47,9 +48,9 @@ export default function Home() {
       <button className=" bg-theme rounded-lg p-3" onClick={handlePortfolioCreation}>
         Create Portfolio
       </button>
-    {session?.user?"": <a href="/auth" className="backdrop-blur-sm border p-3 rounded-lg">
+    {session?.user?"": <Link href="/auth" className="backdrop-blur-sm border p-3 rounded-lg">
         LOGIN
-      </a>}
+      </Link>}
      
 
     </main>

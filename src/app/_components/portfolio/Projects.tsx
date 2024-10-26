@@ -5,9 +5,10 @@ import { useForm } from 'react-hook-form'
 import { TiDeleteOutline } from 'react-icons/ti'
 import { z } from 'zod'
 import Img from 'next/image'
-import { PortfolioStatus, updateProjectAsync, updateStatus } from '@/app/_features/portfolio/portfolioSlice'
+import { Delete, deleteParticularObjectAsync, PortfolioStatus, updateProjectAsync, updateStatus } from '@/app/_features/portfolio/portfolioSlice'
 import { FaChevronDown, FaChevronUp, FaGithub, FaSquareGithub } from 'react-icons/fa6'
 import { FaExternalLinkAlt } from 'react-icons/fa'
+import Link from 'next/link'
 type Props = {}
 
 export default function Projects({}: Props) {
@@ -61,7 +62,10 @@ type CardsProps={
   isOwner:boolean
 }
 function Cards({project,index,isOwner}: CardsProps){
+  const dispatch=useAppDispatch();
+  const portfolio=useAppSelector((state)=>state.portfolioSlice)
   const  capitalizeText=(text:string)=> {
+
     return text
         .split(' ') // Split the string into words
         .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize the first letter of each word
@@ -79,6 +83,10 @@ function Cards({project,index,isOwner}: CardsProps){
       setDescHeight(descriptionRef.current.scrollHeight)
     }
   },[])
+  const handleDelete=()=>{
+   dispatch(deleteParticularObjectAsync({from:Delete.Project,index,routeName:portfolio.routeName}))
+    
+  }
 return(
   <>
   <div className="bg-grays rounded-lg shadow-md overflow-hidden transition-transform duration-100 ease-out hover:scale-105 bg-opacity-15 w-full mx-auto">
@@ -129,31 +137,31 @@ return(
             <div className='flex gap-3'>
 
             {project.projectUrl && (
-              <a
+              <Link
               href={project.projectUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="text-grays font-semibold hover:scale-105 flex items-center text-xs "
               >
                 <FaExternalLinkAlt className="mr-1 h-3 w-3" />View Project
-              </a>
+              </Link>
             )}
             {project.githubUrl && (
-              <a
+              <Link
               href={project.githubUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="text-grays font-semibold hover:scale-105 flex items-center text-xs "
               >
                 <FaGithub className="mr-1 h-3 w-3" />GitHub
-              </a>
+              </Link>
             )}
             </div>
             {isOwner&&
 
               <div className='flex gap-3 text-sm md:text-base'> 
-                <div>Edit </div>
-                <div>Delete</div>
+                <div className='cursor-pointer px-3 py-2 bg-gray-600 rounded-lg'>Edit </div>
+                <div className='cursor-pointer px-3 py-2  bg-reds rounded-lg' onClick={handleDelete} >Delete</div>
               </div>
             }
           </div>
@@ -288,7 +296,7 @@ const handleSkill = (
             console.log("Form Data:", data);
             // Handle form submission logic here
             const totalNumbersOfProjests=portfolio.projects?.length || 0;
-            await dispatch(updateProjectAsync({data,portfolioId:portfolio._id.toString(),pathname:portfolio.routeName+'_ProjectImage_'+(totalNumbersOfProjests)+'_'+(Date.now()),oldProjectImage:portfolio.projects?.[totalNumbersOfProjests]?.image}))
+            await dispatch(updateProjectAsync({data,routename:portfolio.routeName,pathname:portfolio.routeName+'_ProjectImage_'+(totalNumbersOfProjests)+'_'+(Date.now()),oldProjectImage:portfolio.projects?.[totalNumbersOfProjests]?.image}))
             setShowAddProject(false); 
        
 

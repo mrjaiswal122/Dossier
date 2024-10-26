@@ -3,6 +3,10 @@ import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import dbConnect from "./database";
 import portfolioModel from "../_models/portfolio";
+import { redis } from "./redis-client";
+import { DeleteImageType } from "../_features/portfolio/portfolioSlice";
+const expTime=process.env.REDIS_EX_TIME!;
+
 
 const maxFileSize = 1024 * 1024 * 5; // 5 MB
 
@@ -16,9 +20,9 @@ const s3 = new S3Client({
 });
 
 // Get a signed URL for uploading an image to S3
-export async function getSignedURL(Key: string, oldUrl: string | undefined, type: string, size: number, checksum: string, portfolioId: string) {
+export async function getSignedURL(Key: string, oldUrl: string | undefined, type: string, size: number, checksum: string,routeName: string) {
     if (oldUrl) {
-        await deleteImage(oldUrl);
+        await deleteImage(oldUrl,DeleteImageType.ProfileImage,routeName);
     }
 
     if (size > maxFileSize) return '';
@@ -31,7 +35,7 @@ export async function getSignedURL(Key: string, oldUrl: string | undefined, type
         ContentLength: size,
         ChecksumSHA256: checksum,
         Metadata: {
-            user: portfolioId,
+            user: routeName,
         },
     });
 
@@ -45,25 +49,37 @@ export async function getSignedURL(Key: string, oldUrl: string | undefined, type
 }
 
 // Delete an image by its URL and update the database
-export async function deleteImage(url: string) {
+export async function deleteImage(url: string, deleteType: string,routeName:string|null=null,projectIndex:number|null=null) {
     const key = url.split('.com/')[1];
     
-    const deleteObjectCommand = new DeleteObjectCommand({
+    try {
+        await dbConnect();
+        const deleteObjectCommand = new DeleteObjectCommand({
         Bucket: process.env.S3_BUCKET_NAME!,
         Key: key,
-    });
-
-    try {
+      });
+     
         await s3.send(deleteObjectCommand);
+      if(deleteType===DeleteImageType.ProfileImage &&routeName){
 
-        await dbConnect();
         await portfolioModel.findOneAndUpdate(
             { 'personalInfo.profilePicture': url },
             { $set: { 'personalInfo.profilePicture': '' } }
         );
+        const portfolio=await redis.get(routeName)
+        if(portfolio){
+            const updatedPortfolio=JSON.parse(portfolio);
+            updatedPortfolio.personalInfo.profilePicture='';
+            await redis.setex(routeName,expTime,JSON.stringify(updatedPortfolio))
+        }
+        return { success: true, message: "Image has been deleted." };
+       }else if(deleteType===DeleteImageType.ProjectImage){
+
+
+        return { success: true, message: "Image has been deleted." };   
+      }
 
         // Optionally return the result of the deletion
-        return { success: true, message: "Image has been deleted." };
     } catch (error) {
         console.error("Error deleting image:", error);
         return { success: false, message: "Failed to delete image." };

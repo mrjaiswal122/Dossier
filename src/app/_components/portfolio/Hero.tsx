@@ -5,6 +5,7 @@ import { useState } from "react";
 import { FaLinkedin, FaSquareGithub, FaSquareXTwitter } from "react-icons/fa6";
 import { MdModeEditOutline, MdOutlineMailOutline } from "react-icons/md";
 import UploadImage from "./UploadImage";
+import Link from "next/link";
 export default function Hero() {
     const portfolio = useAppSelector((state) => state.portfolioSlice);
     const [uploadingImage,setUploadingImage]=useState(false);
@@ -38,9 +39,9 @@ export default function Hero() {
 
             {/* social links */}
             <div className="flex gap-3 mt-3  "> 
-             {portfolio.personalInfo.socialLinks?.github && <a className="scale-125 dark:hover:text-theme-light hover:text-theme-dark hover:scale-105 transition-all duration-300 ease-in-out" href={portfolio.personalInfo.socialLinks?.github}><FaSquareGithub /></a>}
-             {portfolio.personalInfo.socialLinks?.twitter && <a className="scale-125 dark:hover:text-theme-light hover:text-theme-dark hover:scale-105 transition-all duration-300 ease-in-out" href={portfolio.personalInfo.socialLinks?.twitter}><FaSquareXTwitter /></a>}
-              {portfolio.personalInfo.socialLinks?.linkedIn &&<a className="scale-125 dark:hover:text-theme-light hover:text-theme-dark hover:scale-105 transition-all duration-300 ease-in-out" href={portfolio.personalInfo.socialLinks?.linkedIn}><FaLinkedin /></a> }
+             {portfolio.personalInfo.socialLinks?.github && <Link className="scale-125 dark:hover:text-theme-light hover:text-theme-dark hover:scale-105 transition-all duration-300 ease-in-out" href={portfolio.personalInfo.socialLinks?.github}><FaSquareGithub /></Link>}
+             {portfolio.personalInfo.socialLinks?.twitter && <Link className="scale-125 dark:hover:text-theme-light hover:text-theme-dark hover:scale-105 transition-all duration-300 ease-in-out" href={portfolio.personalInfo.socialLinks?.twitter}><FaSquareXTwitter /></Link>}
+              {portfolio.personalInfo.socialLinks?.linkedIn &&<Link className="scale-125 dark:hover:text-theme-light hover:text-theme-dark hover:scale-105 transition-all duration-300 ease-in-out" href={portfolio.personalInfo.socialLinks?.linkedIn}><FaLinkedin /></Link> }
             </div>
 
 

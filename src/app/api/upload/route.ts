@@ -1,10 +1,11 @@
 import { UpdateProjectReturnType, Upload } from "@/app/_features/portfolio/portfolioSlice";
 import dbConnect from "@/app/_lib/database";
-import portfolioModel from "@/app/_models/portfolio";
+import portfolioModel, { IPortfolio } from "@/app/_models/portfolio";
 import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 import { redis } from "@/app/_lib/redis-client";
-const expTime=process.env.REDIS_EX_TIME!;
+const expTime=Number(process.env.REDIS_EX_TIME!);
+
 export async function POST(request: NextRequest) {
   try {
     // Use formData instead of JSON
@@ -30,9 +31,10 @@ export async function POST(request: NextRequest) {
       { $set: { 'personalInfo.profilePicture':url } }
       );
       
-      const cachedPortfolio=await redis.get(routeName);
+      const cachedPortfolio=await redis.get(routeName)as IPortfolio|null;
       if(cachedPortfolio) {
-        const updatedPortfolio=JSON.parse(cachedPortfolio);
+        // const updatedPortfolio=JSON.parse(cachedPortfolio);
+        const updatedPortfolio=cachedPortfolio;
         updatedPortfolio.personalInfo.profilePicture=url;
         await redis.setex(routeName, expTime,JSON.stringify(updatedPortfolio));
       }
@@ -52,9 +54,11 @@ export async function POST(request: NextRequest) {
         {$push:{projects:project}},
         {new:true,projection:{projects:1}}
       );
-      const cachedPortfolio=await redis.get(routeName);
-      if(cachedPortfolio) {
-        const updatedPortfolio=JSON.parse(cachedPortfolio);
+      
+      const cachedPortfolio=await redis.get(routeName)as IPortfolio|null;
+      if(cachedPortfolio && updatedProjects) {
+        // const updatedPortfolio=JSON.parse(cachedPortfolio);
+        const updatedPortfolio=cachedPortfolio;
         updatedPortfolio.projects=updatedProjects.projects;
         await redis.setex(routeName, expTime,JSON.stringify(updatedPortfolio));
       }

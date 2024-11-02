@@ -40,7 +40,7 @@ function UploadImage({setUploadingImage}:props) {
      };
     const handleDelete=async()=>{
         if(portfolio.personalInfo.profilePicture)
-        await dispatch(deleteImageAsync({url:portfolio.personalInfo.profilePicture,deleteType:DeleteImageType.ProfileImage,routeName:portfolio.routeName}));
+        await dispatch(deleteImageAsync({url:portfolio.personalInfo.profilePicture,deleteType:Purpose.ProfileImage,routeName:portfolio.routeName}));
         await setUploadingImage(false);
          
     };

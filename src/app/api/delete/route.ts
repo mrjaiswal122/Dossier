@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/app/_lib/database";
-import portfolioModel from "@/app/_models/portfolio";
+import portfolioModel, { IPortfolio } from "@/app/_models/portfolio";
 import {
   Delete,
   DeleteImageType,
+  Purpose,
 } from "@/app/_features/portfolio/portfolioSlice";
 import { redis } from "@/app/_lib/redis-client";
 import { deleteImage } from "@/app/_lib/s3";
 
-const expTime = process.env.REDIS_EX_TIME!;
+const expTime =Number( process.env.REDIS_EX_TIME!);
 
 export async function DELETE(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -45,9 +46,10 @@ export async function DELETE(request: NextRequest) {
         await portfolio.save(); // Save the updated document
 
         // Update Redis cache
-        const cachedPortfolio = await redis.get(routeName);
+        const cachedPortfolio = await redis.get(routeName) as IPortfolio|null;
         if (cachedPortfolio) {
-          const updatedPortfolio = JSON.parse(cachedPortfolio);
+          // const updatedPortfolio = JSON.parse(cachedPortfolio);
+          const updatedPortfolio =cachedPortfolio
           updatedPortfolio.projects = portfolio.projects;
           await redis.setex(
             routeName,
@@ -58,8 +60,45 @@ export async function DELETE(request: NextRequest) {
 
         // Delete image from AWS if it exists
         if (deletedProject.image) {
-          await deleteImage(deletedProject.image, DeleteImageType.ProjectImage);
+          await deleteImage(deletedProject.image, Purpose.ProjectImage);
         }
+
+        return NextResponse.json({ success: true, message: "Item deleted" });
+      } else {
+        return NextResponse.json(
+          { success: false, error: "Invalid index" },
+          { status: 400 }
+        );
+      }
+    }else if(type == Delete.WorkExperience){
+        await dbConnect();
+        const portfolio = await portfolioModel.findOne({ routeName });
+         if (!portfolio) {
+        return NextResponse.json(
+          { success: false, error: "Portfolio not found" },
+          { status: 404 }
+        );
+      }
+
+        if (portfolio.experience && index >= 0 && index < portfolio.experience.length) {
+        const deletedExperience = portfolio.experience[index]; // Store the project to delete
+        portfolio.experience.splice(index, 1); // Remove the item at the specified index
+        await portfolio.save(); // Save the updated document
+
+        // Update Redis cache
+        const cachedPortfolio = await redis.get(routeName) as IPortfolio|null;
+        if (cachedPortfolio) {
+          // const updatedPortfolio = JSON.parse(cachedPortfolio);
+          const updatedPortfolio =cachedPortfolio
+          updatedPortfolio.experience = portfolio.experience;
+          await redis.setex(
+            routeName,
+            expTime,
+            JSON.stringify(updatedPortfolio)
+          );
+        }
+
+        
 
         return NextResponse.json({ success: true, message: "Item deleted" });
       } else {

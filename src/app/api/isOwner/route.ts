@@ -14,8 +14,8 @@ const pathname=searchParams.get('pathname')
 console.log(pathname);
 
 const session=await getServerSession(authOptions);
-const Gettoken =await cookies()
-const token=Gettoken.get("access-token")?.value;
+const Gettoken =(await cookies()).get('access-token');
+const token=Gettoken?.value;
 console.log(session,token);
 if(!pathname){
     console.log('1st');

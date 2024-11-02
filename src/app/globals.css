@@ -69,3 +69,6 @@
   .nav{
     @apply bg-theme p-3 rounded-lg
   }
+  input[type="date"]::-webkit-calendar-picker-indicator {
+  color: white;
+}

@@ -7,6 +7,7 @@ import { updatePortfolio, updateIsOwner, PortfolioStatus, updateStatus } from "@
 import { usePathname } from "next/navigation";
 import LoadingScreen from "../_components/Loader";
 import Projects from "../_components/portfolio/Projects";
+import WorkExperience from "../_components/portfolio/Experience";
 
 export default function Portfolio() {
   const dispatch = useAppDispatch();
@@ -55,6 +56,7 @@ export default function Portfolio() {
     <>
       <Hero />
       <Projects />
+      <WorkExperience />
     </>
   );
 }

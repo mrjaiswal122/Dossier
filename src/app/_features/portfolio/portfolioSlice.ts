@@ -1,6 +1,8 @@
+import {Experience} from '@/app/_components/portfolio/Experience';
 import { ProjectData } from '@/app/_components/portfolio/Projects';
 import { getSignedURL,deleteImage } from '@/app/_lib/s3';
 import { createAppAsyncThunk } from '@/app/_store/hooks';
+import { Update } from '@/app/api/update/route';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { Types } from 'mongoose';
@@ -78,8 +80,8 @@ export type Portfolio = {
     companyName: string;
     companyLogo?: string;
     location?: string;
-    startDate: Date;
-    endDate?: Date;
+    startDate: string;
+    endDate?: string;
     responsibilities?: string;
   }>;
   education?: Array<{
@@ -142,7 +144,7 @@ export type Portfolio = {
 };
 interface UploadImageArgs {
   routename:string;
-  image: Blob | undefined; // Base64-encoded image string
+  image: Blob | undefined | string; // Base64-encoded image string
   key:string;
   oldUrl:string |undefined;
   type:Purpose
@@ -161,6 +163,29 @@ export type UpdateProjectReturnType={
   projectUrl?:string;
   image?:string;
 }
+export type UpdateExsitingProjectReturnType={
+  success:boolean;
+  project:{
+  title:string;
+  description:string;
+  technologies:string[];
+  githubUrl?:string;
+  projectUrl?:string;
+  image?:string;
+  }
+  index:number;
+  
+}
+export type UpdateExperienceReturnType={success:Boolean,data:Experience|null,index:number};
+export type UpdateExperienceArgs={data:Experience,index:number,routeName:string};
+
+export type UpdateExistingProjectArgs={
+  data:ProjectData;
+  index:number;
+  routeName:string;
+  key:string;
+  oldUrl:string|undefined;
+}
 // Initial state
 const initialState: Portfolio = {
   user: '' as any, // Placeholder, replace with actual Types.ObjectId type if needed
@@ -169,6 +194,7 @@ const initialState: Portfolio = {
     title: '',
     email: '',
   },
+  experience:[],
   languages: [],
   routeName: '',
   status:PortfolioStatus.Ideal,
@@ -182,41 +208,93 @@ const updateProjectAsync=createAppAsyncThunk<UpdateProjectReturnType,UpdateProje
   async({data,routename,pathname,oldProjectImage},{dispatch,rejectWithValue})=>{
     try{
     // const signedUrl=await getSignedURL()
-    const result=await dispatch(uploadImageAsync({routename,image:data.image,key:pathname,oldUrl:oldProjectImage,type:Purpose.ProjectImage}))
-    const url = (result.payload as { url: string }).url;
-   
-    
-    const sendData={ 
-    title:data.title,
+    // if(data.image instanceof File || data.image== undefined){
+
+      const result=await dispatch(uploadImageAsync({routename,image:data.image,key:pathname,oldUrl:oldProjectImage,type:Purpose.ProjectImage}))
+      const url = (result.payload as { url: string }).url;
+      
+      
+      const sendData={ 
+        title:data.title,
     description:data.description,
     technologies:data.technologies,
     githubUrl:data.githubUrl,
     projectUrl:data.projectUrl,
     image:url
   }
-    const formData = new FormData();
-    formData.append('routename', routename);
-    formData.append('data',JSON.stringify(sendData));
-    formData.append('uploadType',Upload.Project);
-        
+  const formData = new FormData();
+  formData.append('routename', routename);
+  formData.append('data',JSON.stringify(sendData));
+  formData.append('uploadType',Upload.Project);
   
-    //calling the api for updation
-    const response = await axios.post('/api/upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    console.log(response);
-        
-    //sending data to extraReducers 
-    return sendData;
-
-    }catch(e){
+  
+  //calling the api for updation
+  const response = await axios.post('/api/upload', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  console.log(response);
+  
+  //sending data to extraReducers 
+  return sendData;
+  
+// }
+}catch(e){
       console.error('Error updating project:', e);
         return rejectWithValue('Failed to update project.');
     }
   })
+const updateExistingProjectAsync = createAppAsyncThunk<UpdateExsitingProjectReturnType, UpdateExistingProjectArgs>(
+  'portfolio/updateExistingProjectAsync',
+  async ({ data, index, routeName, key, oldUrl }, { dispatch }) => {
+    let imageUrl = oldUrl;
+
+    try {
+      // Handle image replacement cases
+      if (data.image instanceof File) {
+        const result = await dispatch(uploadImageAsync({ routename: routeName, image: data.image, key, oldUrl, type: Purpose.ProjectImage }));
+        imageUrl = (result.payload as { url: string }).url || '';
+      } else if (!data.image && oldUrl) {
+        const deleteResult = await deleteImage(oldUrl, Purpose.ProjectImage);
+        if (!deleteResult.success) throw new Error("Failed to delete image");
+        imageUrl = ''; // No image after deletion
+      }
+
+      // Prepare project data for API
+      const projectData = {
+        title: data.title,
+        description: data.description,
+        technologies: data.technologies,
+        githubUrl: data.githubUrl,
+        projectUrl: data.projectUrl,
+        image: imageUrl,
+      };
+
+      // Submit updated data to API
+      const formData = new FormData();
+      formData.append('routeName', routeName);
+      formData.append('data', JSON.stringify(projectData));
+      formData.append('updateType', Update.Project);
+      formData.append('index', JSON.stringify(index));
+
+      const response = await axios.post('/api/update', formData);
+      if (response.data.success) {
+        return { success: true, project: projectData, index };
+      }
+    } catch (error) {
+      console.error("Error updating project:", error);
+    }
+
+    // Fallback response if update fails
+    return { success: false, project: { title: '', description: '', technologies: [], githubUrl: '', projectUrl: '', image: '' }, index };
+  }
+);
+
 const uploadImageAsync=createAppAsyncThunk<{type:Purpose,url:string},UploadImageArgs>('portfolio/uploadImageAsync',async({ routename, image,key,oldUrl,type }: UploadImageArgs)=>{
+   if(typeof image === 'string'){
+    return {type:Purpose.Empty,url:image};
+   }
  try {
       //uploading to aws
       //if image is undefined then it will get out of the thunk
@@ -229,13 +307,15 @@ const uploadImageAsync=createAppAsyncThunk<{type:Purpose,url:string},UploadImage
         return hashHex;
        
       }
+     
       const checksum= await computeSHA256(image);
-     const signedUrl=await getSignedURL(key,oldUrl,image.type,image.size,checksum,routename);
+     const signedUrl=await getSignedURL(key,oldUrl,image.type,image.size,checksum,routename,type);
      await axios.put(signedUrl,image,{
       headers: {
         'Content-Type':image?.type,
       },
     }); 
+
 
     
   
@@ -269,20 +349,39 @@ const uploadImageAsync=createAppAsyncThunk<{type:Purpose,url:string},UploadImage
     }
 });
 const deleteParticularObjectAsync=createAppAsyncThunk('portfolio/deleteParticularObject',async({from,index,routeName}:{from:Delete,index:number,routeName:string})=>{
-  if(from==Delete.Project){
-   const res = await axios.delete(`/api/delete?type=${Delete.Project}&index=${index}&routeName=${routeName}`);
+  
+   const res = await axios.delete(`/api/delete?type=${from}&index=${index}&routeName=${routeName}`);
    if(res?.data?.success==true) {
-    return {sucess: true,type:Delete.Project,index}
+    return {sucess: true,type:from,index}
    }
-  }
+    return {sucess: false,type:from,index}
 })
-const deleteImageAsync=createAppAsyncThunk('portfolio/deleteImageAsync',async({url,deleteType,routeName}:{url:string,deleteType:DeleteImageType,routeName:string},{rejectWithValue})=>{
+const deleteImageAsync=createAppAsyncThunk('portfolio/deleteImageAsync',async({url,deleteType,routeName}:{url:string,deleteType:Purpose,routeName:string},{rejectWithValue})=>{
  const res=await deleteImage(url,deleteType,routeName);
  if(res?.success==true) return '';
  else
  return rejectWithValue('Image was not deleted')
 
 });
+const updateExperienceAsync=createAppAsyncThunk<UpdateExperienceReturnType,UpdateExperienceArgs>('portfolio/updateExperienceAsync',async({data,index,routeName}:UpdateExperienceArgs,{rejectWithValue})=>{
+try {
+   const formData=new FormData();
+   formData.append('routeName',routeName);
+   formData.append('data',JSON.stringify(data));
+   formData.append('updateType',Update.WorkExperience);
+   formData.append('index',JSON.stringify(index));
+   const response= await axios.post('/api/update',formData);
+
+   if(response.data.success) return {success:true,data:data,index};
+   else return rejectWithValue({success:false,data:null,index})
+   
+
+} catch (error) {
+  console.log('Error occured in updateExperienceAsync->',error);
+  rejectWithValue({success:false,data:null,index})
+}
+return {success:false,data:null,index}
+})
 
 // Create a slice
 const portfolioSlice = createSlice({
@@ -353,12 +452,47 @@ const portfolioSlice = createSlice({
       })
       .addCase(deleteParticularObjectAsync.fulfilled, (state, action) => {
         state.status = PortfolioStatus.Succeeded
-      if(action?.payload?.type==Delete.Project)
-        state.projects?.splice(action?.payload?.index,1)
+      if(action?.payload?.type==Delete.Project){
+        state.projects?.splice(action?.payload?.index,1)}else if(action?.payload?.type==Delete.WorkExperience){
+state.experience?.splice(action?.payload?.index,1)
+        }
       console.log('deleted');
       
       })
       .addCase(deleteParticularObjectAsync.rejected, (state, action) => {
+        state.status = PortfolioStatus.Failed
+        state.error = action.error.message ?? 'Unknown Error'
+      })
+      .addCase(updateExistingProjectAsync.pending, (state, action) => {
+        state.status = PortfolioStatus.Pending
+      })
+      .addCase(updateExistingProjectAsync.fulfilled, (state, action) => {
+        state.status = PortfolioStatus.Succeeded
+        // Add any fetched posts to the array
+        if (action.payload.success === true && state.projects) {
+        const { index, project } = action.payload;
+        if (index >= 0 && index < state.projects.length) {
+            state.projects[index] = project;
+        }
+    }
+        return;
+      })
+       .addCase(updateExperienceAsync.pending, (state, action) => {
+        state.status =PortfolioStatus.Pending
+      })
+      .addCase(updateExperienceAsync.fulfilled, (state, action) => {
+        state.status = PortfolioStatus.Succeeded
+        if(action.payload.success&&action.payload.index>=0 &&action.payload.data) {
+        if (!state.experience) {
+            state.experience = [];
+        }
+        
+        
+        state.experience[action.payload.index] = action.payload.data;
+
+        }
+      })
+      .addCase(updateExperienceAsync.rejected, (state, action) => {
         state.status = PortfolioStatus.Failed
         state.error = action.error.message ?? 'Unknown Error'
       })
@@ -367,6 +501,6 @@ const portfolioSlice = createSlice({
 
 // Export actions
 export const {updatePortfolio, updateIsOwner,updateStatus} = portfolioSlice.actions;
-export {uploadImageAsync,deleteImageAsync,updateProjectAsync,deleteParticularObjectAsync};
+export {uploadImageAsync,deleteImageAsync,updateProjectAsync,deleteParticularObjectAsync,updateExistingProjectAsync,updateExperienceAsync};
 // Export the reducer
 export default portfolioSlice.reducer;

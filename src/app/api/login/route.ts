@@ -8,7 +8,8 @@ import jsonwebtoken from "jsonwebtoken";
 
 
 export async function POST(req: Request) {
-
+  
+  const cookie= await cookies();
 
 
   const { email, password } = await req.json();
@@ -25,7 +26,7 @@ export async function POST(req: Request) {
 
   try {
     await dbConnect();
-    const user = await userModel.findOne({ email: email });
+    const user = await userModel.findOne({ email: email }) .select('+password +salt +_id')
     if (user) {
         const hashedPassword = crypto
         .createHmac("sha256", user.salt)
@@ -36,14 +37,15 @@ export async function POST(req: Request) {
         let jwtToken = sign({ userId: user.id }, `${process.env.JWT_SECRET}`, {
           expiresIn: "12h",
         });
-      const cookie= await cookies()
       cookie.set("access-token", jwtToken, {
           httpOnly: true,
           secure: process.env.NODE_ENV === "production",
           maxAge:  12* 60 * 60, //1 days in seconds
           path: "/",
         });
-        return NextResponse.json({ msg: "User Found" }, { status: 200 });
+        return NextResponse.json({ msg: "User Found" }, { status: 200,  headers: {
+          'Content-Type': 'application/json'
+        } });
       } else {
         return NextResponse.json(
           { msg: "Invalid Password!!" },

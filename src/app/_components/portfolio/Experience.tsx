@@ -45,7 +45,7 @@ export default function WorkExperience({}:Props) {
 
       <h1 className=' text-xl md:text-2xl lg:text-4xl mb-6
        dark:text-theme text-black flex justify-between items-center '>Experience
-         {portfolio.isOwner?<span className='text-xs hover:text-sm text-whites p-3 bg-gray-600 hover:bg-green-600 hover:scale-105 transition-all duration-200 ease-in-out rounded-xl hover:shadow-lg cursor-pointer' onClick={()=>setShowForm(true)}>Add Experience</span>:null}
+         {portfolio.isOwner?<span className='text-xs  text-whites p-3 bg-gray-600 hover:bg-green-600  transition-all duration-200 ease-in-out rounded-xl hover:shadow-lg cursor-pointer' onClick={()=>setShowForm(true)}>Add Experience</span>:null}
       </h1>
       <div className='grid grid-cols-1 lg:grid-cols-2 gap-10'>
 
@@ -304,7 +304,7 @@ function ExperienceCard({ experience, index, isOwner, setShowForm, setUpdatingEx
                 <div className={`relative ${isExpanded ? '' : 'h-12 overflow-hidden'}`}>
                     <p ref={descriptionRef} className="text-black mb-2 text-sm leading-relaxed dark:text-grays">{experience.responsibilities}</p>
                     {descHeight > 46 && !isExpanded && (
-                        <div className="absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-[#84d6f4] dark:from-[#1f2937] to-transparent"></div>
+                        <div className="absolute bottom-0 left-0 w-full h-8 bg-gradient-to-t from-[#ffffff] dark:from-[#1f2937] to-transparent"></div>
                     )}
                 </div>
             )}

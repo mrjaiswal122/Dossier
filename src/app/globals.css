@@ -6,7 +6,7 @@
     border: 1px solid red !important;
 }
 .csw {
-    @apply mx-auto px-3 w-full sm:max-w-[540px] md:max-w-[740px] lg:max-w-[960px] xl:max-w-[1160px];
+    @apply px-3 mx-auto w-full  sm:max-w-[540px] md:max-w-[740px] lg:max-w-[960px] xl:max-w-[1160px];
   }
 .theme-options{
     @apply flex items-center pl-2 gap-2 dark:hover:bg-gray-600 cursor-pointer;

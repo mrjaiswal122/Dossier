@@ -2,7 +2,7 @@
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import dbConnect from "./database";
-import portfolioModel from "../_models/portfolio";
+import portfolioModel, { IPortfolio } from "../_models/portfolio";
 import { redis } from "./redis-client";
 import { Purpose} from "../_features/portfolio/portfolioSlice";
 import { boolean } from "zod";
@@ -68,9 +68,9 @@ export async function deleteImage(url: string, deleteType: Purpose,routeName:str
             { 'personalInfo.profilePicture': url },
             { $set: { 'personalInfo.profilePicture': '' } }
         );
-        const portfolio=await redis.get(routeName)as string |null;
+        const portfolio=await redis.get(routeName) as  IPortfolio|null;
         if(portfolio){
-            const updatedPortfolio=JSON.parse(portfolio);
+            const updatedPortfolio=(portfolio);
             updatedPortfolio.personalInfo.profilePicture='';
             await redis.setex(routeName,expTime,JSON.stringify(updatedPortfolio))
         }

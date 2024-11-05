@@ -89,7 +89,7 @@ export async function DELETE(request: NextRequest) {
         const cachedPortfolio = await redis.get(routeName) as IPortfolio|null;
         if (cachedPortfolio) {
           // const updatedPortfolio = JSON.parse(cachedPortfolio);
-          const updatedPortfolio =cachedPortfolio
+          const updatedPortfolio =cachedPortfolio;
           updatedPortfolio.experience = portfolio.experience;
           await redis.setex(
             routeName,

@@ -42,7 +42,7 @@ export default function Projects({}: Props) {
             Projects
             {portfolio.isOwner ? (
               <span
-                className="text-xs hover:text-sm text-whites p-3 bg-gray-600 hover:bg-green-600 hover:scale-105 transition-all duration-200 ease-in-out rounded-xl hover:shadow-lg cursor-pointer"
+                className="text-xs  text-whites p-3 bg-gray-600 hover:bg-green-600  transition-all duration-200 ease-in-out rounded-xl hover:shadow-lg cursor-pointer"
                 onClick={() => setShowAddProject(true)}
               >
                 Add Project

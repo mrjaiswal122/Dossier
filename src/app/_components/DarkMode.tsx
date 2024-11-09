@@ -23,8 +23,8 @@ export default function DarkMode({ children }: { children: ReactNode }) {
             <Navbar />
           </nav>
           <div className="w-full h-16"></div>
+          
            {/* To dispaly error and messages to user in a  centralised mannner */}
-          <div className="csw">
             {toastMsg?.msg && (
               <Err
               msg={toastMsg.msg}
@@ -32,7 +32,7 @@ export default function DarkMode({ children }: { children: ReactNode }) {
               type={toastMsg.type}
               />
             )}
-            </div>
+          
 
           {children}
         </div>

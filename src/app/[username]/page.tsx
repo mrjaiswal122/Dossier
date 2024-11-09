@@ -8,7 +8,6 @@ import { usePathname } from "next/navigation";
 import LoadingScreen from "../_components/Loader";
 import Projects from "../_components/portfolio/Projects";
 import WorkExperience from "../_components/portfolio/Experience";
-import { clearToastMsgRedux } from "../_features/toastMsg/toastMsgSlice";
 
 export default function Portfolio() {
   const dispatch = useAppDispatch();
@@ -41,11 +40,6 @@ export default function Portfolio() {
     };
 
     fetchPortfolioData();
-
-    // Optional cleanup to clear toast messages on component unmount
-    return () => {
-      dispatch(clearToastMsgRedux());
-    };
   }, [dispatch, pathname]);
 
   // Conditional rendering based on portfolio status

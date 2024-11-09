@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect } from "react";
 import { IoMdCloseCircle } from "react-icons/io";
 
 

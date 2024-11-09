@@ -8,13 +8,12 @@ import { usePathname } from "next/navigation";
 import LoadingScreen from "../_components/Loader";
 import Projects from "../_components/portfolio/Projects";
 import WorkExperience from "../_components/portfolio/Experience";
-import Err from "../_components/Err";
 import { clearToastMsgRedux } from "../_features/toastMsg/toastMsgSlice";
 
 export default function Portfolio() {
   const dispatch = useAppDispatch();
   const portfolio = useAppSelector((state) => state.portfolioSlice);
-  const toastMsg = useAppSelector((state) => state.toastMsgSlice);
+
   const pathname = usePathname().trim().substring(1);
 
   useEffect(() => {
@@ -62,15 +61,11 @@ export default function Portfolio() {
     );
   }
 
-  const handleToastMsg = () => {
-    dispatch(clearToastMsgRedux());
-  };
+
 
   return (
     <div className="csw">
-      {toastMsg?.msg && (
-        <Err msg={toastMsg.msg} handleClick={handleToastMsg} type={toastMsg.type} />
-      )}
+      
       <Hero />
       <Projects />
       <WorkExperience />

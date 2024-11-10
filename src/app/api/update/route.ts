@@ -7,8 +7,8 @@ import { NextResponse,NextRequest } from "next/server";
 const expTime=Number(process.env.REDIS_EX_TIME);
 export enum Update{
 Project='updating project',
-WorkExperience='updating work experience'
-
+WorkExperience='updating work experience',
+Profile='updating hero section'
 }
 export  async function POST(request: NextRequest){
    try{

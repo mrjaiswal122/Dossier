@@ -16,7 +16,7 @@ export type IPortfolio = {
       facebook?: string;
       github?: string;
       twitter?: string;
-      personalWebsite?: string;
+     
     };
   };
   summary?: {
@@ -109,7 +109,7 @@ const portfolioSchema = new Schema({
       facebook: { type: String },
       github: { type: String },
       twitter: { type: String },
-      personalWebsite: { type: String },
+   
     },
   },
   summary: {

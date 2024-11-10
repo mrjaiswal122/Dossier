@@ -207,7 +207,7 @@ function Cards({
                     className="text-grays font-semibold hover:scale-105 flex items-center text-xs "
                   >
                     <FaExternalLinkAlt className="mr-1 h-3 w-3" />
-                    View Project
+                    Visit
                   </Link>
                 )}
                 {project.githubUrl && (
@@ -323,7 +323,7 @@ function AddProject({
   });
 
   const [imagePreview, setImagePreview] = useState(""); // State to store the image preview
-  const skillRef=useRef<HTMLInputElement>(null)
+  const skillRef = useRef<HTMLInputElement>(null);
   const [imageDimensions, setImageDimensions] = useState({
     width: 600,
     height: 400,
@@ -364,28 +364,29 @@ function AddProject({
       setValue("image", portfolio.projects?.[updatingProjectIndex].image!);
     }
   }, [updatingProjectIndex, portfolio.projects, setValue]);
-const handleSkillClick = (e: React.MouseEvent<HTMLSpanElement, MouseEvent>) => {
-  e.preventDefault(); // Prevent default action on button click
+  const handleSkillClick = (
+    e: React.MouseEvent<HTMLSpanElement, MouseEvent>
+  ) => {
+    e.preventDefault(); // Prevent default action on button click
 
-  // Check if skillRef.current exists before accessing its value
-  if (skillRef.current) {
-    const skill = skillRef.current.value.trim(); // Ensure skill is trimmed and non-empty
+    // Check if skillRef.current exists before accessing its value
+    if (skillRef.current) {
+      const skill = skillRef.current.value.trim(); // Ensure skill is trimmed and non-empty
 
-    if (skill) {
-      const currentSkills = watch("technologies"); // Get the current list of technologies
-      setValue("technologies", [...currentSkills, skill]); // Add the new skill to the list
-      skillRef.current.value = ""; // Clear the input field after adding the skill
-      clearErrors("technologies"); // Clear any existing errors
-    } else {
-      // Set an error if the input is empty
-      setError("technologies", {
-        type: "custom",
-        message: "Technology shouldn't be empty",
-      });
+      if (skill) {
+        const currentSkills = watch("technologies"); // Get the current list of technologies
+        setValue("technologies", [...currentSkills, skill]); // Add the new skill to the list
+        skillRef.current.value = ""; // Clear the input field after adding the skill
+        clearErrors("technologies"); // Clear any existing errors
+      } else {
+        // Set an error if the input is empty
+        setError("technologies", {
+          type: "custom",
+          message: "Technology shouldn't be empty",
+        });
+      }
     }
-  }
-};
-
+  };
 
   const handleSkill = (
     e: React.KeyboardEvent<HTMLInputElement>
@@ -473,9 +474,9 @@ const handleSkillClick = (e: React.MouseEvent<HTMLSpanElement, MouseEvent>) => {
       id="addProjects"
       onClick={handleFormClick}
     >
-      <section className="fixed top-[50%] left-[50%] w-[80vw] md:w-[60vw] lg:w-[40vw] max-h-[80vh] overflow-scroll overflow-x-hidden border translate-x-[-50%] translate-y-[-50%] bg-theme-dark dark:bg-black rounded-lg flex flex-col justify-between">
+      <section className="fixed top-[80px] left-[50%] csw max-h-[80vh] overflow-y-auto border translate-x-[-50%]  bg-theme-dark dark:bg-black rounded-lg flex flex-col justify-between dark:text-whites bg-opacity-65">
         {/* Head of the form */}
-        <div className="flex justify-between items-center p-4 text-lg md:text-2xl dark:text-theme">
+        <div className="sticky top-0 z-10 border-b bg-theme-dark dark:bg-black flex justify-between items-center px-4 py-2 text-lg md:text-xl dark:text-theme">
           {updatingProjectIndex != null ? "Edit Project" : "Add Project"}
           <span
             onClick={() => {
@@ -483,137 +484,150 @@ const handleSkillClick = (e: React.MouseEvent<HTMLSpanElement, MouseEvent>) => {
               setUpdatingProjectIndex(null);
             }}
           >
-            <TiDeleteOutline className="scale-150 dark:text-white cursor-pointer" />
+            <TiDeleteOutline className="scale-150 dark:text-white cursor-pointer hover:text-reds" />
           </span>
         </div>
         {/* Form */}
-        <form onSubmit={handleSubmit(onSubmit)} className="p-4 space-y-4">
-          <div>
-            <label className="block mb-2">Project Title</label>
-            <input
-              type="text"
-              {...register("title")}
-              className="w-full p-2 border rounded"
-            />
-            {errors.title && (
-              <span className="text-red-500">{errors.title.message}</span>
-            )}
-          </div>
+        <form onSubmit={handleSubmit(onSubmit)} className="px-6 py-3 text-sm ">
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <div>
+                <label className="block mb-2">Project Title*</label>
+                <input
+                  type="text"
+                  {...register("title")}
+                  className="w-full p-2 border rounded"
+                />
+                {errors.title && (
+                  <span className="text-red-500">{errors.title.message}</span>
+                )}
+              </div>
 
-          <div>
-            <label className="block mb-2">Description</label>
-            <textarea
-              {...register("description")}
-              className="w-full p-2 border rounded"
-            />
-            {errors.description && (
-              <span className="text-red-500">{errors.description.message}</span>
-            )}
-          </div>
-
-          <div>
-            <label className="block mb-2">Technologies Used</label>
-            <span className="flex gap-2 flex-wrap mb-2">
-              {watch("technologies").map((skill, skillIndex) => (
-                <div
-                  key={skillIndex}
-                  className=" px-2 py-1 text-black dark:text-gray-400 flex justify-center items-center gap-3 rounded-md bg-theme dark:bg-black-bg2"
-                >
-                  {skill.toUpperCase()}
+              <div>
+                <label className="block mb-2">Technologies Used*</label>
+                <span className="flex gap-2 flex-wrap mb-2">
+                  {watch("technologies").map((skill, skillIndex) => (
+                    <div
+                      key={skillIndex}
+                      className=" px-2 py-1 text-black dark:text-gray-400 flex justify-center items-center gap-3 rounded-md bg-theme dark:bg-black-bg2"
+                    >
+                      {skill.toUpperCase()}
+                      <span
+                        className="text-xl cursor-pointer hover:text-reds"
+                        onClick={(e) => deleteSkill(e, skill)}
+                      >
+                        x
+                      </span>
+                    </div>
+                  ))}
+                </span>
+                <div className="relative">
+                  <input
+                    type="text"
+                    ref={skillRef}
+                    onKeyDown={(e) => handleSkill(e)}
+                    className="w-full p-2 border rounded"
+                    placeholder="Press Enter To Add"
+                  />
                   <span
-                    className="text-xl cursor-pointer hover:text-reds"
-                    onClick={(e) => deleteSkill(e, skill)}
+                    className="rounded-lg py-2 px-3 bg-greens absolute top-[50%] translate-y-[-50%] right-2 text-xs"
+                    onClick={(e) => handleSkillClick(e)}
                   >
-                    x
+                    Add
                   </span>
                 </div>
-              ))}
-            </span>
-            <div className="relative">
+                {errors.technologies && (
+                  <span className="text-red-500">
+                    {errors.technologies.message}
+                  </span>
+                )}
+              </div>
 
-            <input
-              type="text"
-              ref={skillRef}
-              onKeyDown={(e) => handleSkill(e)}
-              className="w-full p-2 border rounded"
-              placeholder="Press Enter To Add"
-              />
-              <span className="rounded-lg py-2 px-3 bg-greens absolute top-[50%] translate-y-[-50%] right-2 text-xs" onClick={(e)=>handleSkillClick(e)}>Add</span>
-            </div>
-            {errors.technologies && (
-              <span className="text-red-500">
-                {errors.technologies.message}
-              </span>
-            )}
-          </div>
-
-          <div>
-            <label className="block mb-2">Project URL</label>
-            <input
-              type="text"
-              {...register("projectUrl")}
-              className="w-full p-2 border rounded"
-            />
-            {errors.projectUrl && (
-              <span className="text-red-500">{errors.projectUrl.message}</span>
-            )}
-          </div>
-
-          <div>
-            <label className="block mb-2">GitHub URL</label>
-            <input
-              type="text"
-              {...register("githubUrl")}
-              className="w-full p-2 border rounded"
-            />
-            {errors.githubUrl && (
-              <span className="text-red-500">{errors.githubUrl.message}</span>
-            )}
-          </div>
-
-          <div>
-            <label className="block mb-2">Project Image</label>
-            <input
-              type="file"
-              accept="image/*"
-              title="projectImage"
-              placeholder="Select Image"
-              className="w-full p-2 border rounded"
-              onChange={handleImageChange} // Handle file change to preview the image
-            />
-            {errors.image && (
-              <span className="text-red-500">{errors.image.message}</span>
-            )}
-          </div>
-
-          {/* Image Preview */}
-          {imagePreview && (
-            <div className="mt-4">
-              <label className="block mb-2">Image Preview:</label>
-              <div className="relative">
-                <Img
-                  src={imagePreview}
-                  width={imageDimensions.width}
-                  height={imageDimensions.height}
-                  alt="Selected Preview"
-                  className="w-full  object-cover rounded"
-                ></Img>
-                <span
-                  className="absolute top-3 right-3  bg-reds rounded-full cursor-pointer hover:scale-105"
-                  onClick={() => {
-                    setImagePreview("");
-                    setValue("image", undefined);
-                  }}
-                >
-                  <MdDeleteForever className="m-2 scale-125" />
-                </span>
+              <div className="flex flex-col  ">
+                <label className="block mb-2">Description*</label>
+                <textarea
+                  {...register("description")}
+                  className="w-full p-2 border rounded h-32 overflow-auto"
+                />
+                {errors.description && (
+                  <span className="text-red-500">
+                    {errors.description.message}
+                  </span>
+                )}
               </div>
             </div>
-          )}
+            <div className="space-y-4">
+              <div>
+                <label className="block mb-2">Project URL</label>
+                <input
+                  type="text"
+                  {...register("projectUrl")}
+                  className="w-full p-2 border rounded"
+                />
+                {errors.projectUrl && (
+                  <span className="text-red-500">
+                    {errors.projectUrl.message}
+                  </span>
+                )}
+              </div>
 
+              <div>
+                <label className="block mb-2">GitHub URL</label>
+                <input
+                  type="text"
+                  {...register("githubUrl")}
+                  className="w-full p-2 border rounded"
+                />
+                {errors.githubUrl && (
+                  <span className="text-red-500">
+                    {errors.githubUrl.message}
+                  </span>
+                )}
+              </div>
+              <div>
+                <label className="block mb-2">Project Image</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  title="projectImage"
+                  placeholder="Select Image"
+                  className="w-full p-2 border rounded"
+                  onChange={handleImageChange} // Handle file change to preview the image
+                />
+                {errors.image && (
+                  <span className="text-red-500">{errors.image.message}</span>
+                )}
+              </div>
+
+              {/* Image Preview */}
+              {imagePreview && (
+                <div className="mt-4">
+                  <label className="block mb-2">Image Preview:</label>
+                  <div className="relative">
+                    <Img
+                      src={imagePreview}
+                      width={imageDimensions.width}
+                      height={imageDimensions.height}
+                      alt="Selected Preview"
+                      className="w-full  object-cover rounded"
+                    ></Img>
+                    <span
+                      className="absolute top-3 right-3  bg-reds rounded-full cursor-pointer hover:scale-105"
+                      onClick={() => {
+                        setImagePreview("");
+                        setValue("image", undefined);
+                      }}
+                    >
+                      <MdDeleteForever className="m-2 scale-125" />
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
           <button
             type="submit"
-            className="w-full py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600"
+            className="w-full py-2 px-4 bg-blue-500 text-white rounded hover:bg-blue-600 mt-3"
           >
             {updatingProjectIndex == null ? "Add Project" : "Update Project"}
           </button>

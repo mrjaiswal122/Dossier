@@ -39,7 +39,7 @@
   }
 
   input, textarea,select,option{
-    @apply text-white dark:bg-black dark:outline-none  pl-3 py-2 rounded-md  bg-gray-700 
+    @apply text-white dark:bg-black dark:outline-none  pl-3 py-2 rounded-md  bg-gray-700 text-sm
   }
   .portfolio{
      display: flex;

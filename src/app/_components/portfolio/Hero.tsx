@@ -8,8 +8,8 @@ import UploadImage from "./UploadImage";
 import Link from "next/link";
 import { IoLocationSharp } from "react-icons/io5";
 import { BsCopy } from "react-icons/bs";
-import Err from "../Err";
 import { clearToastMsgRedux, setToastMsgRedux } from "@/app/_features/toastMsg/toastMsgSlice";
+import UpdateProfile from "./UpdateProfile";
 export default function Hero() {
     const portfolio = useAppSelector((state) => state.portfolioSlice);
     const toastMsg = useAppSelector((state) => state.toastMsgSlice); // Access toast message state
@@ -27,7 +27,7 @@ export default function Hero() {
     }
 
     const handleUpdateProfile=()=>{
-      setUpdatingProfile(!updatingProfile)
+      setUpdatingProfile(true)
     }
 
     const copyEmail = async () => {
@@ -79,8 +79,8 @@ export default function Hero() {
             <span className="flex gap-3 justify-start items-center" ><MdOutlineMailOutline /> {portfolio.personalInfo.email} <BsCopy onClick={copyEmail} className={`${isEmailCopied?'text-greens':''}`} />
             </span>
             {/* phone */}
-            <span className="flex gap-3 justify-start items-center" ><MdOutlinePhone /> {portfolio.personalInfo.phone}<BsCopy onClick={copyPhone} className={`${isPhoneCopied?'text-greens':''}`} />
-            </span>
+            {portfolio.personalInfo.phone &&<span className="flex gap-3 justify-start items-center" ><MdOutlinePhone /> {portfolio.personalInfo.phone}<BsCopy onClick={copyPhone} className={`${isPhoneCopied?'text-greens':''}`} />
+            </span>}
             {/* location */}
             <span className="flex gap-3 justify-start items-center"><IoLocationSharp /> {portfolio.personalInfo.location}</span>
             {/* social links */}
@@ -125,6 +125,9 @@ export default function Hero() {
     {uploadingImage && 
      <UploadImage setUploadingImage={setUploadingImage}/>
     }
+    {updatingProfile && (
+      <UpdateProfile  setUpdatingProfile={setUpdatingProfile}/>
+    )}
 </section>
   )
 }

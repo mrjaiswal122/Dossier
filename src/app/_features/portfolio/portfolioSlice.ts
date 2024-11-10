@@ -63,8 +63,7 @@ export type Portfolio = {
       facebook?:string;
       github?: string;
       twitter?: string;
-      personalWebsite?: string;
-    };
+     };
   };
   summary?: {
     aboutMe?: string;

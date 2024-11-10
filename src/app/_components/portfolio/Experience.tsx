@@ -139,12 +139,12 @@ function AddExperienceForm({setShowForm,updatingExperienceIndex,setUpdatingExper
       id='addExperince'
       onClick={handleFormClick}
     >
-      <section className='fixed top-[50%] left-[50%] w-[80vw] md:w-[60vw] lg:w-[40vw] max-h-[80vh] overflow-scroll overflow-x-hidden border translate-x-[-50%] translate-y-[-50%] bg-theme-dark dark:bg-black rounded-lg flex flex-col justify-between'>
+      <section className='fixed top-[80px] left-[50%] csw max-h-[80vh] overflow-y-auto border translate-x-[-50%]  bg-theme-dark dark:bg-black rounded-lg flex flex-col justify-between dark:text-whites bg-opacity-65'>
           {/* Head of the form */}
-          <div className='flex justify-between items-center p-4 text-lg md:text-2xl dark:text-theme'>
+          <div className=' sticky top-0  w-full flex justify-between items-center px-4 py-2 text-lg md:text-xl dark:text-theme bg-theme-dark dark:bg-black border-b bg-opacity-65'>
           {updatingExperienceIndex!=null?'Edit Experience':'Add Experience'}
           <span onClick={() => {setShowForm(false);setUpdatingExperienceIndex(null)}}>
-            <TiDeleteOutline className='scale-150 dark:text-white cursor-pointer' />
+            <TiDeleteOutline className='scale-150 dark:text-white cursor-pointer hover:text-reds' />
           </span>
         </div>
         {/* Form */}

@@ -11,19 +11,15 @@ import { verifyToken } from "@/app/_lib/verifyToken";
 export async function GET (request:NextRequest){
 const {searchParams}=request.nextUrl;
 const pathname=searchParams.get('pathname')
-console.log(pathname);
 
 const session=await getServerSession(authOptions);
 const Gettoken =(await cookies()).get('access-token');
 const token=Gettoken?.value;
-console.log(session,token);
 if(!pathname){
-    console.log('1st');
     
     return NextResponse.json({msg:'No pathname found in request Url'},{status:404})
 }
 if(!session && !token){
-    console.log('2nd');
 
     return NextResponse.json({isOwner:false},{status:200})
 }

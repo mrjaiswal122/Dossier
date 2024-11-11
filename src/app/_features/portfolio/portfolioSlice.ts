@@ -6,6 +6,7 @@ import { Update } from '@/app/api/update/route';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { Types } from 'mongoose';
+import { setToastMsgRedux } from '../toastMsg/toastMsgSlice';
 
 export enum DeleteImageType{
     ProfileImage='deleting profile image',
@@ -162,6 +163,13 @@ export type UpdateProjectReturnType={
   projectUrl?:string;
   image?:string;
 }
+export type UpdateExistingProjectArgs={
+  data:ProjectData;
+  index:number;
+  routeName:string;
+  key:string;
+  oldUrl:string|undefined;
+}
 export type UpdateExsitingProjectReturnType={
   success:boolean;
   project:{
@@ -175,16 +183,32 @@ export type UpdateExsitingProjectReturnType={
   index:number;
   
 }
-export type UpdateExperienceReturnType={success:Boolean,data:Experience|null,index:number};
-export type UpdateExperienceArgs={data:Experience,index:number,routeName:string};
 
-export type UpdateExistingProjectArgs={
-  data:ProjectData;
-  index:number;
-  routeName:string;
-  key:string;
-  oldUrl:string|undefined;
+
+export type UpdateExperienceArgs={
+  data:Experience,
+  index:number,
+  routeName:string
+};
+export type UpdateExperienceReturnType={
+  success:Boolean,
+  data:Experience|null,
+  index:number
+};
+
+
+export type UpdateProfileArgs={
+data:{
+  personalInfo:Portfolio['personalInfo'],
+  summary:Portfolio['summary']
+},
+routeName:string
 }
+export type UpdateProfileReturnType={
+success:boolean,
+data:UpdateProfileArgs['data']
+}
+
 // Initial state
 const initialState: Portfolio = {
   user: '' as any, // Placeholder, replace with actual Types.ObjectId type if needed
@@ -192,6 +216,9 @@ const initialState: Portfolio = {
     fullName: '',
     title: '',
     email: '',
+  },
+  summary:{
+    aboutMe:''
   },
   experience:[],
   languages: [],
@@ -380,7 +407,34 @@ try {
   rejectWithValue({success:false,data:null,index})
 }
 return {success:false,data:null,index}
+});
+const updateProfileAsync=createAppAsyncThunk<UpdateProfileReturnType,UpdateProfileArgs>('portfolio/updateProfileAsync',
+  async({data,routeName}:UpdateProfileArgs,{dispatch,rejectWithValue})=>{
+try {
+   const formData=new FormData();
+   formData.append('routeName',routeName);
+   formData.append('data',JSON.stringify(data));
+   formData.append('updateType',Update.Profile);
+   const response= await axios.post('/api/update',formData);
+   console.log('Response from api/update',response);
+   
+   if(response.data.success){
+    dispatch(setToastMsgRedux({msg:'Profile updated successfully',type:'msg'}))
+     return {success:true,data:data};
+    }else{ 
+      dispatch(setToastMsgRedux({msg:'Error updating profile else !!',type:'error'}))
+    return rejectWithValue({success:false,data:null});
+  }
+   
+
+} catch (error) {
+  console.log('Error occured in updateExperienceAsync->',error);
+  dispatch(setToastMsgRedux({msg:'Error updating profile',type:'error'}))
+  return rejectWithValue({success:false,data:null})
+}
+// return {success:false,data:null}
 })
+
 
 // Create a slice
 const portfolioSlice = createSlice({
@@ -495,11 +549,17 @@ state.experience?.splice(action?.payload?.index,1)
         state.status = PortfolioStatus.Failed
         state.error = action.error.message ?? 'Unknown Error'
       })
+      .addCase(updateProfileAsync.fulfilled,(state,action)=>{
+        if(action.payload.success){
+          state.personalInfo=action.payload.data.personalInfo
+          state.summary=action.payload.data.summary
+        }
+      })
   }
 });
 
 // Export actions
 export const {updatePortfolio, updateIsOwner,updateStatus} = portfolioSlice.actions;
-export {uploadImageAsync,deleteImageAsync,updateProjectAsync,deleteParticularObjectAsync,updateExistingProjectAsync,updateExperienceAsync};
+export {uploadImageAsync,deleteImageAsync,updateProjectAsync,deleteParticularObjectAsync,updateExistingProjectAsync,updateExperienceAsync,updateProfileAsync};
 // Export the reducer
 export default portfolioSlice.reducer;

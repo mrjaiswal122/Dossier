@@ -14,12 +14,10 @@ export const toastMsgSlice=createSlice({
     initialState,
     reducers:{
         setToastMsgRedux:(state,action:PayloadAction<ToastMsg>)=>{
-            console.log('seted toast msg');
            return { ...state, ...action.payload };
             
         },
         clearToastMsgRedux:(state)=>{
-            console.log('cleared toast msg');
             return {msg:'',type:'error'}
             
         }

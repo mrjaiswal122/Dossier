@@ -1,6 +1,8 @@
+import { updateProfileAsync } from '@/app/_features/portfolio/portfolioSlice';
 import { useAppDispatch, useAppSelector } from '@/app/_store/hooks';
 import { zodResolver } from '@hookform/resolvers/zod';
-import React, { Dispatch, SetStateAction } from 'react';
+import { watch } from 'fs';
+import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { TiDeleteOutline } from 'react-icons/ti';
 import { z } from 'zod';
@@ -34,7 +36,6 @@ const updateProfileSchema = z.object({
       aboutMe: z.string().optional(),
       careerObjective: z.string().optional(),
     })
-    .optional(),
 });
 
 export type UpdateProfileType = z.infer<typeof updateProfileSchema>;
@@ -42,10 +43,13 @@ export type UpdateProfileType = z.infer<typeof updateProfileSchema>;
 export default function UpdateProfile({setUpdatingProfile}: Props) {
   const portfolio = useAppSelector((state) => state.portfolioSlice);
   const dispatch = useAppDispatch();
+  const [isUnchanged, setIsUnchanged] = useState(true);
   const {
     register,
     formState: { errors },
     handleSubmit,
+    getValues,
+    watch
   } = useForm<UpdateProfileType>({
     resolver: zodResolver(updateProfileSchema),
     mode: 'onChange',
@@ -54,17 +58,23 @@ export default function UpdateProfile({setUpdatingProfile}: Props) {
       summary: portfolio.summary,
     },
   });
-
-  const onSubmit = async (data: UpdateProfileType) => {
-    console.log(data);
-    // Dispatch an action or handle form submission here
-  };
+    const currentValues=watch()
+    useEffect(() => {
+    const isSame = (JSON.stringify(currentValues.personalInfo) === JSON.stringify(portfolio.personalInfo))&&(JSON.stringify(currentValues.summary)===JSON.stringify(portfolio.summary));
+    setIsUnchanged(isSame);
+  }, [currentValues,portfolio]);
   const handleFormClose =(e:React.MouseEvent<HTMLElement>)=>{
     const section = e.target as HTMLElement;
     if (section.id === "updateProfile") {
       setUpdatingProfile(false);
     }
-  }
+  };
+  const onSubmit = async (data: UpdateProfileType) => {
+    console.log(data);
+    dispatch(updateProfileAsync({data,routeName:portfolio.routeName}))
+    setUpdatingProfile(false)
+    // Dispatch an action or handle form submission here
+  };
   return (
     <section className="fixed z-10 w-full h-full top-0 left-0 dark:bg-black dark:bg-opacity-90 bg-theme-light bg-opacity-65" onClick={handleFormClose} id='updateProfile'>
       <div className="fixed top-[80px] left-[50%] csw max-h-[80vh] overflow-y-auto border translate-x-[-50%]  bg-theme-dark dark:bg-black rounded-lg flex flex-col justify-between dark:text-whites bg-opacity-65">
@@ -190,9 +200,9 @@ export default function UpdateProfile({setUpdatingProfile}: Props) {
           </div>
 
           <div className="mt-6">
-            <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 transition-colors">
+            {<button type="submit" disabled={isUnchanged} className="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 transition-colors">
               Save Changes
-            </button>
+            </button>}
           </div>
         </form>
       </div>

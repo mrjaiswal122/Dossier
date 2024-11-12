@@ -37,7 +37,7 @@ export default function Profile({ user }: ProfileProps) {
   return (
     <>
       <div
-        className="rounded-full outline outline-black dark:outline-white hover:outline-theme transition-all ease-in-out duration-300 cursor-pointer"
+        className="rounded-full transition-all ease-in-out duration-300 cursor-pointer"
         onClick={handleProfileSection}
         aria-label="Toggle profile section"
       >

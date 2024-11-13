@@ -31,7 +31,7 @@ export default function Projects({}: Props) {
   >(null);
 
   return (
-    <section className="csw md:pt-[150px] text-whites pb-24">
+    <section className="csw md:pt-[150px] text-whites pb-24" id="projectSection">
       {/* checking if portfolio has any projects */}
       {portfolio.projects && portfolio.projects?.length > 0 ? (
         <div>

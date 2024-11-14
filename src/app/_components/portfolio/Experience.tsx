@@ -10,6 +10,7 @@ import { GoPencil } from 'react-icons/go'
 import { FiTrash } from 'react-icons/fi'
 import { Delete, deleteParticularObjectAsync, updateExperienceAsync } from '@/app/_features/portfolio/portfolioSlice'
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa6'
+import SurePrompt from '../SurePrompt'
 
 
 // Zod schema for experience
@@ -262,8 +263,8 @@ interface ExperienceCardProps {
 function ExperienceCard({ experience, index, isOwner, setShowForm, setUpdatingExperienceIndex }: ExperienceCardProps) {
     const [isExpanded, setIsExpanded] = useState(false);
     const dispatch = useAppDispatch();
-    const [descHeight,setDescHeight]=useState(0)
-
+    const [descHeight,setDescHeight]=useState(0);
+    const [isOpen,setIsOpen]=useState(false);
     const portfolio = useAppSelector((state) => state.portfolioSlice);
     const descriptionRef = useRef<HTMLDivElement>(null);
     
@@ -333,12 +334,13 @@ function ExperienceCard({ experience, index, isOwner, setShowForm, setUpdatingEx
                     <button
                         className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
                         aria-label="Delete"
-                        onClick={handleDelete}
+                        onClick={()=>{setIsOpen(true)}}
                     >
                         <FiTrash size={16} />
                     </button>
                 </div>
             )}
+            {isOpen&& <SurePrompt msg='Are you sure, you want to delete?' action={handleDelete} setIsOpen={setIsOpen}/>}
         </div>
     );
 }

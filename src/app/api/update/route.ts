@@ -1,9 +1,8 @@
 import { Experience } from "@/app/_components/portfolio/Experience";
 import { UpdateProfileType } from "@/app/_components/portfolio/UpdateProfile";
-import { UpdateProjectReturnType } from "@/app/_features/portfolio/portfolioSlice";
 import dbConnect from "@/app/_lib/database";
 import { redis } from "@/app/_lib/redis-client";
-import portfolioModel from "@/app/_models/portfolio";
+import portfolioModel, { IPortfolio } from "@/app/_models/portfolio";
 import { NextResponse, NextRequest } from "next/server";
 
 const expTime = Number(process.env.REDIS_EX_TIME);
@@ -28,7 +27,7 @@ export async function POST(request: NextRequest) {
 
     // Handling project updates
     if (type === Update.Project) {
-      const project = JSON.parse(data) as UpdateProjectReturnType;
+      const project = JSON.parse(data) as NonNullable<IPortfolio['projects']>[number];
       if (!project.title || !project.description) {
         return NextResponse.json({ success: false, msg: 'Incomplete project data' }, { status: 400 });
       }
@@ -69,10 +68,10 @@ export async function POST(request: NextRequest) {
 
       const updatedExperience = await portfolioModel.findOneAndUpdate(
         { routeName },
-        { $set: { [`workExperience.${index}`]: experience } },
-        { new: true, projection: { [`workExperience.${index}`]: 1 } }
+        { $set: { [`experience.${index}`]: experience } },
+        { new: true,  }
       );
-
+       
       if (updatedExperience) {
         console.log('Updated work experience in the DB, now sending the response');
         try {

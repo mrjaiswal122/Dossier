@@ -72,7 +72,11 @@ export async function DELETE(request: NextRequest) {
       }
     }else if(type == Delete.WorkExperience){
         await dbConnect();
+        console.log('connected to db');
+        
         const portfolio = await portfolioModel.findOne({ routeName });
+        console.log('portfolio:->',portfolio);
+        
          if (!portfolio) {
         return NextResponse.json(
           { success: false, error: "Portfolio not found" },
@@ -81,6 +85,7 @@ export async function DELETE(request: NextRequest) {
       }
 
         if (portfolio.experience && index >= 0 && index < portfolio.experience.length) {
+          
         const deletedExperience = portfolio.experience[index]; // Store the project to delete
         portfolio.experience.splice(index, 1); // Remove the item at the specified index
         await portfolio.save(); // Save the updated document

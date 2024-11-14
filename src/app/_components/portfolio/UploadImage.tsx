@@ -6,6 +6,7 @@ import { MdDelete } from 'react-icons/md';
 import { uploadImageAsync,deleteImageAsync, Purpose } from '@/app/_features/portfolio/portfolioSlice';
 import { IoCloudUploadOutline } from 'react-icons/io5';
 import { DeleteImageType } from '@/app/_features/portfolio/portfolioSlice';
+import SurePrompt from '../SurePrompt';
 
 type props={
     setUploadingImage:Dispatch<SetStateAction<boolean>>
@@ -17,6 +18,9 @@ function UploadImage({setUploadingImage}:props) {
     const dispatch = useAppDispatch();
     const [image,setImage]=useState<File>();
     const [imageUrl,setImageUrl]=useState(portfolio.personalInfo.profilePicture)
+    const [isOpen, setIsOpen]=useState(false);
+
+
     const handleClick=(e:React.MouseEvent<HTMLElement, MouseEvent>)=>{
         const section=e.target as HTMLBodyElement
         if(section.id=='uploadImage')setUploadingImage(false);
@@ -52,7 +56,7 @@ function UploadImage({setUploadingImage}:props) {
              Profile Picture
              <span  onClick={()=>setUploadingImage(false)}>
 
-            <TiDeleteOutline className=' scale-150 dark:text-white m-5 cursor-pointer'/>
+            <TiDeleteOutline className=' scale-150 dark:text-white m-5 cursor-pointer hover:text-reds'/>
              </span>
             </div>
             <div className='flex justify-center items-center mx-3 my-6  '>
@@ -74,7 +78,7 @@ function UploadImage({setUploadingImage}:props) {
             <div className='mb-5 mx-3 text-sm' >
     
             {/* delete button */}
-                <button className='bg-reds flex justify-center items-center gap-2 p-2 rounded-lg float-left ' onClick={handleDelete}>
+                <button className='bg-reds flex justify-center items-center gap-2 p-2 rounded-lg float-left ' onClick={()=>setIsOpen(true)}>
                     <MdDelete className='scale-125' /> Delete
                 </button>
             {/* add new button */}
@@ -105,7 +109,7 @@ function UploadImage({setUploadingImage}:props) {
                 </div>
             </div>
         </section> 
-         
+          {isOpen&& <SurePrompt msg='Are you sure?' action={handleDelete} setIsOpen={setIsOpen}/>}
     </section> 
   )
 }

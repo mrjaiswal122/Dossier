@@ -21,6 +21,7 @@ import { FaChevronDown, FaChevronUp, FaGithub } from "react-icons/fa6";
 import { FaExternalLinkAlt } from "react-icons/fa";
 import Link from "next/link";
 import { MdDeleteForever } from "react-icons/md";
+import SurePrompt from "../SurePrompt";
 type Props = {};
 
 export default function Projects({}: Props) {
@@ -107,6 +108,7 @@ function Cards({
 }: CardsProps) {
   const dispatch = useAppDispatch();
   const portfolio = useAppSelector((state) => state.portfolioSlice);
+  const [isOpen,setIsOpen]=useState(false)
   const capitalizeText = (text: string) => {
     return text
       .split(" ") // Split the string into words
@@ -235,7 +237,7 @@ function Cards({
                   </div>
                   <div
                     className="cursor-pointer px-3 py-2  bg-reds rounded-lg"
-                    onClick={handleDelete}
+                    onClick={()=>setIsOpen(true)}
                   >
                     Delete
                   </div>
@@ -245,6 +247,7 @@ function Cards({
           </div>
         </div>
       </div>
+      {isOpen&& <SurePrompt msg="Are you sure, You want to delete?" action={handleDelete} setIsOpen={setIsOpen}/>}
     </>
   );
 }

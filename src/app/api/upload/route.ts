@@ -1,10 +1,11 @@
-import { UpdateProjectReturnType, Upload } from "@/app/_features/portfolio/portfolioSlice";
+import {  Upload } from "@/app/_features/portfolio/portfolioSlice";
 import dbConnect from "@/app/_lib/database";
 import portfolioModel, { IPortfolio } from "@/app/_models/portfolio";
 import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 import { redis } from "@/app/_lib/redis-client";
 const expTime=Number(process.env.REDIS_EX_TIME!);
+ 
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,13 +16,13 @@ export async function POST(request: NextRequest) {
     const type=formData.get('uploadType') as string;
     
 
-    if(!data)return NextResponse.json({msg:'Data is required'},{status:400})
+    if(!data)return NextResponse.json({msg:'Data is required',success:false},{status:400})
     // Connect to the database
   
   if (Upload.ProfileImage===type){
     const url= data as string
     if (!url) {
-      return NextResponse.json({ msg: 'URL is required as Data' }, { status: 400 });
+      return NextResponse.json({ msg: 'URL is required as Data',success:false }, { status: 400 });
     }
       await dbConnect();
 
@@ -41,13 +42,13 @@ export async function POST(request: NextRequest) {
       console.log('image uploaded sucessfull :',url);
       revalidatePath(`/${url.split('.com/')[1]}`,'page')
       // Return a success response
-      return NextResponse.json({ msg: 'Image uploaded successfully'}, { status: 200 });
+      return NextResponse.json({ msg: 'Image uploaded successfully',success:true}, { status: 200 });
 
     }
     else if(type===Upload.Project){
-      const project=JSON.parse(data) as UpdateProjectReturnType;
+      const project=JSON.parse(data) as NonNullable<IPortfolio['projects']>[number];
       if (!project.title || !project.description) {
-        return NextResponse.json({ msg: 'Incomplete project data' }, { status: 400 });
+        return NextResponse.json({ msg: 'Incomplete project data',success:false }, { status: 400 });
       }
       const updatedProjects=await portfolioModel.findOneAndUpdate(
         {routeName},
@@ -64,11 +65,11 @@ export async function POST(request: NextRequest) {
       }
 
       console.log('project successfully added :',updatedProjects)
-      return NextResponse.json({ msg: 'Project Uploaded Successfully'}, { status: 200 });
+      return NextResponse.json({ msg: 'Project Uploaded Successfully',success:true}, { status: 200 });
 
     }
   } catch (error) {
     console.log('Error occurred while uploading Image:', error);
-    return NextResponse.json({ msg: 'Error uploading Image' }, { status: 500 });
+    return NextResponse.json({ msg: 'Error uploading Image',success:false }, { status: 500 });
   }
 }

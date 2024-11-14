@@ -18,6 +18,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { ImProfile } from "react-icons/im";
 import { FaExternalLinkAlt } from "react-icons/fa";
 import { setToastMsgRedux } from "../_features/toastMsg/toastMsgSlice";
+import SurePrompt from "./SurePrompt";
 
 type LogedInUser = {
   name: string;
@@ -33,6 +34,8 @@ export default function Navbar() {
   const [user, setUser] = useState<LogedInUser>();
   const [toogleSideBar, setToogleSideBar] = useState(false);
   const pathname = usePathname().slice(1);
+  const [isOpen, setIsOpen] = useState(false)
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -129,22 +132,26 @@ export default function Navbar() {
                 >
                   <ImProfile /> Profile
                 </Link>
-                <Link
+                {portfolio.projects && portfolio.projects?.length>0&&
+                  <Link
                   href={`/${portfolio.routeName}#projectSection`}
                   className="flex gap-3 items-center hover:bg-grays rounded-lg py-2 px-3"
                   onClick={() => setToogleSideBar(false)}
-                >
+                  >
                   <GrProjects />
                   Projects
                 </Link>
-                <Link
+                }{portfolio.experience && portfolio.experience.length>0&&
+
+                  <Link
                   href={`/${portfolio.routeName}#experienceSection`}
                   className="flex gap-3 items-center hover:bg-grays rounded-lg py-2 px-3"
                   onClick={() => setToogleSideBar(false)}
-                >
+                  >
                   <MdOutlineWork />
                   Work Experience
                 </Link>
+                }
               </div>
             )}
 
@@ -153,7 +160,7 @@ export default function Navbar() {
               className=" flex justify-center items-center"
               onClick={() => setToogleSideBar(true)}
             >
-              <BiMenu />
+              <BiMenu className="hover:text-theme cursor-pointer"/>
             </div>
           </div>
         </div>
@@ -190,8 +197,10 @@ function SideBar({
   const portfolio = useAppSelector((state) => state.portfolioSlice);
   const pathname = usePathname().slice(1);
   const reduxTheme = useAppSelector((state) => state.theme);
-  const logout = async (e: React.MouseEvent<SVGElement, MouseEvent>) => {
-    e.stopPropagation();
+  const [isOpen, setIsOpen] = useState(false)
+
+  const logout = async () => {
+    // e.stopPropagation();
 
     try {
       // Calling logout API on the server
@@ -310,7 +319,7 @@ function SideBar({
                   <FiLogOut
                     className="hover:scale-105 transition-all duration-200 ease-in-out hover:text-red-600 hover:font-bold cursor-pointer "
                     aria-label="Logout"
-                    onClick={logout}
+                    onClick={()=>setIsOpen(true)}
                   />
                 </div>
               ) : (
@@ -326,6 +335,8 @@ function SideBar({
           </div>
         </div>
       </div>
+    
+      {isOpen&& <SurePrompt setIsOpen={setIsOpen} msg="Are you sure, you want logout?" action={logout}/>}
     </>
   );
 }

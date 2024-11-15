@@ -10,7 +10,7 @@ import Profile from "./profile";
 import { setThemeRedux } from "../_features/theme/themeSlice";
 import { toggleDarkMode } from "../_features/darkMode/darkSlice";
 import { useAppSelector, useAppDispatch } from "../_store/hooks";
-import { BiMenu } from "react-icons/bi";
+import { BiEdit, BiMenu } from "react-icons/bi";
 import { GrClose, GrProjects } from "react-icons/gr";
 import { FiLogOut } from "react-icons/fi";
 import { signOut } from "next-auth/react";
@@ -198,7 +198,13 @@ function SideBar({
   const pathname = usePathname().slice(1);
   const reduxTheme = useAppSelector((state) => state.theme);
   const [isOpen, setIsOpen] = useState(false)
+  const [openChangeRouteName,setOpenChangeRouteName]=useState(false)
 
+
+  
+  const handleChangeRouteName=()=>{
+
+  }
   const logout = async () => {
     // e.stopPropagation();
 
@@ -216,7 +222,7 @@ function SideBar({
   };
   return (
     <>
-      <div className=" bg-black bg-opacity-80 w-[250px] h-screen float-right rounded-lg  border-[1px] border-grays text-whites ">
+      <div className=" bg-black bg-opacity-80 w-[280px] h-screen float-right rounded-lg  border-[1px] border-grays text-whites ">
         {/* close */}
         <button
           className="float-right m-3 hover:text-reds"
@@ -258,16 +264,19 @@ function SideBar({
           )}
 
           {/* binding to the bottom */}
-          <div>
+          <div className="border-t border-grays mx-2 pt-3 ">
             {user?.username && (
+              <div className="text-xs flex justify-between items-center mx-3">
+                      Your Portfolio : 
               <Link
                 href={user.username}
-                className="hover:text-blue-500 text-xs  flex justify-center items-center gap-3"
+                className="hover:text-blue-500 text-xs  "
                 onClick={() => setToogleSideBar(false)}
-              >
-                Your Portfolio
-                <FaExternalLinkAlt />
+                >
+                  {user.username} 
               </Link>
+                <BiEdit className="scale-110 hover:text-grays hover:scale-125" onClick={()=>setOpenChangeRouteName(true)}/> 
+                </div>
             )}
             {/* settings */}
 
@@ -277,9 +286,9 @@ function SideBar({
                 onClick={handleTheme}
                 className={`${
                   reduxTheme == "light"
-                    ? "bg-theme px-3 py-2 rounded-xl text-black font-bold"
-                    : ""
-                } cursor-pointer flex flex-col-reverse gap-1 justify-center items-center text-xs`}
+                    ? "bg-theme  text-black font-bold"
+                    : "hover:bg-gray-600"
+                } cursor-pointer flex flex-col-reverse gap-1 justify-center items-center text-xs px-3 py-2 rounded-xl`}
               >
                 Light <MdSunny />
               </div>
@@ -288,9 +297,9 @@ function SideBar({
                 onClick={handleTheme}
                 className={`${
                   reduxTheme == "dark"
-                    ? "bg-theme px-3 py-2 rounded-xl text-black font-bold"
-                    : ""
-                } cursor-pointer flex flex-col-reverse gap-1 justify-center items-center text-xs`}
+                    ? "bg-theme text-black font-bold"
+                    : "hover:bg-gray-600"
+                } cursor-pointer flex flex-col-reverse gap-1 justify-center items-center text-xs px-3 py-2 rounded-xl`}
               >
                 Dark <BsFillMoonStarsFill />
               </div>
@@ -299,9 +308,9 @@ function SideBar({
                 onClick={handleTheme}
                 className={`${
                   reduxTheme == "system"
-                    ? "bg-theme px-3 py-2 rounded-xl text-black font-bold"
-                    : ""
-                } cursor-pointer flex flex-col-reverse gap-1 justify-center items-center text-xs`}
+                    ? "bg-theme  text-black font-bold"
+                    : "hover:bg-gray-600"
+                } cursor-pointer flex flex-col-reverse gap-1 justify-center items-center text-xs px-3 py-2 rounded-xl`}
               >
                 System <HiComputerDesktop />
               </div>
@@ -309,7 +318,7 @@ function SideBar({
 
             {/* user deatail */}
 
-            <div className="mb-16 text-sm border-t-[1px] mx-1 border-grays   ">
+            <div className="mb-16 text-sm border-t-[1px]  border-grays   ">
               {user ? (
                 <div className="flex justify-between items-center p-3 ">
                   <div className="flex gap-3">
@@ -335,8 +344,45 @@ function SideBar({
           </div>
         </div>
       </div>
-    
+      {openChangeRouteName&&<ChangeRouteName setOpenChangeRouteName={setOpenChangeRouteName}/>}
       {isOpen&& <SurePrompt setIsOpen={setIsOpen} msg="Are you sure, you want logout?" action={logout}/>}
     </>
   );
+}
+
+type ChangeRouteNameProps={
+  setOpenChangeRouteName:Dispatch<SetStateAction<boolean>>
+}
+function ChangeRouteName({setOpenChangeRouteName}:ChangeRouteNameProps){
+    const portfolio=useAppSelector((state)=>state.portfolioSlice)
+    const [routename,setRouteName]=useState(portfolio.routeName)
+    const handleChangeRouteForm=(e:React.MouseEvent<HTMLElement, MouseEvent>)=>{
+    const section =(e.target)as HTMLElement ;
+    if(section.id==='changeRoute'){
+      setOpenChangeRouteName(false)
+    }
+    }
+    const handleChangeRouteNames=(e:React.ChangeEvent<HTMLInputElement>)=>{
+     setRouteName(e.target.value)
+    }
+  return(
+    <> 
+
+    <section className="fixed flex justify-center items-center top-0 right-0 w-screen h-screen bg-black bg-opacity-65 " id="changeRoute" onClick={handleChangeRouteForm}>
+
+        <form action="" className="border border-grays rounded-lg w-[300px] flex flex-col p-6 text-whites shadow-2xl bg-black">
+          <div className="flex justify-between items-center text-xl mb-6">
+          <h1>Change Route Name</h1>
+          <GrClose className="hover:text-reds" onClick={()=>setOpenChangeRouteName(false)}/>
+          </div>
+          <div className=" flex justify-between">
+           
+            <input id="routeName" type="text" className="border-grays bg-grays" value={routename} onChange={(e)=>handleChangeRouteNames(e)}/>
+            <button className="py-2 px-3 bg-greens rounded-lg" disabled={portfolio.routeName==routename}>Check</button>
+          </div>
+        </form>
+    </section>
+    </>
+  )
+
 }

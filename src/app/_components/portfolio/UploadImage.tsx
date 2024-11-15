@@ -49,7 +49,7 @@ function UploadImage({setUploadingImage}:props) {
          
     };
   return (
-    <section className='fixed w-full h-full top-0 left-0  dark:bg-black dark:bg-opacity-90 bg-theme-light bg-opacity-65' onClick={handleClick} id='uploadImage'>
+    <section className='z-20 fixed w-full h-full top-0 left-0  dark:bg-black dark:bg-opacity-90 bg-theme-light bg-opacity-65' onClick={handleClick} id='uploadImage'>
 
         <section className='fixed top-[50%] left-[50%] w-[80vw] md:w-[60vw] lg: border  translate-x-[-50%] translate-y-[-50%] bg-theme-dark dark:bg-black rounded-lg flex flex-col justify-between '>
             <div className='flex justify-between items-center ml-3 text-lg md:text-2xl  dark:text-theme'>
@@ -78,7 +78,9 @@ function UploadImage({setUploadingImage}:props) {
             <div className='mb-5 mx-3 text-sm' >
     
             {/* delete button */}
-                <button className='bg-reds flex justify-center items-center gap-2 p-2 rounded-lg float-left ' onClick={()=>setIsOpen(true)}>
+                <button className='bg-reds flex justify-center items-center gap-2 p-2 rounded-lg float-left '
+                disabled={!portfolio.personalInfo.profilePicture}
+                onClick={()=>setIsOpen(true)}>
                     <MdDelete className='scale-125' /> Delete
                 </button>
             {/* add new button */}

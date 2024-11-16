@@ -1,5 +1,5 @@
 "use client";
-import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
+import React, { Dispatch,  SetStateAction, useEffect, useState } from "react";
 
 import { BsFillMoonStarsFill } from "react-icons/bs";
 import { MdArrowCircleRight, MdOutlineWork, MdSunny } from "react-icons/md";
@@ -16,9 +16,9 @@ import { FiLogOut } from "react-icons/fi";
 import { signOut } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import { ImProfile } from "react-icons/im";
-import { FaExternalLinkAlt } from "react-icons/fa";
 import { setToastMsgRedux } from "../_features/toastMsg/toastMsgSlice";
 import SurePrompt from "./SurePrompt";
+import { updateRouteNameAsync } from "../_features/portfolio/portfolioSlice";
 
 type LogedInUser = {
   name: string;
@@ -34,8 +34,7 @@ export default function Navbar() {
   const [user, setUser] = useState<LogedInUser>();
   const [toogleSideBar, setToogleSideBar] = useState(false);
   const pathname = usePathname().slice(1);
-  const [isOpen, setIsOpen] = useState(false)
-
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -127,31 +126,31 @@ export default function Navbar() {
               <div className="  gap-6 mr-6 text-sm hidden md:flex">
                 <Link
                   href={`/${portfolio.routeName}`}
-                  className="flex gap-3 items-center hover:bg-grays rounded-lg py-2 px-3"
+                  className="flex gap-3 items-center hover:bg-theme-dark dark:hover:bg-gray-600 rounded-lg py-2 px-3"
                   onClick={() => setToogleSideBar(false)}
                 >
                   <ImProfile /> Profile
                 </Link>
-                {portfolio.projects && portfolio.projects?.length>0&&
+                {portfolio.projects && portfolio.projects?.length > 0 && (
                   <Link
-                  href={`/${portfolio.routeName}#projectSection`}
-                  className="flex gap-3 items-center hover:bg-grays rounded-lg py-2 px-3"
-                  onClick={() => setToogleSideBar(false)}
+                    href={`/${portfolio.routeName}#projectSection`}
+                    className="flex gap-3 items-center hover:bg-theme-dark dark:hover:bg-gray-600 rounded-lg py-2 px-3"
+                    onClick={() => setToogleSideBar(false)}
                   >
-                  <GrProjects />
-                  Projects
-                </Link>
-                }{portfolio.experience && portfolio.experience.length>0&&
-
+                    <GrProjects />
+                    Projects
+                  </Link>
+                )}
+                {portfolio.experience && portfolio.experience.length > 0 && (
                   <Link
-                  href={`/${portfolio.routeName}#experienceSection`}
-                  className="flex gap-3 items-center hover:bg-grays rounded-lg py-2 px-3"
-                  onClick={() => setToogleSideBar(false)}
+                    href={`/${portfolio.routeName}#experienceSection`}
+                    className="flex gap-3 items-center hover:bg-theme-dark dark:hover:bg-gray-600 rounded-lg py-2 px-3"
+                    onClick={() => setToogleSideBar(false)}
                   >
-                  <MdOutlineWork />
-                  Work Experience
-                </Link>
-                }
+                    <MdOutlineWork />
+                    Work Experience
+                  </Link>
+                )}
               </div>
             )}
 
@@ -160,7 +159,7 @@ export default function Navbar() {
               className=" flex justify-center items-center"
               onClick={() => setToogleSideBar(true)}
             >
-              <BiMenu className="hover:text-theme cursor-pointer"/>
+              <BiMenu className="hover:text-theme cursor-pointer" />
             </div>
           </div>
         </div>
@@ -197,14 +196,9 @@ function SideBar({
   const portfolio = useAppSelector((state) => state.portfolioSlice);
   const pathname = usePathname().slice(1);
   const reduxTheme = useAppSelector((state) => state.theme);
-  const [isOpen, setIsOpen] = useState(false)
-  const [openChangeRouteName,setOpenChangeRouteName]=useState(false)
+  const [isOpen, setIsOpen] = useState(false);
+  const [openChangeRouteName, setOpenChangeRouteName] = useState(false);
 
-
-  
-  const handleChangeRouteName=()=>{
-
-  }
   const logout = async () => {
     // e.stopPropagation();
 
@@ -222,7 +216,7 @@ function SideBar({
   };
   return (
     <>
-      <div className=" bg-black bg-opacity-80 w-[280px] h-screen float-right rounded-lg  border-[1px] border-grays text-whites ">
+      <div className=" bg-black w-[280px] h-screen float-right rounded-lg  border-[1px] border-grays text-whites ">
         {/* close */}
         <button
           className="float-right m-3 hover:text-reds"
@@ -239,14 +233,14 @@ function SideBar({
             <div className="flex flex-col gap-6 mx-3 md:hidden">
               <Link
                 href={`/${portfolio.routeName}`}
-                className="flex gap-3 items-center hover:bg-grays rounded-lg py-2 px-3"
+                className="flex gap-3 items-center hover:bg-gray-600 rounded-lg py-2 px-3"
                 onClick={() => setToogleSideBar(false)}
               >
                 <ImProfile /> Profile
               </Link>
               <Link
                 href={`/${portfolio.routeName}#projectSection`}
-                className="flex gap-3 items-center hover:bg-grays rounded-lg py-2 px-3"
+                className="flex gap-3 items-center hover:bg-gray-600 rounded-lg py-2 px-3"
                 onClick={() => setToogleSideBar(false)}
               >
                 <GrProjects />
@@ -254,7 +248,7 @@ function SideBar({
               </Link>
               <Link
                 href={`/${portfolio.routeName}#experienceSection`}
-                className="flex gap-3 items-center hover:bg-grays rounded-lg py-2 px-3"
+                className="flex gap-3 items-center hover:bg-gray-600 rounded-lg py-2 px-3"
                 onClick={() => setToogleSideBar(false)}
               >
                 <MdOutlineWork />
@@ -267,16 +261,19 @@ function SideBar({
           <div className="border-t border-grays mx-2 pt-3 ">
             {user?.username && (
               <div className="text-xs flex justify-between items-center mx-3">
-                      Your Portfolio : 
-              <Link
-                href={user.username}
-                className="hover:text-blue-500 text-xs  "
-                onClick={() => setToogleSideBar(false)}
+                Your Portfolio :
+                <Link
+                  href={user.username}
+                  className="hover:text-blue-500 text-xs  underline"
+                  onClick={() => setToogleSideBar(false)}
                 >
-                  {user.username} 
-              </Link>
-                <BiEdit className="scale-110 hover:text-grays hover:scale-125" onClick={()=>setOpenChangeRouteName(true)}/> 
-                </div>
+                  {user.username}
+                </Link>
+                <BiEdit
+                  className="scale-110 hover:text-grays hover:scale-125 cursor-pointer"
+                  onClick={() => setOpenChangeRouteName(true)}
+                />
+              </div>
             )}
             {/* settings */}
 
@@ -328,7 +325,7 @@ function SideBar({
                   <FiLogOut
                     className="hover:scale-105 transition-all duration-200 ease-in-out hover:text-red-600 hover:font-bold cursor-pointer "
                     aria-label="Logout"
-                    onClick={()=>setIsOpen(true)}
+                    onClick={() => setIsOpen(true)}
                   />
                 </div>
               ) : (
@@ -344,45 +341,119 @@ function SideBar({
           </div>
         </div>
       </div>
-      {openChangeRouteName&&<ChangeRouteName setOpenChangeRouteName={setOpenChangeRouteName}/>}
-      {isOpen&& <SurePrompt setIsOpen={setIsOpen} msg="Are you sure, you want logout?" action={logout}/>}
+      {openChangeRouteName && (
+        <ChangeRouteName setOpenChangeRouteName={setOpenChangeRouteName} />
+      )}
+      {isOpen && (
+        <SurePrompt
+          setIsOpen={setIsOpen}
+          msg="Are you sure, you want logout?"
+          action={logout}
+        />
+      )}
     </>
   );
 }
 
-type ChangeRouteNameProps={
-  setOpenChangeRouteName:Dispatch<SetStateAction<boolean>>
-}
-function ChangeRouteName({setOpenChangeRouteName}:ChangeRouteNameProps){
-    const portfolio=useAppSelector((state)=>state.portfolioSlice)
-    const [routename,setRouteName]=useState(portfolio.routeName)
-    const handleChangeRouteForm=(e:React.MouseEvent<HTMLElement, MouseEvent>)=>{
-    const section =(e.target)as HTMLElement ;
-    if(section.id==='changeRoute'){
-      setOpenChangeRouteName(false)
+type ChangeRouteNameProps = {
+  setOpenChangeRouteName: Dispatch<SetStateAction<boolean>>;
+};
+function ChangeRouteName({ setOpenChangeRouteName }: ChangeRouteNameProps) {
+  const portfolio = useAppSelector((state) => state.portfolioSlice);
+  const [message,setMessage]=useState('');
+  const dispatch = useAppDispatch();
+  const [routename, setRouteName] = useState(portfolio.routeName);
+  const [isAvailable, setIsAvailable] = useState(false);
+  const handleChangeRouteForm = (
+    e: React.MouseEvent<HTMLElement, MouseEvent>
+  ) => {
+    const section = e.target as HTMLElement;
+    if (section.id === "changeRoute") {
+      setOpenChangeRouteName(false);
     }
-    }
-    const handleChangeRouteNames=(e:React.ChangeEvent<HTMLInputElement>)=>{
-     setRouteName(e.target.value)
-    }
-  return(
-    <> 
+  };
 
-    <section className="fixed flex justify-center items-center top-0 right-0 w-screen h-screen bg-black bg-opacity-65 " id="changeRoute" onClick={handleChangeRouteForm}>
+  const handleChangeRouteNames = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setRouteName(e.target.value);
+    setMessage('')
+    setIsAvailable(false);
+  };
 
-        <form action="" className="border border-grays rounded-lg w-[300px] flex flex-col p-6 text-whites shadow-2xl bg-black">
+ const handelCheckRouteName = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+
+  const formData = new FormData();
+  formData.append("routeName", routename);
+
+  if (isAvailable === false) {
+    try {
+      const response = await axios.post("/api/check-availability", formData);
+      console.log('response while checking availability', response);
+      if(response.status===500)
+      {
+        dispatch(setToastMsgRedux({msg:'Internal Server Error',type:'error'}))
+        return
+      }
+      if ( response.data.success === false) {
+        setMessage('Routename is not available')
+        setIsAvailable(false);
+        return;
+      }
+      setMessage('Route name is available ✔')
+      setIsAvailable(true);
+    } catch (error) {
+      dispatch(setToastMsgRedux({ msg: "Error Checking Availability !!", type: "error" }));
+    }
+  } else {
+    const { payload } = await dispatch(updateRouteNameAsync({ changedRouteName: routename }));
+
+    // Type assertion for TypeScript
+    if ((payload as { redirect: boolean }).redirect) {
+      // router.push(`/${routename.trim()}`);
+ window.location.href = `/${routename.trim()}`;    }
+
+    setOpenChangeRouteName(false);
+  }
+};
+
+
+  return (
+    <>
+      <section
+        className="fixed flex justify-center items-center top-0 right-0 w-screen h-screen bg-black bg-opacity-65 "
+        id="changeRoute"
+        onClick={handleChangeRouteForm}
+      >
+        <form
+        onSubmit={(e)=>handelCheckRouteName(e)}
+          className="border border-grays rounded-lg w-[300px] flex flex-col p-6 text-whites shadow-2xl bg-black"
+        >
           <div className="flex justify-between items-center text-xl mb-6">
-          <h1>Change Route Name</h1>
-          <GrClose className="hover:text-reds" onClick={()=>setOpenChangeRouteName(false)}/>
+            <h1>Change Route Name</h1>
+            <GrClose
+              className="hover:text-reds cursor-pointer"
+              onClick={() => setOpenChangeRouteName(false)}
+            />
           </div>
           <div className=" flex justify-between">
-           
-            <input id="routeName" type="text" className="border-grays bg-grays" value={routename} onChange={(e)=>handleChangeRouteNames(e)}/>
-            <button className="py-2 px-3 bg-greens rounded-lg" disabled={portfolio.routeName==routename}>Check</button>
+            <input
+              id="routeName"
+              type="text"
+              className="border-grays bg-grays"
+              value={routename}
+              onChange={(e) => handleChangeRouteNames(e)}
+            />
+            <button
+              type="submit"
+              className={`py-2 px-3 bg-greens rounded-lg`}
+              disabled={portfolio.routeName == routename}
+            >
+             {isAvailable?'Submit':'Check'}
+            </button>
           </div>
+          <span className="text-sm text-greens mt-3">{message}</span>
         </form>
-    </section>
+      </section>
     </>
-  )
-
+  );
 }

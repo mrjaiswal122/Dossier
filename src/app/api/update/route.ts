@@ -3,6 +3,7 @@ import { UpdateProfileType } from "@/app/_components/portfolio/UpdateProfile";
 import dbConnect from "@/app/_lib/database";
 import { redis } from "@/app/_lib/redis-client";
 import portfolioModel, { IPortfolio } from "@/app/_models/portfolio";
+import userModel from "@/app/_models/user";
 import { NextResponse, NextRequest } from "next/server";
 
 const expTime = Number(process.env.REDIS_EX_TIME);
@@ -10,7 +11,8 @@ const expTime = Number(process.env.REDIS_EX_TIME);
 export enum Update {
   Project = 'updating project',
   WorkExperience = 'updating work experience',
-  Profile = 'updating hero section'
+  Profile = 'updating hero section',
+  RouteName='Changing the routename'
 }
 
 export async function POST(request: NextRequest) {
@@ -122,7 +124,32 @@ export async function POST(request: NextRequest) {
       } else {
         return NextResponse.json({ success: false, msg: 'Failed to update profile' }, { status: 404 });
       }
-    } else {
+    }
+    
+  else if (type === Update.RouteName) {
+  const newRouteName = data.trim();
+  await dbConnect();
+
+  // Check availability using `countDocuments()` for optimized performance
+  const isRouteNameTaken = await portfolioModel.countDocuments({ routeName: newRouteName }) > 0;
+
+  if (isRouteNameTaken) {
+    return NextResponse.json({ success: false, msg: 'RouteName is not available' }, { status: 409 });
+  }
+
+  // Delete the old cache entry in Redis (use `await` if redis is asynchronous)
+  redis.del(routeName);
+
+  // Perform both updates concurrently for efficiency
+  await Promise.all([
+    portfolioModel.findOneAndUpdate({ routeName }, { routeName: newRouteName }),
+    userModel.findOneAndUpdate({ username: routeName }, { username: newRouteName })
+  ]);
+
+  // Return success response
+  return NextResponse.json({ success: true, msg: 'RouteName updated successfully' }, { status: 200 });
+}
+else {
       return NextResponse.json({ success: false, msg: 'Invalid update type' }, { status: 400 });
     }
   } catch (error) {

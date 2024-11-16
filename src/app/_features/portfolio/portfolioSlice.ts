@@ -507,7 +507,7 @@ const updateExperienceAsync = createAppAsyncThunk<
       const response = await axios.post("/api/update", formData);
 
       if (response.data.success){
-        dispatch(setToastMsgRedux({msg:'Updated Experience Successfullt',type:'msg'}))
+        dispatch(setToastMsgRedux({msg:'Updated Experience Successfully',type:'msg'}))
          return { success: true, data: data, index };
         }
       else{
@@ -565,6 +565,33 @@ const updateProfileAsync = createAppAsyncThunk<
     // return {success:false,data:null}
   }
 );
+const updateRouteNameAsync = createAppAsyncThunk(
+  'portfolio/updateRouteNameAsync',
+  async ({ changedRouteName }: { changedRouteName: string }, { getState, dispatch }) => {
+    const { portfolioSlice } = getState();
+    const formData = new FormData();
+    formData.append('updateType', Update.RouteName);
+    formData.append('routeName', portfolioSlice.routeName);
+    formData.append('data', changedRouteName);
+
+    try {
+      const response = await axios.post('/api/update', formData);
+      console.log('From updateRouteNameAsync:->', response);
+
+      if (response.data.success) {
+        dispatch(setToastMsgRedux({ msg: "RouteName has been Updated", type: 'msg' }));
+        return { redirect: true }; // Ensure correct type here
+      } else {
+        dispatch(setToastMsgRedux({ msg: "Error updating Route Name !!", type: 'error' }));
+        return { redirect: false }; // Ensure correct type here
+      }
+    } catch (error) {
+      dispatch(setToastMsgRedux({ msg: "Error updating Route Name !!", type: 'error' }));
+      return { redirect: false }; // Return consistent type in error cases
+    }
+  }
+);
+
 
 // Create a slice
 const portfolioSlice = createSlice({
@@ -590,6 +617,12 @@ const portfolioSlice = createSlice({
     ) => {
       state.status = action.payload;
     },
+    updateRouteName:(
+      state,
+      action:PayloadAction<Partial<Portfolio['routeName']>>
+    )=>{
+      state.routeName=action.payload
+    }
   },
 
   extraReducers: (builder) => {
@@ -682,6 +715,7 @@ export {
   updateExistingProjectAsync,
   updateExperienceAsync,
   updateProfileAsync,
+  updateRouteNameAsync,
 };
 // Export the reducer
 export default portfolioSlice.reducer;

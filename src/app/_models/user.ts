@@ -1,4 +1,4 @@
-import mongoose, { Schema, Types } from "mongoose";
+import mongoose, { Model, Schema, Types } from "mongoose";
 
 export type User = {
   _id: Types.ObjectId;
@@ -25,5 +25,12 @@ const userSchema = new Schema({
   portfolio: { type: Schema.Types.ObjectId, ref: 'Portfolio' },  // Changed from portfolios to portfolio
 }, { timestamps: true });
 
-const userModel = mongoose.models.User || mongoose.model<User>('User', userSchema);
+let userModel:Model<User>;
+try{
+  userModel=mongoose.model<User>('User')
+}catch{
+     userModel=mongoose.model<User>('User',userSchema)
+
+}
+// const userModel = mongoose.models.User || mongoose.model<User>('User', userSchema);
 export default userModel;

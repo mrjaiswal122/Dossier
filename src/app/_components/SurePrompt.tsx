@@ -22,7 +22,7 @@ function SurePrompt({msg,action,setIsOpen}: Props) {
        {/* <div>Are you sure?</div> */}
        <div className='flex justify-between items-center text-sm '>
         {msg}
-       <CgClose className='hover:text-reds' onClick={()=>setIsOpen(false)}/>
+       <CgClose className='hover:text-reds cursor-pointer' onClick={()=>setIsOpen(false)}/>
         </div>
        <div className='flex justify-between mt-6 text-sm'>
         <button className='py-2 px-6 rounded-lg bg-reds hover:bg-red-700' onClick={action}>

@@ -7,6 +7,8 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 import { Types } from "mongoose";
 import { setToastMsgRedux } from "../toastMsg/toastMsgSlice";
+import {Skill} from "@/app/_components/portfolio/Skills";
+import { number } from "zod";
 
 export enum DeleteImageType {
   ProfileImage = "deleting profile image",
@@ -196,6 +198,17 @@ export type UpdateExperienceReturnType = {
   data: Experience | null;
   index: number;
 };
+
+type UpdateSkillArgs={
+  data:Skill;
+  index:number;
+  routeName:string
+}
+type UpdateSkillReturnType={
+  success:boolean;
+  data:Skill|null;
+  index:number;
+}
 
 export type UpdateProfileArgs = {
   data: {
@@ -541,12 +554,12 @@ const updateExperienceAsync = createAppAsyncThunk<
           setToastMsgRedux({
             msg: "Updated Experience Successfully",
             type: "msg",
-          })
+           })
         );
         return { success: true, data: data, index };
       } else {
         dispatch(
-          setToastMsgRedux({
+         setToastMsgRedux({
             msg: "Error Updating Experience !! ",
             type: "error",
           })
@@ -569,6 +582,53 @@ const updateExperienceAsync = createAppAsyncThunk<
     return { success: false, data: null, index };
   }
 );
+const updateSkillAsync=createAppAsyncThunk<UpdateSkillReturnType,UpdateSkillArgs>(
+ "portfolio/updateSkillAsync",
+  async (
+    { data, index, routeName }: UpdateSkillArgs,
+    { dispatch, rejectWithValue }
+  ) => {
+    try {
+      const formData = new FormData();
+      formData.append("routeName", routeName);
+      formData.append("data", JSON.stringify(data));
+      formData.append("updateType", Update.Skills);
+      formData.append("index", JSON.stringify(index));
+      const response = await axios.post("/api/update", formData);
+
+      if (response.data.success) {
+        dispatch(
+          setToastMsgRedux({
+            msg: "Updated Skills Successfully",
+            type: "msg",
+           })
+        );
+        return { success: true, data: data, index };
+      } else {
+        dispatch(
+         setToastMsgRedux({
+            msg: "Error Updating Skills !! ",
+            type: "error",
+          })
+        );
+        return rejectWithValue({ success: false, data: null, index });
+      }
+    } catch (error) {
+      dispatch(
+        setToastMsgRedux({
+          msg: "Error Updating Skills !! ",
+          type: "error",
+        })
+      );
+      rejectWithValue({ success: false, data: null, index });
+    }
+    //fallback return and message
+    dispatch(
+      setToastMsgRedux({ msg: "Error Updating Skills !! ", type: "error" })
+    );
+    return { success: false, data: null, index };
+  }
+)
 const updateProfileAsync = createAppAsyncThunk<
   UpdateProfileReturnType,
   UpdateProfileArgs
@@ -748,6 +808,21 @@ const portfolioSlice = createSlice({
           state.experience[action.payload.index] = action.payload.data;
         }
       })
+      .addCase(updateSkillAsync.fulfilled, (state, action) => {
+        state.status = PortfolioStatus.Succeeded;
+        if (
+          action.payload.success &&
+          action.payload.index >= 0 &&
+          action.payload.data
+        ) {
+          if (!state.skills) {
+            state.skills = [];
+          }
+
+          state.skills[action.payload.index] = action.payload.data;
+        }
+      })
+      
 
       .addCase(updateProfileAsync.fulfilled, (state, action) => {
         if (action.payload.success) {
@@ -770,6 +845,7 @@ export {
   updateExperienceAsync,
   updateProfileAsync,
   updateRouteNameAsync,
+  updateSkillAsync
 };
 // Export the reducer
 export default portfolioSlice.reducer;

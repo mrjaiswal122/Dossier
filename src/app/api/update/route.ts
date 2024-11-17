@@ -1,4 +1,5 @@
 import { Experience } from "@/app/_components/portfolio/Experience";
+import { Skill } from "@/app/_components/portfolio/Skills";
 import { UpdateProfileType } from "@/app/_components/portfolio/UpdateProfile";
 import dbConnect from "@/app/_lib/database";
 import { redis } from "@/app/_lib/redis-client";
@@ -12,7 +13,8 @@ export enum Update {
   Project = 'updating project',
   WorkExperience = 'updating work experience',
   Profile = 'updating hero section',
-  RouteName='Changing the routename'
+  RouteName='Changing the routename',
+  Skills='Updating skills'
 }
 
 export async function POST(request: NextRequest) {
@@ -148,6 +150,34 @@ export async function POST(request: NextRequest) {
 
   // Return success response
   return NextResponse.json({ success: true, msg: 'RouteName updated successfully' }, { status: 200 });
+}
+else if(type==Update.Skills){
+const skill = JSON.parse(data) as Skill;
+      if (!skill.category || !skill.skills) {
+        return NextResponse.json({ success: false, msg: 'Incomplete  skill data' }, { status: 400 });
+      }
+
+      await dbConnect();
+     
+
+      const updatedSkill = await portfolioModel.findOneAndUpdate(
+        { routeName },
+        { $set: { [`skills.${index}`]: skill } },
+        { new: true,  }
+      );
+       
+      if (updatedSkill) {
+        try {
+          await redis.del(routeName);
+        } catch (redisError) {
+          console.error('Redis error:', redisError);
+          return NextResponse.json({ success: false, msg: 'Skills updated, but cache invalidation failed' }, { status: 500 });
+        }
+
+        return NextResponse.json({ success: true, msg: 'Skills updated successfully',  }, { status: 200 });
+      } else {
+        return NextResponse.json({ success: false, msg: 'Failed to update Skills' }, { status: 404 });
+      }
 }
 else {
       return NextResponse.json({ success: false, msg: 'Invalid update type' }, { status: 400 });

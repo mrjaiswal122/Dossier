@@ -72,10 +72,8 @@ export async function DELETE(request: NextRequest) {
       }
     }else if(type == Delete.WorkExperience){
         await dbConnect();
-        console.log('connected to db');
         
         const portfolio = await portfolioModel.findOne({ routeName });
-        console.log('portfolio:->',portfolio);
         
          if (!portfolio) {
         return NextResponse.json(
@@ -96,6 +94,44 @@ export async function DELETE(request: NextRequest) {
           // const updatedPortfolio = JSON.parse(cachedPortfolio);
           const updatedPortfolio =cachedPortfolio;
           updatedPortfolio.experience = portfolio.experience;
+          await redis.setex(
+            routeName,
+            expTime,
+            JSON.stringify(updatedPortfolio)
+          );
+        }
+
+        
+
+        return NextResponse.json({ success: true, message: "Item deleted" });
+      } else {
+        return NextResponse.json(
+          { success: false, error: "Invalid index" },
+          { status: 400 }
+        );
+      }
+    }else if(type==Delete.Skills){
+        
+        const portfolio = await portfolioModel.findOne({ routeName });
+        
+         if (!portfolio) {
+        return NextResponse.json(
+          { success: false, error: "Portfolio not found" },
+          { status: 404 }
+        );
+      }
+        if (portfolio.skills && index >= 0 && index < portfolio.skills.length) {
+          
+        const deletedExperience = portfolio.skills[index]; // Store the project to delete
+        portfolio.skills.splice(index, 1); // Remove the item at the specified index
+        await portfolio.save(); // Save the updated document
+
+        // Update Redis cache
+        const cachedPortfolio = await redis.get(routeName) as IPortfolio|null;
+        if (cachedPortfolio) {
+          // const updatedPortfolio = JSON.parse(cachedPortfolio);
+          const updatedPortfolio =cachedPortfolio;
+          updatedPortfolio.skills = portfolio.skills;
           await redis.setex(
             routeName,
             expTime,

@@ -156,16 +156,15 @@ interface UpdateProjectArgs {
   oldProjectImage: string | undefined;
 }
 export type UpdateProjectReturnType = {
-  sendData:{
-
+  sendData: {
     title: string;
     description: string;
     technologies: string[];
     githubUrl?: string;
     projectUrl?: string;
     image?: string;
-  }
-  success:boolean
+  };
+  success: boolean;
 };
 export type UpdateExistingProjectArgs = {
   data: ProjectData;
@@ -241,8 +240,6 @@ const updateProjectAsync = createAppAsyncThunk<
     { dispatch, rejectWithValue }
   ) => {
     try {
-     
-
       const result = await dispatch(
         uploadImageAsync({
           routename,
@@ -273,19 +270,24 @@ const updateProjectAsync = createAppAsyncThunk<
           "Content-Type": "multipart/form-data",
         },
       });
-      console.log('updateProjectAsync',response);
-      
+      console.log("updateProjectAsync", response);
+
       //sending data to extraReducers
-      if(response.data.success){
-        dispatch(setToastMsgRedux({msg:'Successfully Added Project ' ,type:'msg' }))
-        return {sendData,success:true};
-      }else{
-      dispatch(setToastMsgRedux({msg:'Error Adding Project !! ' ,type:'error' }))
-      return {success:false,sendData}
+      if (response.data.success) {
+        dispatch(
+          setToastMsgRedux({ msg: "Successfully Added Project ", type: "msg" })
+        );
+        return { sendData, success: true };
+      } else {
+        dispatch(
+          setToastMsgRedux({ msg: "Error Adding Project !! ", type: "error" })
+        );
+        return { success: false, sendData };
       }
-      
     } catch (e) {
-      dispatch(setToastMsgRedux({msg:'Error Adding Project !! ' ,type:'error' }))
+      dispatch(
+        setToastMsgRedux({ msg: "Error Adding Project !! ", type: "error" })
+      );
       return rejectWithValue("Failed to update project.");
     }
   }
@@ -336,27 +338,36 @@ const updateExistingProjectAsync = createAppAsyncThunk<
 
       const response = await axios.post("/api/update", formData);
       if (response.data.success) {
-        dispatch(setToastMsgRedux({msg:'Updated Project Successfully ' ,type:'msg' }))
+        dispatch(
+          setToastMsgRedux({
+            msg: "Updated Project Successfully ",
+            type: "msg",
+          })
+        );
         return { success: true, project: projectData, index };
       }
     } catch (error) {
-        dispatch(setToastMsgRedux({msg:'Error Updating Project !! ' ,type:'error' }))
-         return {
-      success: false,
-      project: {
-        title: "",
-        description: "",
-        technologies: [],
-        githubUrl: "",
-        projectUrl: "",
-        image: "",
-      },
-      index,
-    };
+      dispatch(
+        setToastMsgRedux({ msg: "Error Updating Project !! ", type: "error" })
+      );
+      return {
+        success: false,
+        project: {
+          title: "",
+          description: "",
+          technologies: [],
+          githubUrl: "",
+          projectUrl: "",
+          image: "",
+        },
+        index,
+      };
     }
-    
+
     // Fallback response if update fails
-    dispatch(setToastMsgRedux({msg:'Error Updating Project !! ' ,type:'error' }))
+    dispatch(
+      setToastMsgRedux({ msg: "Error Updating Project !! ", type: "error" })
+    );
     return {
       success: false,
       project: {
@@ -452,19 +463,29 @@ const deleteParticularObjectAsync = createAppAsyncThunk(
         `/api/delete?type=${from}&index=${index}&routeName=${routeName}`
       );
       if (res.data.success == true) {
+        let type: string;
+        switch (from) {
+          case Delete.Project:
+            type = "Project";
+            break;
+          case Delete.WorkExperience:
+            type = "Experience";
+            break;
+          case Delete.Skills:
+            type = "Skills";
+            break;
+          default:
+            type = "";
+        }
         dispatch(
-          setToastMsgRedux({ msg: "Project Deleted Successfully", type: "msg" })
+          setToastMsgRedux({ msg: `${type} Deleted Successfully`, type: "msg" })
         );
         return { sucess: true, type: from, index };
       }
-      dispatch(
-        setToastMsgRedux({ msg: "Error Deleting Project !!", type: "error" })
-      );
+      dispatch(setToastMsgRedux({ msg: "Error Deleting !!", type: "error" }));
       return { sucess: false, type: from, index };
     } catch (error) {
-      dispatch(
-        setToastMsgRedux({ msg: "Error Deleting Project !!", type: "error" })
-      );
+      dispatch(setToastMsgRedux({ msg: "Error Deleting !!", type: "error" }));
     }
   }
 );
@@ -476,17 +497,26 @@ const deleteImageAsync = createAppAsyncThunk(
       deleteType,
       routeName,
     }: { url: string; deleteType: Purpose; routeName: string },
-    { dispatch,rejectWithValue }
+    { dispatch, rejectWithValue }
   ) => {
     const res = await deleteImage(url, deleteType, routeName);
-    if (res?.success == true){
-      dispatch(setToastMsgRedux({msg:'Profile Picture Deleted Successfully',type:'msg'}))
+    if (res?.success == true) {
+      dispatch(
+        setToastMsgRedux({
+          msg: "Profile Picture Deleted Successfully",
+          type: "msg",
+        })
+      );
       return "";
-    }
-    else{
-      dispatch(setToastMsgRedux({msg:'Error Deleting Profile Picture',type:'error'}))
+    } else {
+      dispatch(
+        setToastMsgRedux({
+          msg: "Error Deleting Profile Picture",
+          type: "error",
+        })
+      );
       return rejectWithValue("Image was not deleted");
-    } 
+    }
   }
 );
 const updateExperienceAsync = createAppAsyncThunk<
@@ -496,7 +526,7 @@ const updateExperienceAsync = createAppAsyncThunk<
   "portfolio/updateExperienceAsync",
   async (
     { data, index, routeName }: UpdateExperienceArgs,
-    {dispatch, rejectWithValue }
+    { dispatch, rejectWithValue }
   ) => {
     try {
       const formData = new FormData();
@@ -506,21 +536,36 @@ const updateExperienceAsync = createAppAsyncThunk<
       formData.append("index", JSON.stringify(index));
       const response = await axios.post("/api/update", formData);
 
-      if (response.data.success){
-        dispatch(setToastMsgRedux({msg:'Updated Experience Successfully',type:'msg'}))
-         return { success: true, data: data, index };
-        }
-      else{
-          dispatch(setToastMsgRedux({msg:'Error Updating Experience !! ' ,type:'error' }))
-          return rejectWithValue({ success: false, data: null, index });}
-         
+      if (response.data.success) {
+        dispatch(
+          setToastMsgRedux({
+            msg: "Updated Experience Successfully",
+            type: "msg",
+          })
+        );
+        return { success: true, data: data, index };
+      } else {
+        dispatch(
+          setToastMsgRedux({
+            msg: "Error Updating Experience !! ",
+            type: "error",
+          })
+        );
+        return rejectWithValue({ success: false, data: null, index });
+      }
     } catch (error) {
-
-         dispatch(setToastMsgRedux({msg:'Error Updating Experience !! ' ,type:'error' }))
-         rejectWithValue({ success: false, data: null, index });
+      dispatch(
+        setToastMsgRedux({
+          msg: "Error Updating Experience !! ",
+          type: "error",
+        })
+      );
+      rejectWithValue({ success: false, data: null, index });
     }
     //fallback return and message
-    dispatch(setToastMsgRedux({msg:'Error Updating Experience !! ' ,type:'error' }))
+    dispatch(
+      setToastMsgRedux({ msg: "Error Updating Experience !! ", type: "error" })
+    );
     return { success: false, data: null, index };
   }
 );
@@ -566,32 +611,43 @@ const updateProfileAsync = createAppAsyncThunk<
   }
 );
 const updateRouteNameAsync = createAppAsyncThunk(
-  'portfolio/updateRouteNameAsync',
-  async ({ changedRouteName }: { changedRouteName: string }, { getState, dispatch }) => {
+  "portfolio/updateRouteNameAsync",
+  async (
+    { changedRouteName }: { changedRouteName: string },
+    { getState, dispatch }
+  ) => {
     const { portfolioSlice } = getState();
     const formData = new FormData();
-    formData.append('updateType', Update.RouteName);
-    formData.append('routeName', portfolioSlice.routeName);
-    formData.append('data', changedRouteName);
+    formData.append("updateType", Update.RouteName);
+    formData.append("routeName", portfolioSlice.routeName);
+    formData.append("data", changedRouteName);
 
     try {
-      const response = await axios.post('/api/update', formData);
-      console.log('From updateRouteNameAsync:->', response);
+      const response = await axios.post("/api/update", formData);
+      console.log("From updateRouteNameAsync:->", response);
 
       if (response.data.success) {
-        dispatch(setToastMsgRedux({ msg: "RouteName has been Updated", type: 'msg' }));
+        dispatch(
+          setToastMsgRedux({ msg: "RouteName has been Updated", type: "msg" })
+        );
         return { redirect: true }; // Ensure correct type here
       } else {
-        dispatch(setToastMsgRedux({ msg: "Error updating Route Name !!", type: 'error' }));
+        dispatch(
+          setToastMsgRedux({
+            msg: "Error updating Route Name !!",
+            type: "error",
+          })
+        );
         return { redirect: false }; // Ensure correct type here
       }
     } catch (error) {
-      dispatch(setToastMsgRedux({ msg: "Error updating Route Name !!", type: 'error' }));
+      dispatch(
+        setToastMsgRedux({ msg: "Error updating Route Name !!", type: "error" })
+      );
       return { redirect: false }; // Return consistent type in error cases
     }
   }
 );
-
 
 // Create a slice
 const portfolioSlice = createSlice({
@@ -617,17 +673,17 @@ const portfolioSlice = createSlice({
     ) => {
       state.status = action.payload;
     },
-    updateRouteName:(
+    updateRouteName: (
       state,
-      action:PayloadAction<Partial<Portfolio['routeName']>>
-    )=>{
-      state.routeName=action.payload
-    }
+      action: PayloadAction<Partial<Portfolio["routeName"]>>
+    ) => {
+      state.routeName = action.payload;
+    },
   },
 
   extraReducers: (builder) => {
     builder
-     
+
       .addCase(uploadImageAsync.fulfilled, (state, action) => {
         state.status = PortfolioStatus.Succeeded;
         // Add any fetched posts to the array
@@ -639,23 +695,20 @@ const portfolioSlice = createSlice({
           return;
         }
       })
-     
+
       .addCase(deleteImageAsync.fulfilled, (state, action) => {
         state.status = PortfolioStatus.Succeeded;
         // Add any fetched posts to the array
         state.personalInfo.profilePicture = action.payload;
       })
-    
-     
+
       .addCase(updateProjectAsync.fulfilled, (state, action) => {
         state.status = PortfolioStatus.Succeeded;
         // Add any fetched posts to the array
-        if(action.payload.success)
-        state.projects?.push(action.payload.sendData);
-         else 
-         return
+        if (action.payload.success)
+          state.projects?.push(action.payload.sendData);
+        else return;
       })
-   
 
       .addCase(deleteParticularObjectAsync.fulfilled, (state, action) => {
         state.status = PortfolioStatus.Succeeded;
@@ -663,11 +716,12 @@ const portfolioSlice = createSlice({
           state.projects?.splice(action?.payload?.index, 1);
         } else if (action?.payload?.type == Delete.WorkExperience) {
           state.experience?.splice(action?.payload?.index, 1);
+        }else if (action?.payload?.type == Delete.Skills) {
+          state.skills?.splice(action?.payload?.index, 1);
         }
         console.log("deleted");
       })
 
-   
       .addCase(updateExistingProjectAsync.fulfilled, (state, action) => {
         state.status = PortfolioStatus.Succeeded;
         // Add any fetched posts to the array
@@ -679,7 +733,7 @@ const portfolioSlice = createSlice({
         }
         return;
       })
-    
+
       .addCase(updateExperienceAsync.fulfilled, (state, action) => {
         state.status = PortfolioStatus.Succeeded;
         if (
@@ -694,7 +748,7 @@ const portfolioSlice = createSlice({
           state.experience[action.payload.index] = action.payload.data;
         }
       })
-    
+
       .addCase(updateProfileAsync.fulfilled, (state, action) => {
         if (action.payload.success) {
           state.personalInfo = action.payload.data.personalInfo;

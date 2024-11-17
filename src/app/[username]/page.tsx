@@ -8,6 +8,7 @@ import { usePathname } from "next/navigation";
 import LoadingScreen from "../_components/Loader";
 import Projects from "../_components/portfolio/Projects";
 import WorkExperience from "../_components/portfolio/Experience";
+import Skills from "../_components/portfolio/Skills";
 
 export default function Portfolio() {
   const dispatch = useAppDispatch();
@@ -61,6 +62,7 @@ export default function Portfolio() {
     <div className="csw">
       
       <Hero />
+      <Skills/>
       <Projects />
       <WorkExperience />
     </div>

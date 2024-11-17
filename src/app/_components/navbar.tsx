@@ -19,6 +19,7 @@ import { ImProfile } from "react-icons/im";
 import { setToastMsgRedux } from "../_features/toastMsg/toastMsgSlice";
 import SurePrompt from "./SurePrompt";
 import { updateRouteNameAsync } from "../_features/portfolio/portfolioSlice";
+import { FaGears } from "react-icons/fa6";
 
 type LogedInUser = {
   name: string;
@@ -131,6 +132,13 @@ export default function Navbar() {
                 >
                   <ImProfile /> Profile
                 </Link>
+                {portfolio.skills && portfolio.skills.length>0 &&(
+                  <Link className="flex gap-3 items-center hover:bg-theme-dark dark:hover:bg-gray-600 rounded-lg py-2 px-3" href={`/${portfolio.routeName}/#skillSection`}>
+                  <FaGears />
+
+                  Skills  
+                  </Link>
+                ) }
                 {portfolio.projects && portfolio.projects?.length > 0 && (
                   <Link
                     href={`/${portfolio.routeName}#projectSection`}
@@ -238,22 +246,35 @@ function SideBar({
               >
                 <ImProfile /> Profile
               </Link>
-              <Link
-                href={`/${portfolio.routeName}#projectSection`}
-                className="flex gap-3 items-center hover:bg-gray-600 rounded-lg py-2 px-3"
-                onClick={() => setToogleSideBar(false)}
-              >
-                <GrProjects />
-                Projects
-              </Link>
-              <Link
-                href={`/${portfolio.routeName}#experienceSection`}
-                className="flex gap-3 items-center hover:bg-gray-600 rounded-lg py-2 px-3"
-                onClick={() => setToogleSideBar(false)}
-              >
-                <MdOutlineWork />
-                Work Experience
-              </Link>
+              {portfolio.skills && portfolio.skills.length>0 &&(
+                  <Link className="flex gap-3 items-center hover:bg-theme-dark dark:hover:bg-gray-600 rounded-lg py-2 px-3" href={`/${portfolio.routeName}/#skillSection`}
+                  onClick={() => setToogleSideBar(false)}>
+                  <FaGears />
+
+                  Skills  
+                  </Link>
+                ) }
+
+               {portfolio.projects && portfolio.projects?.length > 0 && (
+                  <Link
+                    href={`/${portfolio.routeName}#projectSection`}
+                    className="flex gap-3 items-center hover:bg-theme-dark dark:hover:bg-gray-600 rounded-lg py-2 px-3"
+                    onClick={() => setToogleSideBar(false)}
+                  >
+                    <GrProjects />
+                    Projects
+                  </Link>
+                )}
+               {portfolio.experience && portfolio.experience.length > 0 && (
+                  <Link
+                    href={`/${portfolio.routeName}#experienceSection`}
+                    className="flex gap-3 items-center hover:bg-theme-dark dark:hover:bg-gray-600 rounded-lg py-2 px-3"
+                    onClick={() => setToogleSideBar(false)}
+                  >
+                    <MdOutlineWork />
+                    Work Experience
+                  </Link>
+                )}
             </div>
           )}
 

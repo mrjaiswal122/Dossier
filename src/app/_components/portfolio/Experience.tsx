@@ -286,7 +286,7 @@ function ExperienceCard({ experience, index, isOwner, setShowForm, setUpdatingEx
     };
 
     return (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 p-6 relative z-0 group border-l border-theme" >
+        <div className="bg-grays bg-opacity-15 dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 p-6 relative z-0 group border-l border-theme" >
             <div className="flex justify-between items-start mb-4">
                 <div>
                     <h3 className="text-xl font-bold text-gray-900 dark:text-white group-hover:opacity-60 transition-opacity duration-300">{experience.jobTitle}</h3>

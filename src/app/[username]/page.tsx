@@ -59,7 +59,7 @@ export default function Portfolio() {
 
 
   return (
-    <div className="csw">
+    <div className="csw ">
       
       <Hero />
       <Skills/>

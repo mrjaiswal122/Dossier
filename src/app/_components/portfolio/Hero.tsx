@@ -54,7 +54,7 @@ export default function Hero() {
   };
   return (
   
-<section id="hero" className="relative ">
+<section id="hero" className="relative pt-16">
      
     {/* for the pc view */}
     <section className=" csw  flex flex-col-reverse md:flex-row dark:text-whites">
@@ -82,7 +82,8 @@ export default function Hero() {
             {portfolio.personalInfo.phone &&<span className="flex gap-3 justify-start items-center" ><MdOutlinePhone /> {portfolio.personalInfo.phone}<BsCopy onClick={copyPhone} className={`${isPhoneCopied?'text-greens':''}`} />
             </span>}
             {/* location */}
-            <span className="flex gap-3 justify-start items-center"><IoLocationSharp /> {portfolio.personalInfo.location}</span>
+            { portfolio.personalInfo.location&&<span className="flex gap-3 justify-start items-center"><IoLocationSharp /> {portfolio.personalInfo.location}</span>}
+
             {/* social links */}
             <div className="flex gap-3 mt-3  "> 
              {portfolio.personalInfo.socialLinks?.github && <Link className="scale-125 dark:hover:text-theme-light hover:text-theme-dark hover:scale-105 transition-all duration-300 ease-in-out" href={portfolio.personalInfo.socialLinks?.github}><FaSquareGithub /></Link>}

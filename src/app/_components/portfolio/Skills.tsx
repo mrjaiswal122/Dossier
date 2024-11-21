@@ -283,7 +283,7 @@ function AddSkillForm({
             <label className="flex flex-col" htmlFor="proficiency">
                Proficieny :
               <select 
-              {...register('proficiency')} id="proficiency" className="cursor-pointer w-full">
+              {...register('proficiency')} id="proficiency" className="cursor-pointer border w-full">
                  <option value=""  className="hover:bg-gray-600 cursor-pointer">Select Proficiency</option>
                 <option value="Beginner"  className="hover:bg-gray-600 cursor-pointer">Beginner</option>
                 <option value="Intermediate" className="hover:bg-gray-600 cursor-pointer">Intermediate</option>
@@ -329,13 +329,13 @@ function SkillCard({
   };
 
   return (
-    <div className="bg-grays bg-opacity-15 dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 p-6 relative z-0 group border-l border-theme">
-      <div className="text-2xl py-3 text-black dark:text-theme">
+    <div className="bg-grays bg-opacity-15 dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 px-6 py-3 relative z-0 group border-l border-theme">
+      <div className="text-xl py-3 text-black dark:text-theme">
         {skillCategory.category && formatHeading(skillCategory.category)}
       </div>
       <div className="flex flex-wrap gap-3">
         {skillCategory.skills?.map((data, index) => (
-          <div className="text-sx py-2 px-3 rounded-lg bg-gray-600" key={index}>
+          <div className="text-xs py-1 px-3 rounded-xl bg-gray-600" key={index}>
             {data}
           </div>
         ))}

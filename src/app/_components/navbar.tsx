@@ -116,7 +116,7 @@ export default function Navbar() {
         <div className="flex justify-between items-center csw">
           {/* left */}
           <div className="flex justify-between items-center gap-3">
-            <Link href="/" className="text-xl">
+            <Link href="/" className="text-xl text-theme">
               Dossier
             </Link>
           </div>

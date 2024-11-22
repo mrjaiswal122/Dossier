@@ -66,7 +66,7 @@ export default function Home() {
           Create stunning portfolio websites without coding. Showcase your work professionally with our intuitive builder.
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <button className="group bg-gradient-to-r from-theme to-theme-dark hover:opacity-90 text-black font-semibold px-8 py-3 rounded-lg transition-all flex items-center">
+          <button className="group bg-gradient-to-r from-theme to-theme-dark hover:opacity-90 text-black font-semibold px-8 py-3 rounded-lg transition-all flex items-center" onClick={handlePortfolioCreation}>
             Start Building Free 
             <FaArrowRight className="ml-2 transition-transform group-hover:translate-x-1" />
           </button>

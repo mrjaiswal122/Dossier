@@ -7,6 +7,8 @@ import Err from "@/app/_components/Err";
 import { signIn } from "next-auth/react";
 import { FaGoogle } from "react-icons/fa6";
 import { ArrowRight, Eye, EyeOff, Mail, User,Lock } from "lucide-react";
+
+
 export default function SignupPage() {
   const [formData, setFormData] = useState({
     name: '',
@@ -26,13 +28,7 @@ export default function SignupPage() {
     }));
   };
   const router = useRouter();
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const input = e.target as HTMLInputElement;
-
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-
-   
-  };
+ 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if(formData.confirmPassword!=formData.password){
@@ -50,6 +46,7 @@ export default function SignupPage() {
         setMsg("Something went wrong. It's not you it's us.");
       }
     } catch (error) {
+      setMsg('Something went Wrong !!')
       console.log(error);
     }
     setFormData({ name: "", password: "", email: "" ,confirmPassword:''});

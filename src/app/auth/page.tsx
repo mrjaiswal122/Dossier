@@ -158,7 +158,7 @@ export default function Auth() {
             {/* Register Link */}
             <p className="text-center text-gray-600 dark:text-grays mt-8">
               Don&#39;t have an account?{' '}
-              <Link href="/auth/signup" className="text-theme hover:text-theme-dark font-semibold transition-colors">
+              <Link href="/auth/signup" scroll={true} className="text-theme hover:text-theme-dark font-semibold transition-colors">
                 Sign up
               </Link>
             </p>

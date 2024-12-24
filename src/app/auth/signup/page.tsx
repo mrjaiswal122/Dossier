@@ -6,64 +6,65 @@ import { useRouter } from "next/navigation";
 import Err from "@/app/_components/Err";
 import { signIn } from "next-auth/react";
 import { FaGoogle } from "react-icons/fa6";
-import { ArrowRight, Eye, EyeOff, Mail, User,Lock } from "lucide-react";
-
+import { ArrowRight, Eye, EyeOff, Mail, User, Lock } from "lucide-react";
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: ''
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
   });
   const [msg, setMsg] = useState<string>();
   const [showPassword, setShowPassword] = useState({
     password: false,
-    confirmPassword: false
+    confirmPassword: false,
   });
-   const togglePasswordVisibility = (field: 'password' | 'confirmPassword') => {
-    setShowPassword(prev => ({
+  const togglePasswordVisibility = (field: "password" | "confirmPassword") => {
+    setShowPassword((prev) => ({
       ...prev,
-      [field]: !prev[field]
+      [field]: !prev[field],
     }));
   };
   const router = useRouter();
- 
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if(formData.confirmPassword!=formData.password){
-      setMsg("Password Does not match !!")
+    if (formData.confirmPassword != formData.password) {
+      setMsg("Password does not match !!");
       return;
     }
     try {
-      const response = await axios.post("/api/signup", formData);
+      const data = new FormData();
+      data.append("name", formData.name);
+      data.append("email", formData.email);
+      data.append("password", formData.password);
 
-      if (response.data.msg == "Account Created Successfully") {
-        router.push("/auth");
-      } else if (response.data.msg == "User Already Exists") {
-        setMsg("User Already Exists");
-      } else {
-        setMsg("Something went wrong. It's not you it's us.");
-      }
+      const getMagicLink = await axios.post("/api/sendMagicLink", data
+      );
+      
     } catch (error) {
-      setMsg('Something went Wrong !!')
+      setMsg("Something went Wrong !!");
       console.log(error);
     }
-    setFormData({ name: "", password: "", email: "" ,confirmPassword:''});
-   
+    setFormData({ name: "", password: "", email: "", confirmPassword: "" });
   };
   const closeMessageBox = () => {
     setMsg("");
   };
   return (
     <section className=" relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-light to-white dark:from-black dark:to-black-bg pt-20">
-           {msg && <Err msg={msg} handleClick={closeMessageBox} />}
+      {msg && <Err msg={msg} handleClick={closeMessageBox} />}
 
       <div className="w-full max-w-md space-y-8">
         {/* Logo */}
         <div className="text-center">
-          <h2 className="text-4xl font-bold text-black dark:text-whites">Create Account</h2>
-          <p className="mt-3 text-lg text-gray-600 dark:text-grays">Join Dossier to build your portfolio</p>
+          <h2 className="text-4xl font-bold text-black dark:text-whites">
+            Create Account
+          </h2>
+          <p className="mt-3 text-lg text-gray-600 dark:text-grays">
+            Join Dossier to build your portfolio
+          </p>
         </div>
 
         {/* Register Form */}
@@ -72,7 +73,10 @@ export default function SignupPage() {
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Name Input */}
               <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-grays mb-2">
+                <label
+                  htmlFor="name"
+                  className="block text-sm font-medium text-gray-700 dark:text-grays mb-2"
+                >
                   Full Name
                 </label>
                 <div className="relative">
@@ -81,7 +85,9 @@ export default function SignupPage() {
                     type="text"
                     id="name"
                     value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, name: e.target.value })
+                    }
                     className="w-full pl-12 pr-4 py-3 rounded-lg border border-gray-200 dark:border-theme/10 bg-white dark:bg-black focus:ring-2 focus:ring-theme focus:border-transparent dark:text-whites transition-colors"
                     placeholder="Enter your full name"
                     required
@@ -91,7 +97,10 @@ export default function SignupPage() {
 
               {/* Email Input */}
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-grays mb-2">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-gray-700 dark:text-grays mb-2"
+                >
                   Email Address
                 </label>
                 <div className="relative">
@@ -100,7 +109,9 @@ export default function SignupPage() {
                     type="email"
                     id="email"
                     value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, email: e.target.value })
+                    }
                     className="w-full pl-12 pr-4 py-3 rounded-lg border border-gray-200 dark:border-theme/10 bg-white dark:bg-black focus:ring-2 focus:ring-theme focus:border-transparent dark:text-whites transition-colors"
                     placeholder="Enter your email"
                     required
@@ -110,7 +121,10 @@ export default function SignupPage() {
 
               {/* Password Input */}
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-grays mb-2">
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-gray-700 dark:text-grays mb-2"
+                >
                   Password
                 </label>
                 <div className="relative">
@@ -119,14 +133,16 @@ export default function SignupPage() {
                     type={showPassword.password ? "text" : "password"}
                     id="password"
                     value={formData.password}
-                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, password: e.target.value })
+                    }
                     className="w-full pl-12 pr-12 py-3 rounded-lg border border-gray-200 dark:border-theme/10 bg-white dark:bg-black focus:ring-2 focus:ring-theme focus:border-transparent dark:text-whites transition-colors"
                     placeholder="Create a password"
                     required
                   />
                   <button
                     type="button"
-                    onClick={() => togglePasswordVisibility('password')}
+                    onClick={() => togglePasswordVisibility("password")}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-grays transition-colors"
                   >
                     {showPassword.password ? (
@@ -140,7 +156,10 @@ export default function SignupPage() {
 
               {/* Confirm Password Input */}
               <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-grays mb-2">
+                <label
+                  htmlFor="confirmPassword"
+                  className="block text-sm font-medium text-gray-700 dark:text-grays mb-2"
+                >
                   Confirm Password
                 </label>
                 <div className="relative">
@@ -149,14 +168,19 @@ export default function SignupPage() {
                     type={showPassword.confirmPassword ? "text" : "password"}
                     id="confirmPassword"
                     value={formData.confirmPassword}
-                    onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        confirmPassword: e.target.value,
+                      })
+                    }
                     className="w-full pl-12 pr-12 py-3 rounded-lg border border-gray-200 dark:border-theme/10 bg-white dark:bg-black focus:ring-2 focus:ring-theme focus:border-transparent dark:text-whites transition-colors"
                     placeholder="Confirm your password"
                     required
                   />
                   <button
                     type="button"
-                    onClick={() => togglePasswordVisibility('confirmPassword')}
+                    onClick={() => togglePasswordVisibility("confirmPassword")}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-grays transition-colors"
                   >
                     {showPassword.confirmPassword ? (
@@ -184,20 +208,29 @@ export default function SignupPage() {
                 <div className="w-full border-t border-gray-200 dark:border-theme/10"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-4 text-gray-500 dark:text-grays bg-white dark:bg-black-bg">Or continue with</span>
+                <span className="px-4 text-gray-500 dark:text-grays bg-white dark:bg-black-bg">
+                  Or continue with
+                </span>
               </div>
             </div>
 
             {/* Social Register */}
-            <button className="w-full bg-white dark:bg-black hover:bg-gray-50 dark:hover:bg-black-bg2 text-gray-700 dark:text-whites font-semibold px-6 py-3 rounded-lg transition-all duration-200 transform hover:scale-[1.02] border border-gray-200 dark:border-theme/10 flex items-center justify-center" onClick={() => signIn("google")}> 
+            <button
+              className="w-full bg-white dark:bg-black hover:bg-gray-50 dark:hover:bg-black-bg2 text-gray-700 dark:text-whites font-semibold px-6 py-3 rounded-lg transition-all duration-200 transform hover:scale-[1.02] border border-gray-200 dark:border-theme/10 flex items-center justify-center"
+              onClick={() => signIn("google")}
+            >
               <FaGoogle className="w-5 h-5 mr-2" />
               Continue with Google
             </button>
 
             {/* Login Link */}
             <p className="text-center text-gray-600 dark:text-grays mt-8">
-              Already have an account?{' '}
-              <Link href="/auth" className="text-theme hover:text-theme-dark font-semibold transition-colors">
+              Already have an account?{" "}
+              <Link
+                href="/auth"
+                scroll={true}
+                className="text-theme hover:text-theme-dark font-semibold transition-colors"
+              >
                 Sign in
               </Link>
             </p>
@@ -206,11 +239,11 @@ export default function SignupPage() {
 
         {/* Footer Text */}
         <p className="text-center text-sm text-gray-600 dark:text-grays pb-40">
-          By creating an account, you agree to our{' '}
+          By creating an account, you agree to our{" "}
           <a href="#" className="text-theme hover:text-theme-dark">
             Terms of Service
-          </a>{' '}
-          and{' '}
+          </a>{" "}
+          and{" "}
           <a href="#" className="text-theme hover:text-theme-dark">
             Privacy Policy
           </a>

@@ -10,6 +10,7 @@ import FormNavigation from "../_components/form/FormNavigation";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { log } from "console";
 
 
 const personalInfoSchema = z.object({
@@ -123,27 +124,27 @@ export default function Page() {
    const check= async()=>{
     try{
       if(session?.user){
-        console.log('session is there');
+ 
         
         const response= await axios.get('/api/existing-portfolio',{params:{email:session.user.email}});
-        console.log(response);
+   
         
         if(response.data.msg=='new user'){
          return;
         }else{
-          console.log(' i am in the else block');
+         
           
           router.push('/')
         }
       }else{
-                console.log('token is there');
+              
 
         const response=await axios.get('/api/check-login');
-        console.log(response);
-        console.log('trying:', response.data);
+     
+       
         
         if( response.data?.data?.username === ''){
-          console.log('i was here');
+     
           
           return;
         }else{     
@@ -160,8 +161,9 @@ export default function Page() {
   
     
   const handleAvailability = async () => {
+   
     const routename = (watch("routeName") || "").trim();
-    console.log(routename, "   ", routename.length);
+   
 
     // Validate the length of the route name
     if (routename.length < 3 || routename.length > 30) {
@@ -170,15 +172,15 @@ export default function Page() {
 
     try {
       // Send a POST request to the server with the route name
-      const response = await axios.post("/api/check-availability", {
-        routeName: routename,
-      });
-      console.log(response.data.available);
+       const formData = new FormData();
+       formData.append('routeName',routename)
+      const response = await axios.post("/api/check-availability", formData);
+    
       // Handle the response, assuming the API sends a success or error message
       if (response.data.available) {
         await setIsDisabled(false);
         clearErrors('routeName')
-        console.log("Route is available");
+   
         await setIsAvailable(true);
       } else if (response.data.available == false) {
         // Example: Route is not available
@@ -240,14 +242,14 @@ export default function Page() {
         console.log(error);
       }
     }
-    console.log("submitting :", values);
+
   };
 
   const nextStep = () => setStep(step + 1);
   const prevStep = () => setStep(step - 1);
 
   return (
-    <div className="csw relative">
+    <div className="csw relative pt-24">
       {showError && (
         <Err
           msg="Pleses Fill All The Required Field"

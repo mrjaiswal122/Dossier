@@ -8,7 +8,7 @@ import axios from "axios";
 import { Types } from "mongoose";
 import { setToastMsgRedux } from "../toastMsg/toastMsgSlice";
 import {Skill} from "@/app/_components/portfolio/Skills";
-import { number } from "zod";
+
 
 export enum DeleteImageType {
   ProfileImage = "deleting profile image",

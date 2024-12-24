@@ -27,7 +27,7 @@ export async function POST(req: Request) {
   try {
     await dbConnect();
     const user = await userModel.findOne({ email: email }) .select('+password +salt +_id')
-    if (user) {
+    if (user && user.salt) {
         const hashedPassword = crypto
         .createHmac("sha256", user.salt)
         .update(password)

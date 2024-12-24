@@ -2,59 +2,49 @@
 @tailwind components;
 @tailwind utilities;
 
-.test{
-    border: 1px solid red !important;
+.test {
+  border: 1px solid red !important;
 }
 .csw {
-    @apply px-3 mx-auto w-full  sm:max-w-[540px] md:max-w-[740px] lg:max-w-[960px] xl:max-w-[1160px];
-  }
-.theme-options{
-    @apply flex items-center pl-2 gap-2 dark:hover:bg-gray-600 cursor-pointer;
-  }
+  @apply px-3 mx-auto w-full  sm:max-w-[540px] md:max-w-[740px] lg:max-w-[960px] xl:max-w-[1160px];
+}
 
-  input:-webkit-autofill {
-    background-color: #0f172a !important; /* Adjust to match your design */
-    color: white !important;
-  }
-  .input-div input:not(:placeholder-shown) {
-      label{
-        top: 0px;
-        left: 12px;
+input:-webkit-autofill {
+  background-color: #0f172a !important; /* Adjust to match your design */
+  color: white !important;
+}
 
-       }
-  }
+input,
+textarea,
+select,
+option {
+  @apply text-white dark:bg-black dark:outline-none  pl-3 py-2 rounded-md  bg-gray-700 text-sm;
+}
+.portfolio {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 
-  input, textarea,select,option{
-    @apply text-white dark:bg-black dark:outline-none  pl-3 py-2 rounded-md  bg-gray-700 text-sm
+  h2 {
+    @apply text-center text-2xl;
   }
-  .portfolio{
-     display: flex;
-     flex-direction: column;
-     gap: 8px;
-
-    h2{
-     @apply text-center text-2xl
-   }
-    span{
-     @apply text-red-600 text-sm
-   }
-   .buttons{
-    @apply flex flex-row justify-between mt-5
-  
-   }
-   .deleteExp{
-  
+  span {
+    @apply text-red-600 text-sm;
+  }
+  .buttons {
+    @apply flex flex-row justify-between mt-5;
+  }
+  .deleteExp {
     width: fit-content;
     float: right;
-    svg{
-     @apply   w-6 h-6
+    svg {
+      @apply w-6 h-6;
     }
-   }
-  
   }
-  .nav{
-    @apply bg-theme p-3 rounded-lg
-  }
-  input[type="date"]::-webkit-calendar-picker-indicator {
+}
+.nav {
+  @apply bg-theme p-3 rounded-lg;
+}
+input[type="date"]::-webkit-calendar-picker-indicator {
   color: white;
 }

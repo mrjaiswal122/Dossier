@@ -5,7 +5,7 @@ import dbConnect from "./database";
 import portfolioModel, { IPortfolio } from "../_models/portfolio";
 import { redis } from "./redis-client";
 import { Purpose} from "../_features/portfolio/portfolioSlice";
-import { boolean } from "zod";
+
 const expTime=Number(process.env.REDIS_EX_TIME!);
 
 

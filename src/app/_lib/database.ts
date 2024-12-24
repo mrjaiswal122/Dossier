@@ -1,5 +1,5 @@
-'use server';
-import mongoose from 'mongoose';
+"use server";
+import mongoose from "mongoose";
 
 declare global {
   var mongoose: {
@@ -11,7 +11,9 @@ declare global {
 const MONGODB_URI = process.env.MONGODB_URI!;
 
 if (!MONGODB_URI) {
-  throw new Error('Please define the MONGODB_URI environment variable in .env.local');
+  throw new Error(
+    "Please define the MONGODB_URI environment variable in .env.local"
+  );
 }
 
 let cached = global.mongoose;
@@ -39,21 +41,3 @@ async function dbConnect() {
 }
 
 export default dbConnect;
-
-
-// import mongoose from "mongoose";
-
-
-
-// export default  async function dbConnect(){
-//     try {
-       
-       
-        
-//         await mongoose.connect(`${process.env.MONGODB_URI}`);
-//         console.log('Connected to MongoDB');
-//     } catch (error) {
-//         console.error('Error connecting to MongoDB:', error);
-//         process.exit(1);
-//     }
-// }

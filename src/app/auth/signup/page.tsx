@@ -3,11 +3,11 @@ import axios from "axios";
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Err from "@/app/_components/Err";
 import { signIn } from "next-auth/react";
 import { FaGoogle } from "react-icons/fa6";
 import { ArrowRight, Eye, EyeOff, Mail, User, Lock } from "lucide-react";
-
+import { useAppDispatch } from "@/app/_store/hooks";
+import { setToastMsgRedux } from "@/app/_features/toastMsg/toastMsgSlice";
 export default function SignupPage() {
   const [formData, setFormData] = useState({
     name: "",
@@ -15,7 +15,7 @@ export default function SignupPage() {
     password: "",
     confirmPassword: "",
   });
-  const [msg, setMsg] = useState<string>();
+  const dispatch = useAppDispatch();
   const [showPassword, setShowPassword] = useState({
     password: false,
     confirmPassword: false,
@@ -31,7 +31,9 @@ export default function SignupPage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (formData.confirmPassword != formData.password) {
-      setMsg("Password does not match !!");
+      dispatch(
+        setToastMsgRedux({ msg: "Password doesn't matches", type: "error" })
+      );
       return;
     }
     try {
@@ -40,22 +42,47 @@ export default function SignupPage() {
       data.append("email", formData.email);
       data.append("password", formData.password);
 
-      const getMagicLink = await axios.post("/api/sendMagicLink", data
-      );
-      
-    } catch (error) {
-      setMsg("Something went Wrong !!");
-      console.log(error);
+      const getMagicLink = await axios.post("/api/sendMagicLink", data);
+      if (getMagicLink.data.success) {
+        dispatch(
+          setToastMsgRedux({
+            msg: "Verification mail sent successfully",
+            type: "msg",
+          })
+        );
+      }
+    } catch (error: any) {
+      switch (error.response?.status) {
+        case 422:
+          dispatch(
+            setToastMsgRedux({ msg: "All fields are required", type: "error" })
+          );
+          break;
+
+        case 400:
+          dispatch(
+            setToastMsgRedux({ msg: "Invalid email format.", type: "error" })
+          );
+          break;
+
+        case 409:
+          dispatch(
+            setToastMsgRedux({ msg: "User already exists.", type: "error" })
+          );
+          break;
+
+        default:
+          dispatch(
+            setToastMsgRedux({ msg: "Something went wrong.", type: "error" })
+          );
+          break;
+      }
     }
     setFormData({ name: "", password: "", email: "", confirmPassword: "" });
   };
-  const closeMessageBox = () => {
-    setMsg("");
-  };
+
   return (
     <section className=" relative min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-light to-white dark:from-black dark:to-black-bg pt-20">
-      {msg && <Err msg={msg} handleClick={closeMessageBox} />}
-
       <div className="w-full max-w-md space-y-8">
         {/* Logo */}
         <div className="text-center">
@@ -84,13 +111,14 @@ export default function SignupPage() {
                   <input
                     type="text"
                     id="name"
+                    required={true}
                     value={formData.name}
+                    aria-required="true"
                     onChange={(e) =>
                       setFormData({ ...formData, name: e.target.value })
                     }
                     className="w-full pl-12 pr-4 py-3 rounded-lg border border-gray-200 dark:border-theme/10 bg-white dark:bg-black focus:ring-2 focus:ring-theme focus:border-transparent dark:text-whites transition-colors"
                     placeholder="Enter your full name"
-                    required
                   />
                 </div>
               </div>
@@ -109,6 +137,7 @@ export default function SignupPage() {
                     type="email"
                     id="email"
                     value={formData.email}
+                    aria-required="true"
                     onChange={(e) =>
                       setFormData({ ...formData, email: e.target.value })
                     }
@@ -132,13 +161,14 @@ export default function SignupPage() {
                   <input
                     type={showPassword.password ? "text" : "password"}
                     id="password"
+                    required={true}
                     value={formData.password}
+                    aria-required="true"
                     onChange={(e) =>
                       setFormData({ ...formData, password: e.target.value })
                     }
                     className="w-full pl-12 pr-12 py-3 rounded-lg border border-gray-200 dark:border-theme/10 bg-white dark:bg-black focus:ring-2 focus:ring-theme focus:border-transparent dark:text-whites transition-colors"
                     placeholder="Create a password"
-                    required
                   />
                   <button
                     type="button"
@@ -157,7 +187,7 @@ export default function SignupPage() {
               {/* Confirm Password Input */}
               <div>
                 <label
-                  htmlFor="confirmPassword"
+                  htmlFor="confirmPassword "
                   className="block text-sm font-medium text-gray-700 dark:text-grays mb-2"
                 >
                   Confirm Password
@@ -168,6 +198,7 @@ export default function SignupPage() {
                     type={showPassword.confirmPassword ? "text" : "password"}
                     id="confirmPassword"
                     value={formData.confirmPassword}
+                    aria-required="true"
                     onChange={(e) =>
                       setFormData({
                         ...formData,

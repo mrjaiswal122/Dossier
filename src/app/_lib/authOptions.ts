@@ -30,6 +30,8 @@ export const authOptions: NextAuthOptions = {
             name: user.name,
             email: user.email,
             imageUrl: user.image,
+            isVerified:true,
+            userType:"google"
           });
         }
 

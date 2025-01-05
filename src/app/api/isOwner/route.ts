@@ -6,6 +6,7 @@ import { authOptions } from "@/app/_lib/authOptions";
 import { getServerSession } from "next-auth";
 import { cookies } from "next/headers";
 import { verifyToken } from "@/app/_lib/verifyToken";
+import { JwtPayload, verify } from "jsonwebtoken";
 
 //this api takes pathname and verify is user is the owner of the portfolio ?
 export async function GET (request:NextRequest){
@@ -26,8 +27,12 @@ if(!session && !token){
 try{
 await dbConnect();
 if(token){
-    const decoded=verifyToken(token) ;
+    const decoded=verify(token,process.env.JWT_SECRET as string)as JwtPayload ;
+   
     const user =await userModel.findOne({_id:decoded?.userId})
+    if(!user){
+        return NextResponse.json({isOwner:false},{status:200})
+    }
     if(pathname==user.username){
         return NextResponse.json({isOwner:true},{status:200})
     }else{
@@ -36,6 +41,9 @@ if(token){
     
 }else if(session){
     const user=await userModel.findOne({email:session.user?.email})
+     if(!user){
+        return NextResponse.json({isOwner:false},{status:200})
+    }
     if(pathname==user.username){
         return NextResponse.json({isOwner:true},{status:200})
     }else{

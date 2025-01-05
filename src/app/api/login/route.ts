@@ -26,14 +26,24 @@ export async function POST(req: Request) {
 
   try {
     await dbConnect();
-    const user = await userModel.findOne({ email: email }) .select('+password +salt +_id')
-    if (user && user.salt) {
+    const user = await userModel.findOne({ email: email }) .select('+password +salt +_id +isVerified +userType')
+    if (user) {
+      if(user.userType=="google"){
+          return NextResponse.json({
+            msg:"Try logging with google"
+          },{status:409})
+      }
+         if(user.isVerified==false){
+          return NextResponse.json({
+            msg:"Account not verified"
+          },{status:403})
+         }
         const hashedPassword = crypto
-        .createHmac("sha256", user.salt)
+        .createHmac("sha256", user.salt!)
         .update(password)
         .digest("hex");
       if (hashedPassword === user.password) {
-        console.log("good password was matched and it is correct");
+        
         let jwtToken = sign({ userId: user.id }, `${process.env.JWT_SECRET}`, {
           expiresIn: "12h",
         });
@@ -43,18 +53,18 @@ export async function POST(req: Request) {
           maxAge:  12* 60 * 60, //1 days in seconds
           path: "/",
         });
-        return NextResponse.json({ msg: "User Found" }, { status: 200,  headers: {
+        return NextResponse.json({ msg: "User Found",success:true }, { status: 200,  headers: {
           'Content-Type': 'application/json'
         } });
       } else {
         return NextResponse.json(
           { msg: "Invalid Password!!" },
-          { status: 200 }
+          { status: 401}
         );
       }
     } else {
-        console.log("register yourself");
-        return NextResponse.json({ msg: "No User Found!!" }, { status: 200 });
+   
+        return NextResponse.json({ msg: "No User Found!!" }, { status: 404 });
      
     }
   } catch (err) {

@@ -3,15 +3,16 @@ import Link from "next/link";
 import axios from "axios";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Err from "../_components/Err";
 import { signIn } from "next-auth/react";
 import { ArrowRight, Eye, EyeOff, Mail,Lock } from "lucide-react";
 import { FaGoogle } from "react-icons/fa6";
+import { useAppDispatch } from "../_store/hooks";
+import { setToastMsgRedux } from "../_features/toastMsg/toastMsgSlice";
 export default function Auth() {
   const [formData, setFormData] = useState<{ email: string; password: string }>(
     { email: "", password: "" }
   );
-  const [msg, setMsg] = useState<string>();
+  const dispatch=useAppDispatch()
   const [showPassword,setShowPassword]=useState(false)
   const router = useRouter();
   const togglePasswordVisibility=()=>{
@@ -27,28 +28,35 @@ export default function Auth() {
     try {
       const response = await axios.post("/api/login", formData);
 
-      if (response.data?.msg == "User Found") {
+      if (response.data?.success) {
         window.location.href = "/";
-      } else if (response.data?.msg == "Invalid Password!!") {
-        setMsg("Invalid Password !!");
-      } else if (response.data?.msg == "No User Found!!") {
-        setMsg("No User Found !!");
-      } else {
-        setMsg("Something went wrong.It's not you, its us");
+      } else if (response.data?.msg && (typeof response.data.msg)=="string" ) {
+          dispatch(setToastMsgRedux({msg:`${response.data.msg}`,type:"error"}))
       }
-    } catch (error) {
-      console.log(error);
+       else {
+          dispatch(setToastMsgRedux({msg:"Something went wrong !!",type:"error"}))
+      }
+    }catch (error: any) {
+      // Handle errors based on status codes
+      if (error.response?.status === 409) {
+        dispatch(setToastMsgRedux({ msg: "Try logging in with Google.", type: "error" }));
+      } else if (error.response?.status === 403) {
+        dispatch(setToastMsgRedux({ msg: "Account is not verified.", type: "error" }));
+      } else if (error.response?.status === 401) {
+        dispatch(setToastMsgRedux({ msg: "Invalid password.", type: "error" }));
+      } else if (error.response?.status === 404) {
+        dispatch(setToastMsgRedux({ msg: "No user found with this email.", type: "error" }));
+      } else {
+        dispatch(setToastMsgRedux({ msg: "An unexpected error occurred.", type: "error" }));
+      }
     } finally {
       setFormData({ email: "", password: "" });
       
     }
   };
-  const closeMessageBox = () => {
-    setMsg("");
-  };
+
   return (
        <section className="min-h-screen flex items-center justify-center px-4 pt-20 sm:px-6 lg:px-8 bg-gradient-to-b from-light to-white dark:from-black dark:to-black-bg relative">
-         {msg && <Err msg={msg} handleClick={closeMessageBox} />}
       <div className="w-full max-w-md space-y-8">
         {/* Logo */}
         <div className="text-center">
@@ -93,7 +101,7 @@ export default function Auth() {
                     name="password"
                     value={formData.password}
                     onChange={handleChange}
-                    className="w-full pl-12 pr-12 py-3 rounded-lg border border-gray-200 dark:border-theme/10 bg-white dark:bg-black focus:ring-2 focus:ring-theme focus:border-transparent dark:text-whites transition-colors"
+                    className="w-full pl-12 pr-12 py-3 rounded-lg text-black border  border-gray-200 dark:border-theme/10 bg-white dark:bg-black focus:ring-2 focus:ring-theme focus:border-transparent dark:text-whites transition-colors"
                     placeholder="Enter your password"
                     required
                   />

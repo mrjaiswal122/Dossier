@@ -10,7 +10,6 @@ import FormNavigation from "../_components/form/FormNavigation";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { log } from "console";
 
 
 const personalInfoSchema = z.object({
@@ -40,7 +39,7 @@ const personalInfoSchema = z.object({
       .url("Must be a valid URL")
       .or(z.literal(""))
       .default(""),
-  }),
+  }).optional(),
 });
 
 const summarySchema = z.object({
@@ -210,6 +209,8 @@ export default function Page() {
     setIsDisabled(true);
   };
   const handleClick = () => {
+    console.log(errors);
+    
     if (Object.keys(errors).length !== 0) {
       setShowError(true);
     }

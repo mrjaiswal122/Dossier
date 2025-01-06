@@ -131,9 +131,9 @@ export default function Auth() {
                     Remember me
                   </label>
                 </div>
-                <a href="#" className="text-sm text-theme hover:text-theme-dark transition-colors">
+                <Link href="/forgot-password" prefetch={false} className="text-sm text-theme hover:text-theme-dark transition-colors">
                   Forgot password?
-                </a>
+                </Link>
               </div>
 
               {/* Login Button */}

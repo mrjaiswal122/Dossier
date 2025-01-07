@@ -2,11 +2,13 @@ import {createSlice,PayloadAction} from '@reduxjs/toolkit';
 
 type ToastMsg={
     msg:string;
-    type:'error'|'msg'
+    type?:'error'|'msg';
+    expire?:boolean
 }
 const initialState:ToastMsg={
     msg:'',
-    type:'msg'
+    type:undefined,
+    expire:undefined
 };
 
 export const toastMsgSlice=createSlice({
@@ -17,8 +19,8 @@ export const toastMsgSlice=createSlice({
            return { ...state, ...action.payload };
             
         },
-        clearToastMsgRedux:(state)=>{
-            return {msg:'',type:'error'}
+        clearToastMsgRedux:()=>{
+            return {msg:''}
             
         }
     }

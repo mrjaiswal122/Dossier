@@ -52,11 +52,11 @@ export default function ForgotPassword() {
     } catch (error: any) {
       if (error.response.message)
         dispatch(
-          setToastMsgRedux({ msg: `${error.response.msg}`, type: "error" })
+          setToastMsgRedux({ msg: `${error.response.msg}` })
         );
       else
         dispatch(
-          setToastMsgRedux({ msg: "Something went wrong.", type: "error" })
+          setToastMsgRedux({ msg: "Something went wrong."})
         );
     }
   };

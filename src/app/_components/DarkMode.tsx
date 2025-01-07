@@ -31,6 +31,7 @@ export default function DarkMode({ children }: { children: ReactNode }) {
               msg={toastMsg.msg}
               handleClick={handleToastMsg}
               type={toastMsg.type}
+              expire={toastMsg.expire}
               />
             )}
           

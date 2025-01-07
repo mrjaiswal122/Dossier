@@ -48,6 +48,7 @@ export default function SignupPage() {
           setToastMsgRedux({
             msg: "Verification mail sent successfully",
             type: "msg",
+            expire:false
           })
         );
       }

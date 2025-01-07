@@ -8,14 +8,12 @@ import UploadImage from "./UploadImage";
 import Link from "next/link";
 import { IoLocationSharp } from "react-icons/io5";
 import { BsCopy } from "react-icons/bs";
-import { clearToastMsgRedux, setToastMsgRedux } from "@/app/_features/toastMsg/toastMsgSlice";
+import {  setToastMsgRedux } from "@/app/_features/toastMsg/toastMsgSlice";
 import UpdateProfile from "./UpdateProfile";
 export default function Hero() {
     const portfolio = useAppSelector((state) => state.portfolioSlice);
-    const toastMsg = useAppSelector((state) => state.toastMsgSlice); // Access toast message state
-      const handleToastMsg = () => {
-      dispatch(clearToastMsgRedux());
-    };
+
+  
 
     const dispatch = useAppDispatch();
     const [updatingProfile,setUpdatingProfile]=useState(false)
@@ -47,7 +45,7 @@ export default function Hero() {
     try {
       await navigator.clipboard.writeText(portfolio.personalInfo?.phone!);
       setIsPhoneCopied(true)
-      dispatch(setToastMsgRedux({msg:'Phone Number Copied To Clipboard',type:'msg'}))
+      dispatch(setToastMsgRedux({msg:'Phone Number Copied To Clipboard',type:'msg',expire:true}))
     } catch (error) {
       console.error("Failed to copy text: ", error);
     }

@@ -29,7 +29,10 @@ export default function Auth() {
       const response = await axios.post("/api/login", formData);
 
       if (response.data?.success) {
-        window.location.href = "/";
+        // window.location.href = "/";
+        
+        router.back();
+        
       } else if (response.data?.msg && (typeof response.data.msg)=="string" ) {
           dispatch(setToastMsgRedux({msg:`${response.data.msg}`,type:"error"}))
       }

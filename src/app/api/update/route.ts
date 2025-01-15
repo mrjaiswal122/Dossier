@@ -6,20 +6,14 @@ import { redis } from "@/app/_lib/redis-client";
 import portfolioModel, { IPortfolio } from "@/app/_models/portfolio";
 import userModel from "@/app/_models/user";
 import { NextResponse, NextRequest } from "next/server";
-
+import { Update } from "@/app/_types/Update";
 const expTime = Number(process.env.REDIS_EX_TIME);
 
-export enum Update {
-  Project = 'updating project',
-  WorkExperience = 'updating work experience',
-  Profile = 'updating hero section',
-  RouteName='Changing the routename',
-  Skills='Updating skills'
-}
+
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('I am in the update route');
+   
 
     const formData = await request.formData();
     const routeName = formData.get('routeName') as string;

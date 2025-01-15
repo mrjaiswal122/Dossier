@@ -14,16 +14,13 @@ export async function GET(request: NextRequest) {
   
   const session = await getServerSession(authOptions);
 
-  // console.log('Session:', session);
+ 
 
   if (!token) {
-    console.log("Token not found");
 
     if (!session?.user) {
-      console.log("User not found in session, show signup");
       return NextResponse.json({ msg: "Show Signup" }, { status: 200 });
     } else {
-      console.log("User found in session, returning user info");
       try{
         
         await dbConnect();
@@ -61,10 +58,8 @@ export async function GET(request: NextRequest) {
         const user = await userModel.findOne({ _id: tokenData.userId }).exec();
 
         if (!user) {
-          console.log("User not found with token ID");
           return NextResponse.json({ msg: "Show Login" }, { status: 200 });
         }
-       console.log('sending user .......');
        const obj = {
         name: user.name,
         email: user.email,
@@ -72,7 +67,6 @@ export async function GET(request: NextRequest) {
         role: user.role,
         username:user.username,
       }
-      console.log(JSON.stringify(obj));
         return NextResponse.json(
           {
             msg: "Show User",
@@ -81,15 +75,12 @@ export async function GET(request: NextRequest) {
           { status: 200 }
         );
       } else {
-        console.log("Token data is invalid");
         return NextResponse.json({ msg: "Show Login" }, { status: 200 });
       }
     } catch (error) {
       if (error instanceof TokenExpiredError) {
-        console.log("Token expired");
         return NextResponse.json({ msg: "Show Login" }, { status: 200 });
       } else {
-        console.error("Token error:", error);
         return NextResponse.json({ msg: "Show Signup" }, { status: 200 });
       }
     }

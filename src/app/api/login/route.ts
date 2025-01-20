@@ -26,7 +26,7 @@ export async function POST(req: Request) {
 
   try {
     await dbConnect();
-    const user = await userModel.findOne({ email: email }) .select('+password +salt +_id +isVerified +userType')
+    const user = await userModel.findOne({ email: email })
     if (user) {
       if(user.userType=="google"){
           return NextResponse.json({
@@ -53,7 +53,19 @@ export async function POST(req: Request) {
           maxAge:  12* 60 * 60, //1 days in seconds
           path: "/",
         });
-        return NextResponse.json({ msg: "User Found",success:true }, { status: 200,  headers: {
+         const userResponse = {
+            name: user.name,
+            email: user.email,
+            imageUrl: user.imageUrl,
+            role: user.role,
+            username: user.username,
+            createdAt:new Date(user.createdAt).getTime(),
+            updatedAt:new Date(user.updatedAt!).getTime(),
+            isVerified:user.isVerified,
+            userType:user.userType
+          };
+
+        return NextResponse.json({ msg: "User Found",success:true ,user:userResponse }, { status: 200,  headers: {
           'Content-Type': 'application/json'
         } });
       } else {

@@ -18,7 +18,7 @@ input,
 textarea,
 select,
 option {
-  @apply text-white dark:bg-black dark:outline-none  pl-3 py-2 rounded-md  bg-gray-700 text-sm;
+  @apply text-white dark:bg-black-bg dark:outline-none  pl-3 py-2 rounded-md  bg-gray-700 text-sm border-[0.1px] border-gray-700 focus:border-white;
 }
 .portfolio {
   display: flex;
@@ -42,8 +42,11 @@ option {
     }
   }
 }
-.nav {
-  @apply bg-theme p-3 rounded-lg;
+.nav-next {
+  @apply  bg-black dark:bg-white text-white text-sm dark:text-black py-2 px-3 rounded-md border-[0.1px] border-gray-700 w-fit float-right hover:bg-opacity-80 ;
+}
+.nav-prev{
+  @apply bg-white dark:bg-black border-[0.1px] border-gray-700 rounded-md py-2 px-3 text-sm hover:bg-opacity-80;
 }
 input[type="date"]::-webkit-calendar-picker-indicator {
   color: white;

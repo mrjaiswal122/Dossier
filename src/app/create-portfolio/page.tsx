@@ -250,7 +250,7 @@ export default function Page() {
   const prevStep = () => setStep(step - 1);
 
   return (
-    <div className="csw relative pt-24">
+    <div className="csw relative pt-24 flex flex-col justify-between items-center">
       {showError && (
         <Err
           msg="Pleses Fill All The Required Field"
@@ -261,66 +261,103 @@ export default function Page() {
         Create Your Portfolio
       </h1>
       <FormNavigation setStep={setStep} step={step} />
-      <div className=" relative csw mx-auto p-4  dark:bg-gray-800 bg-theme-light text-gray-900 dark:text-gray-100 min-h-screen">
-        <form className="max-w-3xl mx-auto" onSubmit={handleSubmit(submit)}>
-          {step === 1 && (
-            <div className="portfolio">
-              <input
-                {...register("personalInfo.fullName")}
-                placeholder="Full Name"
-              />
-              {errors.personalInfo?.fullName && (
-                <span>{errors.personalInfo.fullName.message}</span>
-              )}
-              
-              <input
-                {...register("personalInfo.title")}
-                placeholder="Professional Title"
-              />
-              {errors.personalInfo?.title && (
-                <span>{errors.personalInfo.title.message}</span>
-              )}
-              <input
-                {...register("personalInfo.location")}
-                placeholder="Location"
-              />
-              <input
-                {...register("personalInfo.email")}
-                placeholder="Email"
-                id="email"
-              />
-              {errors.personalInfo?.email && (
-                <span>{errors.personalInfo.email.message}</span>
-              )}
-              <input {...register("personalInfo.phone")} placeholder="Phone" />
-              <input
-                {...register("personalInfo.socialLinks.linkedIn")}
-                placeholder="LinkedIn URL"
-              />
-              <input
-                {...register("personalInfo.socialLinks.github", {
-                  required: false,
-                })}
-                placeholder="GitHub URL"
-              />
-              <input
-                {...register("personalInfo.socialLinks.twitter")}
-                placeholder="Twitter URL"
-              />
+      <div className=" relative border-[0.1px] border-gray-700 rounded-md   dark:bg-[#121621] bg-whites text-gray-900 dark:text-gray-100 h-fit max-w-3xl lg:w-[800px] md:w-[650px] sm:w-[500] mb-24 w-full p-6">
+        <form className="max-w-3xl mx-auto space-y-6" onSubmit={handleSubmit(submit)} >
+         {step === 1 && (
+  <div className="portfolio">
+    {/* Full Name */}
+    <label htmlFor="fullName">Full Name <div className="text-theme inline">*</div></label>
+    <input
+      id="fullName"
+      {...register("personalInfo.fullName")}
+      placeholder="Full Name"
+    />
+    {errors.personalInfo?.fullName && (
+      <span>{errors.personalInfo.fullName.message}</span>
+    )}
 
-              <button
-                type="button"
-                onClick={nextStep}
-                className="bg-theme p-3 rounded-lg"
-              >
-                Next
-              </button>
-            </div>
-          )}
+    {/* Professional Title */}
+    <label htmlFor="title">Professional Title <div className="text-theme inline">*</div></label>
+    <input
+      id="title"
+      {...register("personalInfo.title")}
+      placeholder="Senior Software Engineer"
+    />
+    {errors.personalInfo?.title && (
+      <span>{errors.personalInfo.title.message}</span>
+    )}
+
+    {/* Location */}
+    <label htmlFor="location">Location</label>
+    <input
+      id="location"
+      {...register("personalInfo.location")}
+      placeholder="Location"
+    />
+
+    {/* Email */}
+    <label htmlFor="email">Email <div className="text-theme inline">*</div></label>
+    <input
+      id="email"
+      {...register("personalInfo.email")}
+      placeholder="john@example.com"
+    />
+    {errors.personalInfo?.email && (
+      <span>{errors.personalInfo.email.message}</span>
+    )}
+
+    {/* Phone */}
+    <label htmlFor="phone">Phone</label>
+    <input
+      id="phone"
+      {...register("personalInfo.phone")}
+      placeholder="Phone"
+    />
+     <h3 className="text-lg font-semibold my-2">Social Links</h3>
+    {/* LinkedIn URL */}
+    <label htmlFor="linkedIn">LinkedIn URL</label>
+    <input
+      id="linkedIn"
+      {...register("personalInfo.socialLinks.linkedIn")}
+      placeholder="https://linkedin.com/in/..."
+    />
+
+    {/* GitHub URL */}
+    <label htmlFor="github">GitHub URL</label>
+    <input
+      id="github"
+      {...register("personalInfo.socialLinks.github", {
+        required: false,
+      })}
+      placeholder="https://github.com/..."
+    />
+
+    {/* Twitter URL */}
+    <label htmlFor="twitter">Twitter URL</label>
+    <input
+      id="twitter"
+      {...register("personalInfo.socialLinks.twitter")}
+      placeholder="https://twitter.com/..."
+    />
+    <div className="w-full flex justify-end mt-3">
+ <button
+      type="button"
+      onClick={nextStep}
+      className="nav-next"
+    >
+      Next
+    </button>
+    </div>
+   
+  </div>
+)}
+
 
           {step === 2 && (
             <div className="portfolio">
+            <label htmlFor="aboutMe">About Me</label>
               <textarea
+              id="aboutMe"
                 {...register("summary.aboutMe")}
                 placeholder="About Me"
               />
@@ -328,10 +365,10 @@ export default function Page() {
                 <span>{errors.summary.aboutMe.message}</span>
               )}
               <div className="buttons">
-                <button type="button" onClick={prevStep} className="nav">
+                <button type="button" onClick={prevStep} className="nav-prev">
                   Previous
                 </button>
-                <button type="button" onClick={nextStep} className="nav">
+                <button type="button" onClick={nextStep} className="nav-next">
                   Next
                 </button>
               </div>
@@ -363,10 +400,10 @@ export default function Page() {
                 <span>{errors.resume.fileUrl.message}</span>
               )}
               <div className="buttons">
-                <button type="button" onClick={prevStep} className="nav">
+                <button type="button" onClick={prevStep} className="nav-prev">
                   Previous
                 </button>
-                <button type="button" onClick={nextStep} className="nav">
+                <button type="button" onClick={nextStep} className="nav-next">
                   Next
                 </button>
               </div>
@@ -397,7 +434,7 @@ export default function Page() {
               </div>
 
               <div className="buttons">
-                <button type="button" onClick={prevStep} className="nav">
+                <button type="button" onClick={prevStep} className="nav-prev">
                   Previous
                 </button>
                 <button

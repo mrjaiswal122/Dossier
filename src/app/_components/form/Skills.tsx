@@ -60,12 +60,27 @@ export default function Skills({control,register,errors,prevStep,nextStep,watch,
    
     {/* You would typically use array fields here */}
     {skillFields.map((field, index) => (
-      <div key={field.id} className="flex flex-col gap-2">
+      <div key={field.id} className="flex flex-col gap-2 border-[0.1px] border-gray-700 p-2 rounded-md">
+        <header className='flex justify-between'>
+
+        <h2 className='text-theme'>Skill Set {index+1}</h2>
+        {index>0&&
+        <button
+          type="button"
+          onClick={() => removeSkill(index)}
+          className="deleteExp text-reds scale-150 mt-2"
+        >
+          <MdOutlineDeleteForever />
+        </button>}
+        </header>
+        <label htmlFor="category">Category </label>
         <input
+        id='category'
           {...register(`skills.${index}.category`)}
           placeholder="Skill Category-eg.Web Devlopment" 
         />
         <div>
+                  <label htmlFor="skills">Skills (press Enter to add)</label>
           <div className="flex gap-3 mb-2 flex-wrap">
             {watch(`skills.${index}.skills`).map(
               (skill, skillIndex) => (
@@ -85,6 +100,7 @@ export default function Skills({control,register,errors,prevStep,nextStep,watch,
             )}
           </div>
           <input
+            id='skills'
             placeholder="Skill Name-eg.React,NextJs"
             onKeyDown={(e) => handleSkill(e, index)}
             className="w-full" name='skills' type='text'
@@ -93,7 +109,9 @@ export default function Skills({control,register,errors,prevStep,nextStep,watch,
             <span>{errors.skills?.[index]?.skills.message}</span>
           )}
         </div>
+        <label htmlFor="level">Proficiency Level</label>
         <select
+        id='level'
           {...register(`skills.${index}.proficiency`)}
         >
           <option value="">Select proficiency</option>
@@ -101,19 +119,12 @@ export default function Skills({control,register,errors,prevStep,nextStep,watch,
           <option value="Intermediate">Intermediate</option>
           <option value="Advanced">Advanced</option>
         </select>
-        <button
-          type="button"
-          onClick={() => removeSkill(index)}
-          className="deleteExp text-reds scale-150 mt-2"
-        >
-          <MdOutlineDeleteForever />
-        </button>
+
       </div>
     ))}
-    <div className="buttons">
       <button
         type="button"
-        className="dark:border dark:border-grays border-[#000000] border-2 px-3 py-1 text-lg "
+        className="border-[0.1px] border-gray-700 px-3 py-1 text-base dark:bg-black rounded-md "
         onClick={() =>
           appendSkill({
             category: "",
@@ -122,12 +133,13 @@ export default function Skills({control,register,errors,prevStep,nextStep,watch,
           })
         }
       >
-        +
+        + {"    "}Add Skill Set
       </button>
-      <button type="button" onClick={prevStep} className="nav">
+    <div className="buttons">
+      <button type="button" onClick={prevStep} className="nav-prev">
         Previous
       </button>
-      <button type="button" onClick={nextStep} className="nav">
+      <button type="button" onClick={nextStep} className="nav-next">
         Next
       </button>
     </div>

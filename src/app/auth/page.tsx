@@ -8,6 +8,7 @@ import { ArrowRight, Eye, EyeOff, Mail,Lock } from "lucide-react";
 import { FaGoogle } from "react-icons/fa6";
 import { useAppDispatch } from "../_store/hooks";
 import { setToastMsgRedux } from "../_features/toastMsg/toastMsgSlice";
+import { updateUser } from "../_features/user/userSlice";
 export default function Auth() {
   const [formData, setFormData] = useState<{ email: string; password: string }>(
     { email: "", password: "" }
@@ -29,8 +30,8 @@ export default function Auth() {
       const response = await axios.post("/api/login", formData);
 
       if (response.data?.success) {
-        // window.location.href = "/";
-        
+       
+        dispatch(updateUser(response.data.user))
         router.back();
         
       } else if (response.data?.msg && (typeof response.data.msg)=="string" ) {

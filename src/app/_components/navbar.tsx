@@ -20,6 +20,7 @@ import { setToastMsgRedux } from "../_features/toastMsg/toastMsgSlice";
 import SurePrompt from "./SurePrompt";
 import { updateRouteNameAsync } from "../_features/portfolio/portfolioSlice";
 import { FaGears } from "react-icons/fa6";
+import { updateUser, UserType } from "../_features/user/userSlice";
 
 type LogedInUser = {
   name: string;
@@ -32,7 +33,8 @@ export default function Navbar() {
   const dispatch = useAppDispatch();
   const portfolio = useAppSelector((state) => state.portfolioSlice);
   const [prefersDarkScheme, setPrefersDarkScheme] = useState(false);
-  const [user, setUser] = useState<LogedInUser>();
+  // const [user, setUser] = useState<LogedInUser>();
+  const user=useAppSelector((state)=>state.userSlice)
   const [toogleSideBar, setToogleSideBar] = useState(false);
   const pathname = usePathname().slice(1);
   const [isOpen, setIsOpen] = useState(false);
@@ -45,12 +47,17 @@ export default function Navbar() {
         );
         // api call
         const response = await axios.get("/api/check-login");
-        if (response.data.msg === "Show User") {
-          setUser(response.data.data);
+        console.log(response);
+        
+        if (response.data.success) {
+          // setUser(response.data.data);
+          dispatch(updateUser(response.data.data))
         }
-      } catch (error) {
+      } catch (error:any) {
+       
+        if(error.response.data.message)
         dispatch(
-          setToastMsgRedux({ msg: "Please Login Again !!", type: "error" })
+          setToastMsgRedux({ msg:error.response.data.message , type: "error" })
         );
       }
     };
@@ -116,7 +123,7 @@ export default function Navbar() {
         <div className="flex justify-between items-center csw">
           {/* left */}
           <div className="flex justify-between items-center gap-3">
-            <Link href="/" className="text-xl text-theme">
+            <Link href="/" className="text-2xl dark:text-theme  text-black font-extrabold ">
               Dossier
             </Link>
           </div>
@@ -167,7 +174,7 @@ export default function Navbar() {
               className=" flex justify-center items-center"
               onClick={() => setToogleSideBar(true)}
             >
-              <BiMenu className="hover:text-theme cursor-pointer" />
+              <BiMenu className="hover:text-theme  dark:text-whites text-black scale-150 cursor-pointer" />
             </div>
           </div>
         </div>
@@ -198,7 +205,7 @@ function SideBar({
   handleTheme,
 }: {
   setToogleSideBar: Dispatch<SetStateAction<boolean>>;
-  user: LogedInUser | undefined;
+  user: UserType|undefined;
   handleTheme: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
 }) {
   const portfolio = useAppSelector((state) => state.portfolioSlice);
@@ -337,7 +344,7 @@ function SideBar({
             {/* user deatail */}
 
             <div className="mb-16 text-sm border-t-[1px]  border-grays   ">
-              {user ? (
+              {user?.name ? (
                 <div className="flex justify-between items-center p-3 ">
                   <div className="flex gap-3">
                     <Profile user={user} />

@@ -33,9 +33,11 @@ export const authOptions: NextAuthOptions = {
             isVerified:true,
             userType:"google"
           });
-          return true; // User successfully signed in
         }
-         return false;
+     
+        
+        return true; // User successfully signed in
+     
       } catch (error) {
         console.error('Error storing user in database:', error);
         return false; // Return false to deny sign-in if there is an error

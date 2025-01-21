@@ -18,23 +18,23 @@ export async function POST(request: Request) {
       if (!user) {
         return NextResponse.json({ message: 'User not found' }, { status: 404 });
       }
-
+      if(!user.isVerified){
+        return NextResponse.json({message:"User not verified"},{status:401})
+      }
       const portfolio = new portfolioModel({
         ...data,
         user: user._id,
       });
 
       const created= await portfolio.save();
-      console.log('portfolo:',created)
-      //updating the user 
-      await userModel.findOneAndUpdate({email},{$set:{username:data.routeName,portfolios:created._id}})
+      
+      await userModel.findOneAndUpdate({email},{$set:{username:data.routeName,portfolio:created._id}})
 
-      console.log('Portfolio created for type 1');
-      return NextResponse.json({ message: 'Portfolio Created' }, { status: 200 });
+      return NextResponse.json({success:true, message: 'Portfolio Created', routename:data.routeName }, { status: 200 });
     }//this is of user is loged in using credentials
     else if (type === 2) {
       const Gettoken =await cookies()
-  const token=Gettoken.get("access-token")?.value;
+      const token=Gettoken.get("access-token")?.value;
 
       if (!token) {
         return NextResponse.json({ message: 'Access token not found' }, { status: 401 });
@@ -54,12 +54,12 @@ export async function POST(request: Request) {
 
       const created=await portfolio.save();
       //updating the user
-      await userModel.findOneAndUpdate({_id:userId},{$set:{username:data.routeName,portfolios:created._id}})
+      await userModel.findOneAndUpdate({_id:userId},{$set:{username:data.routeName,portfolio:created._id}})
 
       console.log('Portfolio created for type 2');
-      return NextResponse.json({ message: 'Portfolio Created' }, { status: 200 });
+      return NextResponse.json({success:true, message: 'Portfolio Created',routename:data.routeName }, { status: 200 });
     } else {
-      return NextResponse.json({ message: 'Invalid type' }, { status: 400 });
+      return NextResponse.json({ status: 400 });
     }
   } catch (error) {
     console.error('Error creating portfolio:', error);

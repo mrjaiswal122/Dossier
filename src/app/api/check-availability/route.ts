@@ -5,7 +5,8 @@ import portfolioModel from "@/app/_models/portfolio";
 export  async function POST(request:NextRequest){
     const formData = await request.formData();
     const routeName=formData.get('routeName') as string
-
+if(!routeName)return NextResponse.json({msg:"Route name is required",success:false},{status:400})
+if(routeName.length>30) return NextResponse.json({msg:"Maximum length is 30",success:false },{status:400})    
 try{
     await dbConnect();
   const result= await portfolioModel.findOne({routeName})
@@ -21,7 +22,7 @@ try{
         msg:'Route is not available',
         success:false,
         available:false
-       },{status:200})
+       },{status:409})
 }
 }catch(error){
 return NextResponse.json({msg:'Internal Server Error' ,success:false,},{status:500})

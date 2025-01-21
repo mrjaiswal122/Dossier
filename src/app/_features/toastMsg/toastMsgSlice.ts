@@ -8,7 +8,7 @@ type ToastMsg={
 const initialState:ToastMsg={
     msg:'',
     type:undefined,
-    expire:undefined
+    expire:true
 };
 
 export const toastMsgSlice=createSlice({

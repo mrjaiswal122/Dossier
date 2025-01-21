@@ -21,6 +21,7 @@ import SurePrompt from "./SurePrompt";
 import { updateRouteNameAsync } from "../_features/portfolio/portfolioSlice";
 import { FaGears } from "react-icons/fa6";
 import { updateUser, UserType } from "../_features/user/userSlice";
+import { cn } from "../_util/cn";
 
 type LogedInUser = {
   name: string;
@@ -47,7 +48,6 @@ export default function Navbar() {
         );
         // api call
         const response = await axios.get("/api/check-login");
-        console.log(response);
         
         if (response.data.success) {
           // setUser(response.data.data);
@@ -388,7 +388,7 @@ type ChangeRouteNameProps = {
 };
 function ChangeRouteName({ setOpenChangeRouteName }: ChangeRouteNameProps) {
   const portfolio = useAppSelector((state) => state.portfolioSlice);
-  const [message,setMessage]=useState('');
+  const [message,setMessage]=useState({message:"",success:false});
   const dispatch = useAppDispatch();
   const [routename, setRouteName] = useState(portfolio.routeName);
   const [isAvailable, setIsAvailable] = useState(false);
@@ -403,7 +403,7 @@ function ChangeRouteName({ setOpenChangeRouteName }: ChangeRouteNameProps) {
 
   const handleChangeRouteNames = (e: React.ChangeEvent<HTMLInputElement>) => {
     setRouteName(e.target.value);
-    setMessage('')
+    setMessage({message:'',success:false})
     setIsAvailable(false);
   };
 
@@ -416,21 +416,21 @@ function ChangeRouteName({ setOpenChangeRouteName }: ChangeRouteNameProps) {
   if (isAvailable === false) {
     try {
       const response = await axios.post("/api/check-availability", formData);
-      console.log('response while checking availability', response);
-      if(response.status===500)
-      {
-        dispatch(setToastMsgRedux({msg:'Internal Server Error',type:'error'}))
-        return
-      }
-      if ( response.data.success === false) {
-        setMessage('Routename is not available')
-        setIsAvailable(false);
+      console.log(response);
+      
+      if ( response.data.success) {
+        setMessage({message:'Route name is available ✔',success:true})
+        setIsAvailable(true);
         return;
       }
-      setMessage('Route name is available ✔')
-      setIsAvailable(true);
-    } catch (error) {
-      dispatch(setToastMsgRedux({ msg: "Error Checking Availability !!", type: "error" }));
+    } catch (error:any) {
+     
+      if(error.response?.status==409){
+        setMessage({message:'Routename is not available',success:false})
+      }else{
+        dispatch(setToastMsgRedux({ msg:(error.response.data.msg as string),type:"error",expire:false}));
+      }
+      setIsAvailable(false);
     }
   } else {
     const { payload } = await dispatch(updateRouteNameAsync({ changedRouteName: routename }));
@@ -479,7 +479,7 @@ function ChangeRouteName({ setOpenChangeRouteName }: ChangeRouteNameProps) {
              {isAvailable?'Submit':'Check'}
             </button>
           </div>
-          <span className="text-sm text-greens mt-3">{message}</span>
+          <span className={cn("text-sm mt-3", "text-reds", {" text-greens":message.success})}>{message.message}</span>
         </form>
       </section>
     </>

@@ -43,7 +43,7 @@ export default function Auth() {
     }catch (error: any) {
       // Handle errors based on status codes
       if (error.response?.status === 409) {
-        dispatch(setToastMsgRedux({ msg: "Try logging in with Google.", type: "error" }));
+        dispatch(setToastMsgRedux({ msg: "Try logging in with Google.", type: "error" ,expire:false }));
       } else if (error.response?.status === 403) {
         dispatch(setToastMsgRedux({ msg: "Account is not verified.", type: "error" }));
       } else if (error.response?.status === 401) {

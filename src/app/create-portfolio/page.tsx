@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { SubmitHandler, useForm,} from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
 import Err from "../_components/Err";
 
 import Skills from "../_components/form/Skills";
@@ -10,7 +10,8 @@ import FormNavigation from "../_components/form/FormNavigation";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-
+import { useAppDispatch } from "../_store/hooks";
+import { setToastMsgRedux } from "../_features/toastMsg/toastMsgSlice";
 
 const personalInfoSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),
@@ -27,19 +28,25 @@ const personalInfoSchema = z.object({
     .regex(/^\+?[1-9]\d{1,14}$/, "Invalid phone number")
     .optional()
     .or(z.literal("")),
-  socialLinks: z.object({
-    linkedIn: z
-      .string()
-      .url("Must be a valid URL")
-      .or(z.literal(""))
-      .default(""),
-    github: z.string().url("Must be a valid URL").or(z.literal("")).default(""),
-    twitter: z
-      .string()
-      .url("Must be a valid URL")
-      .or(z.literal(""))
-      .default(""),
-  }).optional(),
+  socialLinks: z
+    .object({
+      linkedIn: z
+        .string()
+        .url("Must be a valid URL")
+        .or(z.literal(""))
+        .default(""),
+      github: z
+        .string()
+        .url("Must be a valid URL")
+        .or(z.literal(""))
+        .default(""),
+      twitter: z
+        .string()
+        .url("Must be a valid URL")
+        .or(z.literal(""))
+        .default(""),
+    })
+    .optional(),
 });
 
 const summarySchema = z.object({
@@ -52,7 +59,6 @@ const skillSchema = z.object({
   skills: z.array(z.string()),
   proficiency: z.enum(["Beginner", "Intermediate", "Advanced"]),
 });
-
 
 const resumeSchema = z.object({
   fileUrl: z.string().url("Must be a valid URL").or(z.literal("")).default(""),
@@ -77,11 +83,14 @@ export type FormData = z.infer<typeof portfolioSchema>;
 export default function Page() {
   // Initialize useForm
   const [isDisabled, setIsDisabled] = useState(true);
-  const [isAvailable,setIsAvailable]=useState(false);
+  const [isAvailable, setIsAvailable] = useState(false);
   const [showError, setShowError] = useState(false);
+  //to keep track if the form is submitting 
+  const [isSubmiting, setIsSubmiting] = useState(false);
   const [step, setStep] = useState(1);
   const { data: session } = useSession();
-  const router=useRouter();
+  const router = useRouter();
+  const dispatch=useAppDispatch();
   const {
     register,
     handleSubmit,
@@ -118,51 +127,38 @@ export default function Page() {
       },
     },
   });
-   
-  useEffect(()=>{
-   const check= async()=>{
-    try{
-      if(session?.user){
- 
-        
-        const response= await axios.get('/api/existing-portfolio',{params:{email:session.user.email}});
-   
-        
-        if(response.data.msg=='new user'){
-         return;
-        }else{
-         
-          
-          router.push('/')
-        }
-      }else{
-              
 
-        const response=await axios.get('/api/check-login');
-     
-       
-        
-        if( response.data?.data?.username === ''){
-     
-          
-          return;
-        }else{     
-          router.push('/')
+  useEffect(() => {
+    const check = async () => {
+      try {
+        if (session?.user) {
+          const response = await axios.get("/api/existing-portfolio", {
+            params: { email: session.user.email },
+          });
 
+          if (response.data.msg == "new user") {
+            return;
+          } else {
+            router.push("/");
+          }
+        } else {
+          const response = await axios.get("/api/check-login");
+
+          if (response.data?.data?.username === "") {
+            return;
+          } else {
+            router.push("/");
+          }
         }
+      } catch (error) {
+        console.log("i am in the catch", error);
       }
-    }catch(error){
-      console.log('i am in the catch',error)
-    }
-  }
-  check();
-},[router,session])
-  
-    
+    };
+    check();
+  }, [router, session]);
+
   const handleAvailability = async () => {
-   
     const routename = (watch("routeName") || "").trim();
-   
 
     // Validate the length of the route name
     if (routename.length < 3 || routename.length > 30) {
@@ -171,19 +167,19 @@ export default function Page() {
 
     try {
       // Send a POST request to the server with the route name
-       const formData = new FormData();
-       formData.append('routeName',routename)
+      const formData = new FormData();
+      formData.append("routeName", routename);
       const response = await axios.post("/api/check-availability", formData);
-    
+
       // Handle the response, assuming the API sends a success or error message
       if (response.data.available) {
         await setIsDisabled(false);
-        clearErrors('routeName')
-   
+        clearErrors("routeName");
+
         await setIsAvailable(true);
       } else if (response.data.available == false) {
         // Example: Route is not available
-         await setIsAvailable(false);
+        await setIsAvailable(false);
         setError("routeName", {
           type: "custom",
           message: "Route name is already taken",
@@ -206,11 +202,12 @@ export default function Page() {
     }
   };
   const handleChange = () => {
+    setIsAvailable(false)
     setIsDisabled(true);
   };
   const handleClick = () => {
     console.log(errors);
-    
+
     if (Object.keys(errors).length !== 0) {
       setShowError(true);
     }
@@ -219,32 +216,63 @@ export default function Page() {
     setShowError(false);
   };
   // Submit handler
-  const submit: SubmitHandler<FormData> = async (values: FormData) => {
-    if (session) {
-      try {
-        const response = await axios.post("/api/create-portfolio", {
-          data: values,
-          type: 1,
-          email: session.user?.email,
-        });
-        reset();
-      } catch (error) {
-        console.log(error);
-      }
-    } else {
-      try {
-        const response = await axios.post("/api/create-portfolio", {
-          data: values,
-          type: 2,
-        });
+  // const submit: SubmitHandler<FormData> = async (values: FormData) => {
+  //   if (session) {
+  //     try {
+  //       const response = await axios.post("/api/create-portfolio", {
+  //         data: values,
+  //         type: 1,
+  //         email: session.user?.email,
+  //       });
+  //       if(response.data.success){
+  //          router.push("/"+response.data.routename)
+  //         reset();
+  //       }
+  //     } catch (error:any) {
+  //       if(error.response.message){
+  //        dispatch(setToastMsgRedux({msg:error.response.message})) 
+  //       }
+  //     }
+  //   } else {
+  //     try {
+  //       const response = await axios.post("/api/create-portfolio", {
+  //         data: values,
+  //         type: 2,
+  //       });
 
-        reset();
-      } catch (error) {
-        console.log(error);
-      }
-    }
-
+  //       if(response.data.success){
+  //          router.push("/"+response.data.routename)
+  //         reset();
+  //       }
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   }
+  // };
+const submit: SubmitHandler<FormData> = async (values: FormData) => {
+ setIsSubmiting(true);
+  const payload = {
+    data: values,
+    type: session ? 1 : 2,
+    ...(session && { email: session.user?.email }), // Include email only if session exists
   };
+
+  try {
+    const response = await axios.post("/api/create-portfolio", payload);
+
+    if (response.data.success) {
+      router.push("/" + response.data.routename);
+      reset();
+    }
+  } catch (error: any) {
+    setIsSubmiting(false);
+    if (session && error.response?.message) {
+      dispatch(setToastMsgRedux({ msg: error.response.message }));
+    } else {
+      console.error(error);
+    }
+  }
+};
 
   const nextStep = () => setStep(step + 1);
   const prevStep = () => setStep(step - 1);
@@ -262,102 +290,105 @@ export default function Page() {
       </h1>
       <FormNavigation setStep={setStep} step={step} />
       <div className=" relative border-[0.1px] border-gray-700 rounded-md   dark:bg-[#121621] bg-whites text-gray-900 dark:text-gray-100 h-fit max-w-3xl lg:w-[800px] md:w-[650px] sm:w-[500] mb-24 w-full p-6">
-        <form className="max-w-3xl mx-auto space-y-6" onSubmit={handleSubmit(submit)} >
-         {step === 1 && (
-  <div className="portfolio">
-    {/* Full Name */}
-    <label htmlFor="fullName">Full Name <div className="text-theme inline">*</div></label>
-    <input
-      id="fullName"
-      {...register("personalInfo.fullName")}
-      placeholder="Full Name"
-    />
-    {errors.personalInfo?.fullName && (
-      <span>{errors.personalInfo.fullName.message}</span>
-    )}
+        <form
+          className="max-w-3xl mx-auto space-y-6"
+          onSubmit={handleSubmit(submit)}
+        >
+          {step === 1 && (
+            <div className="portfolio">
+              {/* Full Name */}
+              <label htmlFor="fullName">
+                Full Name <div className="text-theme inline">*</div>
+              </label>
+              <input
+                id="fullName"
+                {...register("personalInfo.fullName")}
+                placeholder="Full Name"
+              />
+              {errors.personalInfo?.fullName && (
+                <span>{errors.personalInfo.fullName.message}</span>
+              )}
 
-    {/* Professional Title */}
-    <label htmlFor="title">Professional Title <div className="text-theme inline">*</div></label>
-    <input
-      id="title"
-      {...register("personalInfo.title")}
-      placeholder="Senior Software Engineer"
-    />
-    {errors.personalInfo?.title && (
-      <span>{errors.personalInfo.title.message}</span>
-    )}
+              {/* Professional Title */}
+              <label htmlFor="title">
+                Professional Title <div className="text-theme inline">*</div>
+              </label>
+              <input
+                id="title"
+                {...register("personalInfo.title")}
+                placeholder="Senior Software Engineer"
+              />
+              {errors.personalInfo?.title && (
+                <span>{errors.personalInfo.title.message}</span>
+              )}
 
-    {/* Location */}
-    <label htmlFor="location">Location</label>
-    <input
-      id="location"
-      {...register("personalInfo.location")}
-      placeholder="Location"
-    />
+              {/* Location */}
+              <label htmlFor="location">Location</label>
+              <input
+                id="location"
+                {...register("personalInfo.location")}
+                placeholder="Location"
+              />
 
-    {/* Email */}
-    <label htmlFor="email">Email <div className="text-theme inline">*</div></label>
-    <input
-      id="email"
-      {...register("personalInfo.email")}
-      placeholder="john@example.com"
-    />
-    {errors.personalInfo?.email && (
-      <span>{errors.personalInfo.email.message}</span>
-    )}
+              {/* Email */}
+              <label htmlFor="email">
+                Email <div className="text-theme inline">*</div>
+              </label>
+              <input
+                id="email"
+                {...register("personalInfo.email")}
+                placeholder="john@example.com"
+              />
+              {errors.personalInfo?.email && (
+                <span>{errors.personalInfo.email.message}</span>
+              )}
 
-    {/* Phone */}
-    <label htmlFor="phone">Phone</label>
-    <input
-      id="phone"
-      {...register("personalInfo.phone")}
-      placeholder="Phone"
-    />
-     <h3 className="text-lg font-semibold my-2">Social Links</h3>
-    {/* LinkedIn URL */}
-    <label htmlFor="linkedIn">LinkedIn URL</label>
-    <input
-      id="linkedIn"
-      {...register("personalInfo.socialLinks.linkedIn")}
-      placeholder="https://linkedin.com/in/..."
-    />
+              {/* Phone */}
+              <label htmlFor="phone">Phone</label>
+              <input
+                id="phone"
+                {...register("personalInfo.phone")}
+                placeholder="Phone"
+              />
+              <h3 className="text-lg font-semibold my-2">Social Links</h3>
+              {/* LinkedIn URL */}
+              <label htmlFor="linkedIn">LinkedIn URL</label>
+              <input
+                id="linkedIn"
+                {...register("personalInfo.socialLinks.linkedIn")}
+                placeholder="https://linkedin.com/in/..."
+              />
 
-    {/* GitHub URL */}
-    <label htmlFor="github">GitHub URL</label>
-    <input
-      id="github"
-      {...register("personalInfo.socialLinks.github", {
-        required: false,
-      })}
-      placeholder="https://github.com/..."
-    />
+              {/* GitHub URL */}
+              <label htmlFor="github">GitHub URL</label>
+              <input
+                id="github"
+                {...register("personalInfo.socialLinks.github", {
+                  required: false,
+                })}
+                placeholder="https://github.com/..."
+              />
 
-    {/* Twitter URL */}
-    <label htmlFor="twitter">Twitter URL</label>
-    <input
-      id="twitter"
-      {...register("personalInfo.socialLinks.twitter")}
-      placeholder="https://twitter.com/..."
-    />
-    <div className="w-full flex justify-end mt-3">
- <button
-      type="button"
-      onClick={nextStep}
-      className="nav-next"
-    >
-      Next
-    </button>
-    </div>
-   
-  </div>
-)}
-
+              {/* Twitter URL */}
+              <label htmlFor="twitter">Twitter URL</label>
+              <input
+                id="twitter"
+                {...register("personalInfo.socialLinks.twitter")}
+                placeholder="https://twitter.com/..."
+              />
+              <div className="w-full flex justify-end mt-3">
+                <button type="button" onClick={nextStep} className="nav-next">
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
 
           {step === 2 && (
             <div className="portfolio">
-            <label htmlFor="aboutMe">About Me</label>
+              <label htmlFor="aboutMe">About Me</label>
               <textarea
-              id="aboutMe"
+                id="aboutMe"
                 {...register("summary.aboutMe")}
                 placeholder="About Me"
               />
@@ -413,7 +444,7 @@ export default function Page() {
           {step === 5 && (
             <div className="portfolio">
               <h2>Choose your route name</h2>
-              <div className="flex w-full justify-between ">
+              <div className="flex w-full justify-between mt-6 ">
                 <div className="w-[60%]">
                   <input
                     {...register("routeName")}
@@ -421,18 +452,19 @@ export default function Page() {
                     className="w-full"
                     onChange={handleChange}
                   />
-                  {errors.routeName && <span>{errors.routeName.message}</span>}
-                  {isAvailable && <div className="text-greens">Route Name is available ✔</div>}
                 </div>
                 <button
                   type="button"
-                  className="w-[30%] h-fit p-2 bg-yellows rounded-lg"
+                  className="w-[30%]  p-2 bg-yellows rounded-lg text-sm"
                   onClick={handleAvailability}
                 >
-                  Check availability
+                  Check
                 </button>
               </div>
-
+              {errors.routeName && <span>{errors.routeName.message}</span>}
+              {isAvailable && (
+                <div className="text-greens">Route Name is available ✔</div>
+              )}
               <div className="buttons">
                 <button type="button" onClick={prevStep} className="nav-prev">
                   Previous
@@ -442,10 +474,10 @@ export default function Page() {
                   disabled={isDisabled}
                   className={`${
                     isDisabled ? "bg-grays" : "bg-greens"
-                  } p-3 rounded-lg`}
+                  } px-3 py-2 rounded-lg`}
                   onClick={handleClick}
                 >
-                  Done
+                  {isSubmiting?<div>Submiting... </div>:"Submit"}
                 </button>
               </div>
             </div>

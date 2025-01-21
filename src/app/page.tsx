@@ -2,46 +2,36 @@
 import axios from "axios";
 import { BookOpen, Briefcase, Layout, Palette, Rocket, Sparkles, Trophy } from "lucide-react";
 import { useSession } from "next-auth/react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FaArrowRight } from "react-icons/fa6";
+import { useAppDispatch, useAppSelector } from "./_store/hooks";
+import { setToastMsgRedux } from "./_features/toastMsg/toastMsgSlice";
 
 export default function Home() {
   const { data: session, status } = useSession();
   const router = useRouter();
-
+  const user=useAppSelector(state=>state.userSlice)
+  const dispatch=useAppDispatch()
   const handlePortfolioCreation = async () => {
     if (status === "loading") return; // Wait for the session to load
-    if (session?.user) {
+    if (session?.user || user.email) {
       try {
         const response = await axios.get('/api/existing-portfolio', {
-          params: { email: session.user.email }
+          params: { email: user.email }
         });
 
         if (response.data.msg === 'existing user') {
           router.push(`/${response.data.username}`);
-        } else {
+        } else if(response.data.msg==="new user") {
           router.push('/create-portfolio');
+        }else{
         }
-      } catch (error) {
-        console.error("Error fetching portfolio:", error);
-        // You could add user feedback here, like a toast or message
+      } catch (error:any) {
+        dispatch(setToastMsgRedux({msg:error.response.msg}))
       }
     } else {
-      // router.push('/auth');
-      try{
-      const response = await axios.get('/api/check-login');
-      if(response.data.msg=='Show User' && response.data.data.username!==''){
-        router.push(`/${response.data.data.username}`)
-      }else if(response.data.msg=='Show User' && response.data.data.username===""){
-        router.push('/create-portfolio'); 
-      }else{
-            router.push('/auth');
-      }
-      }catch(error){
-       console.log(error);
-       
-      }
+      router.push('/auth');
+     
     }
   };
 

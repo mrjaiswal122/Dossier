@@ -26,7 +26,7 @@ export async function POST(req: Request) {
 
   try {
     await dbConnect();
-    const user = await userModel.findOne({ email: email })
+    const user = await userModel.findOne({ email: email }).select("+salt")
     if (user) {
       if(user.userType=="google"){
           return NextResponse.json({
@@ -38,6 +38,8 @@ export async function POST(req: Request) {
             msg:"Account not verified"
           },{status:403})
          }
+      
+         
         const hashedPassword = crypto
         .createHmac("sha256", user.salt!)
         .update(password)

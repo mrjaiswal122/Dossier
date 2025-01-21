@@ -1,6 +1,6 @@
 'use client';
 import React from 'react'
-import { MdOutlineDeleteForever } from 'react-icons/md'
+import { RiDeleteBin6Line  } from "react-icons/ri";
 import { Control, FieldErrors, useFieldArray, UseFormClearErrors, UseFormRegister, UseFormSetError, UseFormSetValue, UseFormWatch, } from 'react-hook-form'
 import { FormData } from '@/app/create-portfolio/page'
 type props={
@@ -63,14 +63,16 @@ export default function Skills({control,register,errors,prevStep,nextStep,watch,
       <div key={field.id} className="flex flex-col gap-2 border-[0.1px] border-gray-700 p-2 rounded-md">
         <header className='flex justify-between'>
 
-        <h2 className='text-theme'>Skill Set {index+1}</h2>
+        <h3 className='text-theme text-xl'>Skill Set {index+1}</h3>
+        {/* Delete Button */}
         {index>0&&
         <button
           type="button"
           onClick={() => removeSkill(index)}
-          className="deleteExp text-reds scale-150 mt-2"
+          className="deleteExp text-whites bg-red-900 scale-75  mt-2 rounded-md p-2 hover:bg-red-700"
         >
-          <MdOutlineDeleteForever />
+          <RiDeleteBin6Line />
+
         </button>}
         </header>
         <label htmlFor="category">Category </label>
@@ -124,7 +126,7 @@ export default function Skills({control,register,errors,prevStep,nextStep,watch,
     ))}
       <button
         type="button"
-        className="border-[0.1px] border-gray-700 px-3 py-1 text-base dark:bg-black rounded-md "
+        className="border-[0.1px] border-gray-700 dark:hover:bg-black-bg2 hover:bg-slate-600 px-3 py-1 text-base dark:bg-black rounded-md "
         onClick={() =>
           appendSkill({
             category: "",

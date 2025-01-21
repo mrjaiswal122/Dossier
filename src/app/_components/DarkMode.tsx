@@ -38,16 +38,15 @@ export default function DarkMode({ children }: { children: ReactNode }) {
 
           {children}
         </div>
-      </SessionProvider>
 
       {/* <footer className="w-full h-14 dark:bg-black bg-theme-light  dark:text-white  flex items-center justify-center text-xs border-t border-theme">
         @Copywrite Ankush jaiswal #2024{" "}
-      </footer> */}
-      <footer className="bg-black py-12">
+        </footer> */}
+      <footer className="dark:bg-black bg-white text-black dark:text-white py-12">
         <div className="container mx-auto px-6">
           <div className="flex  justify-between items-center">
             <div className="  ">
-              <span className="text-2xl font-bold text-whites">Dossier</span>
+              <span className="text-2xl font-bold dark:text-whites">Dossier</span>
             </div>
             <div className="flex space-x-6">
               <a href="https://github.com/mrjaiswal122" target="_blank" className="text-grays hover:text-theme transition-colors">
@@ -63,6 +62,7 @@ export default function DarkMode({ children }: { children: ReactNode }) {
           </div>
         </div>
       </footer>
+        </SessionProvider>
     </section>
   );
 }

@@ -1,7 +1,7 @@
 export enum Update {
-  Project = 'updating project',
-  WorkExperience = 'updating work experience',
-  Profile = 'updating hero section',
-  RouteName='Changing the routename',
-  Skills='Updating skills'
+  Project = 'Project',
+  WorkExperience = 'WorkExperience',
+  Profile = 'Profile',
+  RouteName='RouteName',
+  Skills='Skills'
 }

@@ -15,10 +15,10 @@ function SurePrompt({msg,action,setIsOpen}: Props) {
     if ((e.target as HTMLElement).id === "popUp") setIsOpen(false);
   };
   return (<>
- <section  className='fixed w-screen h-screen top-0 left-0 bg-black bg-opacity-95 text-white z-20' id='popUp' onClick={handleClose}>
+ <section  className='fixed w-screen h-screen top-0 left-0 bg-black bg-opacity-95 text-white z-50' id='popUp' onClick={handleClose}>
 
 
- <div className='sticky z-[21] top-[50%] left-[50%] -translate-x-[50%] -translate-y-[50%] border border-grays w-80 px-6 py-3 rounded-lg text-whites bg-black'>
+ <div className='sticky z-[60] top-[50%] left-[50%] -translate-x-[50%] -translate-y-[50%] border border-grays w-80 px-6 py-3 rounded-lg text-whites bg-black'>
        {/* <div>Are you sure?</div> */}
        <div className='flex justify-between items-center text-sm '>
         {msg}

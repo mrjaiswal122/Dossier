@@ -4,16 +4,18 @@ import { UpdateProfileType } from "@/app/_components/portfolio/UpdateProfile";
 import dbConnect from "@/app/_lib/database";
 import { redis } from "@/app/_lib/redis-client";
 import portfolioModel, { IPortfolio } from "@/app/_models/portfolio";
-import userModel from "@/app/_models/user";
+import userModel, { User } from "@/app/_models/user";
 import { NextResponse, NextRequest } from "next/server";
 import { Update } from "@/app/_types/Update";
+import { authOptions } from "@/app/_lib/authOptions";
+import { getServerSession } from "next-auth";
+import jwt from "jsonwebtoken"
+import { cookies } from "next/headers"
 const expTime = Number(process.env.REDIS_EX_TIME);
-
-
 
 export async function POST(request: NextRequest) {
   try {
-   
+    await dbConnect();
 
     const formData = await request.formData();
     const routeName = formData.get('routeName') as string;
@@ -21,82 +23,73 @@ export async function POST(request: NextRequest) {
     const type = formData.get('updateType') as string;
     const index = Number(formData.get('index'));
 
-    if (!data) return NextResponse.json({ success: false, msg: 'Data is required' }, { status: 400 });
+   
+    if (!data || !type || index === undefined || !routeName) {
+      return NextResponse.json({ success: false, msg: 'Missing required fields' }, { status: 400 });
+    }
+    // Verify user owns this portfolio
+    let user: User|null = null;
 
-    // Handling project updates
+    // Check for JWT token in cookies first
+    const cookieStore = await cookies();
+    const token = cookieStore.get("access-token");
+
+    if (token?.value) {
+      // Verify JWT token
+      const decoded = jwt.verify(token.value, process.env.JWT_SECRET!) as { userId: string };
+      user = await userModel.findOne({ _id: decoded.userId });
+    } else {
+      // If no JWT token, check for next-auth session
+      const session = await getServerSession(authOptions);
+      if(!session?.user?.email) {
+        return NextResponse.json({success:false, msg:"Unauthorized"}, {status:401});
+      }
+      user = await userModel.findOne({ email: session.user.email });
+    }
+
+    if (!user) {
+      return NextResponse.json({ success: false, error: "User not found" }, { status: 404 });
+    }
+
+    if(user.username !== routeName) {
+      return NextResponse.json({success:false, msg:"Unauthorized"}, {status:401});
+    }
+
+    let updateResult;
+    let cacheInvalidated = true;
+
+    // Handle different update types
     if (type === Update.Project) {
       const project = JSON.parse(data) as NonNullable<IPortfolio['projects']>[number];
       if (!project.title || !project.description) {
         return NextResponse.json({ success: false, msg: 'Incomplete project data' }, { status: 400 });
       }
 
-      await dbConnect();
-      console.log('Connected to DB in the Update Route for Project');
-
-      const updatedProject = await portfolioModel.findOneAndUpdate(
+      updateResult = await portfolioModel.findOneAndUpdate(
         { routeName },
         { $set: { [`projects.${index}`]: project } },
         { new: true, projection: { [`projects.${index}`]: 1 } }
       );
 
-      if (updatedProject) {
-        console.log('Updated project in the DB, now sending the response');
-        try {
-          await redis.del(routeName);
-        } catch (redisError) {
-          console.error('Redis error:', redisError);
-          return NextResponse.json({ success: false, msg: 'Project updated, but cache invalidation failed' }, { status: 500 });
-        }
-
-        return NextResponse.json({ success: true, msg: 'Project updated successfully', project: updatedProject }, { status: 200 });
-      } else {
-        return NextResponse.json({ success: false, msg: 'Failed to update project' }, { status: 404 });
-      }
-    }
-
-    // Handling work experience updates
-    else if (type === Update.WorkExperience) {
+    } else if (type === Update.WorkExperience) {
       const experience = JSON.parse(data) as Experience;
       if (!experience.jobTitle || !experience.companyName || !experience.startDate) {
         return NextResponse.json({ success: false, msg: 'Incomplete work experience data' }, { status: 400 });
       }
 
-      await dbConnect();
-      console.log('Connected to DB in the Update Route for Work Experience');
-
-      const updatedExperience = await portfolioModel.findOneAndUpdate(
+      updateResult = await portfolioModel.findOneAndUpdate(
         { routeName },
         { $set: { [`experience.${index}`]: experience } },
-        { new: true,  }
+        { new: true }
       );
-       
-      if (updatedExperience) {
-        console.log('Updated work experience in the DB, now sending the response');
-        try {
-          await redis.del(routeName);
-        } catch (redisError) {
-          console.error('Redis error:', redisError);
-          return NextResponse.json({ success: false, msg: 'Work experience updated, but cache invalidation failed' }, { status: 500 });
-        }
 
-        return NextResponse.json({ success: true, msg: 'Work experience updated successfully', workExperience: updatedExperience }, { status: 200 });
-      } else {
-        return NextResponse.json({ success: false, msg: 'Failed to update work experience' }, { status: 404 });
-      }
-    }
-
-    // Handling profile updates
-    else if (type === Update.Profile) {
+    } else if (type === Update.Profile) {
       const profile = JSON.parse(data) as UpdateProfileType;
       if (!profile.personalInfo.fullName || !profile.personalInfo.email || !profile.personalInfo.title) {
-        console.log(profile);
         return NextResponse.json({ success: false, msg: 'Provide all required fields !!' }, { status: 400 });
       }
 
-      await dbConnect();
-      console.log('Connected to DB in the Update Route for Profile');
-
-      const updatedProfile = await portfolioModel.findOneAndUpdate(
+      updateResult = await portfolioModel.findOneAndUpdate(
         { routeName },
         {
           $set: {
@@ -107,75 +100,54 @@ export async function POST(request: NextRequest) {
         { new: true, projection: { personalInfo: 1, summary: 1 } }
       );
 
-      if (updatedProfile) {
-        console.log('Updated profile in the DB, now sending the response');
-        try {
-          await redis.del(routeName);
-        } catch (redisError) {
-          console.error('Redis error:', redisError);
-          return NextResponse.json({ success: false, msg: 'Profile updated, but cache invalidation failed' }, { status: 500 });
-        }
+    } else if (type === Update.RouteName) {
+      const newRouteName = data.trim();
+      const isRouteNameTaken = await portfolioModel.countDocuments({ routeName: newRouteName }) > 0;
 
-        return NextResponse.json({ success: true, msg: 'Profile updated successfully', profile: updatedProfile }, { status: 200 });
-      } else {
-        return NextResponse.json({ success: false, msg: 'Failed to update profile' }, { status: 404 });
+      if (isRouteNameTaken) {
+        return NextResponse.json({ success: false, msg: 'RouteName is not available' }, { status: 409 });
       }
-    }
-    
-  else if (type === Update.RouteName) {
-  const newRouteName = data.trim();
-  await dbConnect();
 
-  // Check availability using `countDocuments()` for optimized performance
-  const isRouteNameTaken = await portfolioModel.countDocuments({ routeName: newRouteName }) > 0;
+      await Promise.all([
+        portfolioModel.findOneAndUpdate({ routeName }, { routeName: newRouteName }),
+        userModel.findOneAndUpdate({ username: routeName }, { username: newRouteName })
+      ]);
 
-  if (isRouteNameTaken) {
-    return NextResponse.json({ success: false, msg: 'RouteName is not available' }, { status: 409 });
-  }
+      updateResult = { success: true };
 
-  // Delete the old cache entry in Redis (use `await` if redis is asynchronous)
-  redis.del(routeName);
-
-  // Perform both updates concurrently for efficiency
-  await Promise.all([
-    portfolioModel.findOneAndUpdate({ routeName }, { routeName: newRouteName }),
-    userModel.findOneAndUpdate({ username: routeName }, { username: newRouteName })
-  ]);
-
-  // Return success response
-  return NextResponse.json({ success: true, msg: 'RouteName updated successfully' }, { status: 200 });
-}
-else if(type==Update.Skills){
-const skill = JSON.parse(data) as Skill;
+    } else if(type === Update.Skills) {
+      const skill = JSON.parse(data) as Skill;
       if (!skill.category || !skill.skills) {
-        return NextResponse.json({ success: false, msg: 'Incomplete  skill data' }, { status: 400 });
+        return NextResponse.json({ success: false, msg: 'Incomplete skill data' }, { status: 400 });
       }
 
-      await dbConnect();
-     
-
-      const updatedSkill = await portfolioModel.findOneAndUpdate(
+      updateResult = await portfolioModel.findOneAndUpdate(
         { routeName },
         { $set: { [`skills.${index}`]: skill } },
-        { new: true,  }
+        { new: true }
       );
-       
-      if (updatedSkill) {
-        try {
-          await redis.del(routeName);
-        } catch (redisError) {
-          console.error('Redis error:', redisError);
-          return NextResponse.json({ success: false, msg: 'Skills updated, but cache invalidation failed' }, { status: 500 });
-        }
 
-        return NextResponse.json({ success: true, msg: 'Skills updated successfully',  }, { status: 200 });
-      } else {
-        return NextResponse.json({ success: false, msg: 'Failed to update Skills' }, { status: 404 });
-      }
-}
-else {
+    } else {
       return NextResponse.json({ success: false, msg: 'Invalid update type' }, { status: 400 });
     }
+
+    if (!updateResult) {
+      return NextResponse.json({ success: false, msg: `Failed to update ${type}` }, { status: 404 });
+    }
+
+    try {
+      await redis.del(routeName);
+    } catch (redisError) {
+      console.error('Redis error:', redisError);
+      cacheInvalidated = false;
+    }
+
+    return NextResponse.json({ 
+      success: true, 
+      msg: cacheInvalidated ? `${type} updated successfully` : `${type} updated but cache invalidation failed`,
+      data: updateResult
+    }, { status: 200 });
+
   } catch (error) {
     console.error('Error in update route:', error);
     return NextResponse.json({ success: false, msg: 'Internal server error' }, { status: 500 });

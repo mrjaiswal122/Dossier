@@ -21,6 +21,9 @@ export async function POST(request: Request) {
       if(!user.isVerified){
         return NextResponse.json({message:"User not verified"},{status:401})
       }
+      if(user.portfolio){
+        return NextResponse.json({message:"User already has a portfolio"},{status:401})
+      }
       const portfolio = new portfolioModel({
         ...data,
         user: user._id,
@@ -46,7 +49,13 @@ export async function POST(request: Request) {
       if (!userId) {
         return NextResponse.json({ message: 'Invalid or missing userId in token' }, { status: 400 });
       }
-
+      const user=await userModel.findOne({_id:userId})
+      if(!user){
+        return NextResponse.json({message:"User not found"},{status:404})
+      }
+      if(user.portfolio){
+        return NextResponse.json({message:"User already has a portfolio"},{status:401})
+      }
       const portfolio = new portfolioModel({
         ...data,
         user: userId,

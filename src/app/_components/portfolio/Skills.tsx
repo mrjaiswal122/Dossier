@@ -329,41 +329,43 @@ function SkillCard({
   };
 
   return (
-    <div className="bg-grays bg-opacity-15 dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 px-6 py-3 relative z-0 group border-l border-theme">
-      <div className="text-xl py-3 text-black dark:text-theme">
-        {skillCategory.category && formatHeading(skillCategory.category)}
-      </div>
-      <div className="flex flex-wrap gap-3">
-        {skillCategory.skills?.map((data, index) => (
-          <div className="text-xs py-1 px-3 rounded-xl bg-gray-600" key={index}>
-            {data}
-          </div>
-        ))}
-      </div>
-      <div className="my-3 text-grays">{skillCategory.proficiency}</div>
-      {isOwner && (
-        <div className="absolute z-0 bottom-4 right-4 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <button
-            className="p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-            aria-label="Edit"
-            onClick={() => {
-              setUpdatingSkillIndex(index);
-              setShowForm(true);
-            }}
-          >
-            <GoPencil size={16} />
-          </button>
-          <button
-            className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
-            aria-label="Delete"
-            onClick={() => {
-              setIsOpen(true);
-            }}
-          >
-            <FiTrash size={16} />
-          </button>
+    <>
+      <div className="bg-grays bg-opacity-15 dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 px-6 py-3 relative group border-l border-theme">
+        <div className="text-xl py-3 text-black dark:text-theme">
+          {skillCategory.category && formatHeading(skillCategory.category)}
         </div>
-      )}
+        <div className="flex flex-wrap gap-3">
+          {skillCategory.skills?.map((data, index) => (
+            <div className="text-xs py-1 px-3 rounded-xl bg-gray-600" key={index}>
+              {data}
+            </div>
+          ))}
+        </div>
+        <div className="my-3 text-grays">{skillCategory.proficiency}</div>
+        {isOwner && (
+          <div className="absolute bottom-4 right-4 flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <button
+              className="p-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+              aria-label="Edit"
+              onClick={() => {
+                setUpdatingSkillIndex(index);
+                setShowForm(true);
+              }}
+            >
+              <GoPencil size={16} />
+            </button>
+            <button
+              className="p-2 bg-red-500 text-white rounded-full hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50"
+              aria-label="Delete"
+              onClick={() => {
+                setIsOpen(true);
+              }}
+            >
+              <FiTrash size={16} />
+            </button>
+          </div>
+        )}
+      </div>
       {isOpen && (
         <SurePrompt
           msg="Are you sure, you want to delete?"
@@ -371,6 +373,6 @@ function SkillCard({
           setIsOpen={setIsOpen}
         />
       )}
-    </div>
+    </>
   );
 }

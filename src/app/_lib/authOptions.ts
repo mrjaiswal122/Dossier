@@ -23,7 +23,6 @@ export const authOptions: NextAuthOptions = {
 
         // Check if the user already exists in the database
         const existingUser = await userModel.findOne({ email: user.email });
-
         if (!existingUser) {
           // Create a new user in the database if they don't exist
           await userModel.create({
@@ -33,8 +32,12 @@ export const authOptions: NextAuthOptions = {
             isVerified:true,
             userType:"google"
           });
+          return true;
         }
-     
+        
+        if(existingUser.userType!="google"){
+          return false;
+        }
         
         return true; // User successfully signed in
      

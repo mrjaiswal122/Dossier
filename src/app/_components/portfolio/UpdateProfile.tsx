@@ -76,9 +76,9 @@ export default function UpdateProfile({setUpdatingProfile}: Props) {
     // Dispatch an action or handle form submission here
   };
   return (
-    <section className="fixed z-10 w-full h-full top-0 left-0 dark:bg-black dark:bg-opacity-90 bg-theme-light bg-opacity-65" onClick={handleFormClose} id='updateProfile'>
-      <div className="fixed top-[80px] left-[50%] csw max-h-[80vh] overflow-y-auto border translate-x-[-50%]  bg-theme-dark dark:bg-black rounded-lg flex flex-col justify-between dark:text-whites bg-opacity-65">
-        <div className=" sticky top-0  w-full flex justify-between items-center px-4 py-2 text-lg md:text-xl dark:text-theme bg-theme-dark dark:bg-black border-b bg-opacity-65">
+    <section className="fixed z-10 w-full h-full top-0 left-0 dark:bg-black dark:bg-opacity-90 bg-white my-10 " onClick={handleFormClose} id='updateProfile'>
+      <div className="fixed top-[80px] left-[50%] csw max-h-[80vh] overflow-y-auto border shadow-2xl shadow-gray-500 dark:shadow-gray-500 border-black dark:border-gray-500 translate-x-[-50%]   dark:bg-black rounded-lg flex flex-col justify-between dark:text-whites bg-opacity-65">
+        <div className=" sticky bg-white top-0  w-full flex justify-between items-center px-4 py-2 text-lg md:text-xl dark:text-theme  dark:bg-black border-b dark:border-b  border-black">
           Edit Profile
           <span
             onClick={() => {

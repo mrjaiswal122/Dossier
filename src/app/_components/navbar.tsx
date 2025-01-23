@@ -286,13 +286,13 @@ function SideBar({
           )}
 
           {/* binding to the bottom */}
-          <div className="border-t border-grays mx-2 pt-3 ">
+          <div className=" border-grays mx-2 pt-3 ">
             {user?.username && (
-              <div className="text-xs flex justify-between items-center mx-3">
+              <div className="text-sm flex justify-between items-center mx-3 mb-3">
                 Your Portfolio :
                 <Link
                   href={user.username}
-                  className="hover:text-blue-500 text-xs  underline"
+                  className="hover:text-blue-500 text-sm  underline"
                   onClick={() => setToogleSideBar(false)}
                 >
                   {user.username}
@@ -303,9 +303,34 @@ function SideBar({
                 />
               </div>
             )}
+             {/* user deatail */}
+
+            <div className=" text-sm border-y-[1px]  border-grays   ">
+              {user?.name ? (
+                <div className="flex justify-between items-center p-3 ">
+                  <div className="flex gap-3">
+                    <Profile user={user} />
+                    {user.name}
+                  </div>
+                  <FiLogOut
+                    className="hover:scale-105 transition-all duration-200 ease-in-out hover:text-red-600 hover:font-bold cursor-pointer "
+                    aria-label="Logout"
+                    onClick={() => setIsOpen(true)}
+                  />
+                </div>
+              ) : (
+                <Link
+                  href="/auth"
+                  className="flex gap-1 hover:gap-3 hover:text-blue-muted transition-all duration-200 p-3 text-lg items-center w-full justify-center"
+                  onClick={() => setToogleSideBar(false)}
+                >
+                  LogIn <MdArrowCircleRight />
+                </Link>
+              )}{" "}
+            </div>
             {/* settings */}
 
-            <span className="flex  m-3 px-3 py-1 justify-between  border border-grays rounded-2xl ">
+            <span className="flex mb-16 m-3 px-3 py-1 justify-between  border border-grays rounded-2xl ">
               <div
                 id="light"
                 onClick={handleTheme}
@@ -341,31 +366,7 @@ function SideBar({
               </div>
             </span>
 
-            {/* user deatail */}
-
-            <div className="mb-16 text-sm border-t-[1px]  border-grays   ">
-              {user?.name ? (
-                <div className="flex justify-between items-center p-3 ">
-                  <div className="flex gap-3">
-                    <Profile user={user} />
-                    {user.name}
-                  </div>
-                  <FiLogOut
-                    className="hover:scale-105 transition-all duration-200 ease-in-out hover:text-red-600 hover:font-bold cursor-pointer "
-                    aria-label="Logout"
-                    onClick={() => setIsOpen(true)}
-                  />
-                </div>
-              ) : (
-                <Link
-                  href="/auth"
-                  className="flex gap-1 hover:gap-3 hover:text-blue-muted transition-all duration-200 p-3 text-lg items-center"
-                  onClick={() => setToogleSideBar(false)}
-                >
-                  LogIn <MdArrowCircleRight />
-                </Link>
-              )}{" "}
-            </div>
+           
           </div>
         </div>
       </div>
@@ -390,8 +391,12 @@ function ChangeRouteName({ setOpenChangeRouteName }: ChangeRouteNameProps) {
   const portfolio = useAppSelector((state) => state.portfolioSlice);
   const [message,setMessage]=useState({message:"",success:false});
   const dispatch = useAppDispatch();
-  const [routename, setRouteName] = useState(portfolio.routeName);
+  const pathname = usePathname().slice(1);
+  const [routename, setRouteName] = useState(pathname);
   const [isAvailable, setIsAvailable] = useState(false);
+  // useEffect(()=>{
+  //   setRouteName(portfolio.routeName)
+  // },[portfolio.routeName])
   const handleChangeRouteForm = (
     e: React.MouseEvent<HTMLElement, MouseEvent>
   ) => {

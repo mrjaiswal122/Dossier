@@ -24,6 +24,9 @@ import { MdDeleteForever } from "react-icons/md";
 import SurePrompt from "../SurePrompt";
 type Props = {};
 
+
+
+
 export default function Projects({}: Props) {
   const [showAddProject, setShowAddProject] = useState(false);
   const portfolio = useAppSelector((state) => state.portfolioSlice);

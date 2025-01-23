@@ -1,9 +1,14 @@
 "use client";
 import Hero from "../_components/portfolio/Hero";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import { useAppDispatch, useAppSelector } from "@/app/_store/hooks";
-import { updatePortfolio, updateIsOwner, PortfolioStatus, updateStatus } from "@/app/_features/portfolio/portfolioSlice";
+import {
+  updatePortfolio,
+  updateIsOwner,
+  PortfolioStatus,
+  updateStatus,
+} from "@/app/_features/portfolio/portfolioSlice";
 import { usePathname } from "next/navigation";
 import LoadingScreen from "../_components/Loader";
 import Projects from "../_components/portfolio/Projects";
@@ -13,6 +18,7 @@ import Skills from "../_components/portfolio/Skills";
 export default function Portfolio() {
   const dispatch = useAppDispatch();
   const portfolio = useAppSelector((state) => state.portfolioSlice);
+  const [isLoading, setIsLoading] = useState(true);
 
   const pathname = usePathname().trim().substring(1);
 
@@ -37,11 +43,17 @@ export default function Portfolio() {
       } catch (error) {
         console.error("Error fetching portfolio or owner data:", error);
         dispatch(updateStatus(PortfolioStatus.Failed));
+      } finally {
+        setIsLoading(false);
       }
     };
 
     fetchPortfolioData();
   }, [dispatch, pathname]);
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
 
   // Conditional rendering based on portfolio status
   if (portfolio.status === PortfolioStatus.Pending) {
@@ -56,15 +68,14 @@ export default function Portfolio() {
     );
   }
 
-
-
   return (
-    <div className="csw ">
-      
+    <div className="csw">
       <Hero />
-      <Skills/>
-      <Projects />
-      <WorkExperience />
+      {(portfolio.isOwner || (portfolio.skills && portfolio.skills.length > 0)) && <Skills />}
+      {(portfolio.isOwner || (portfolio.projects && portfolio.projects.length > 0)) && <Projects />}
+      {(portfolio.isOwner || (portfolio.experience && portfolio.experience.length > 0)) && (
+        <WorkExperience />
+      )}
     </div>
   );
 }

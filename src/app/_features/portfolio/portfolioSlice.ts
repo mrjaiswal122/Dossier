@@ -779,7 +779,7 @@ const portfolioSlice = createSlice({
         }else if (action?.payload?.type == Delete.Skills) {
           state.skills?.splice(action?.payload?.index, 1);
         }
-        console.log("deleted");
+       
       })
 
       .addCase(updateExistingProjectAsync.fulfilled, (state, action) => {

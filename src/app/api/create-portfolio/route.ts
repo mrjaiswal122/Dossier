@@ -4,6 +4,8 @@ import { decode } from 'jsonwebtoken';
 import dbConnect from '@/app/_lib/database';
 import userModel from '@/app/_models/user';
 import portfolioModel from '@/app/_models/portfolio';
+import { authOptions } from '@/app/_lib/authOptions';
+import { getServerSession } from 'next-auth';
 
 export async function POST(request: Request) {
   const { data, type, email } = await request.json();
@@ -14,6 +16,10 @@ export async function POST(request: Request) {
       await dbConnect();
       //this is for if user is logedin using google
     if (type === 1) {
+      const session =await getServerSession(authOptions)
+      if(!session){
+        return NextResponse.json({message:"User not logged in"},{status:401})
+      }
       const user = await userModel.findOne({ email });
       if (!user) {
         return NextResponse.json({ message: 'User not found' }, { status: 404 });

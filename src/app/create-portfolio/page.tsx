@@ -84,7 +84,6 @@ export default function Page() {
   // Initialize useForm
   const [isDisabled, setIsDisabled] = useState(true);
   const [isAvailable, setIsAvailable] = useState(false);
-  const [showError, setShowError] = useState(false);
   //to keep track if the form is submitting 
   const [isSubmiting, setIsSubmiting] = useState(false);
   const [step, setStep] = useState(1);
@@ -206,55 +205,39 @@ export default function Page() {
     setIsDisabled(true);
   };
   const handleClick = () => {
-    console.log(errors);
-
+    
     if (Object.keys(errors).length !== 0) {
-      setShowError(true);
+      // Recursively search for first message property
+      const findFirstMessage = (obj: any): string | undefined => {
+        if (obj.message) return obj.message;
+        
+        for (const key in obj) {
+          if (typeof obj[key] === 'object') {
+            const message = findFirstMessage(obj[key]);
+            if (message) return message;
+          }
+        }
+        return undefined;
+      };
+
+      const errorMessage = findFirstMessage(errors) || "Validation failed";
+      dispatch(setToastMsgRedux({ msg: errorMessage }));
     }
   };
-  const closeErrorBox = () => {
-    setShowError(false);
-  };
-  // Submit handler
-  // const submit: SubmitHandler<FormData> = async (values: FormData) => {
-  //   if (session) {
-  //     try {
-  //       const response = await axios.post("/api/create-portfolio", {
-  //         data: values,
-  //         type: 1,
-  //         email: session.user?.email,
-  //       });
-  //       if(response.data.success){
-  //          router.push("/"+response.data.routename)
-  //         reset();
-  //       }
-  //     } catch (error:any) {
-  //       if(error.response.message){
-  //        dispatch(setToastMsgRedux({msg:error.response.message})) 
-  //       }
-  //     }
-  //   } else {
-  //     try {
-  //       const response = await axios.post("/api/create-portfolio", {
-  //         data: values,
-  //         type: 2,
-  //       });
-
-  //       if(response.data.success){
-  //          router.push("/"+response.data.routename)
-  //         reset();
-  //       }
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   }
-  // };
+ 
 const submit: SubmitHandler<FormData> = async (values: FormData) => {
- setIsSubmiting(true);
+  setIsSubmiting(true);
+  
+  // Filter out skills with empty categories or empty skills arrays
+  const filteredSkills = values.skills.filter(skill => 
+    skill.category !== "" && skill.skills.length > 0
+  );
+  setValue("skills", filteredSkills);
+
   const payload = {
-    data: values,
+    data: {...values, skills: filteredSkills},
     type: session ? 1 : 2,
-    ...(session && { email: session.user?.email }), // Include email only if session exists
+    ...(session && { email: session.user?.email }),
   };
 
   try {
@@ -265,9 +248,10 @@ const submit: SubmitHandler<FormData> = async (values: FormData) => {
       reset();
     }
   } catch (error: any) {
+    console.log(error)
     setIsSubmiting(false);
-    if (session && error.response?.message) {
-      dispatch(setToastMsgRedux({ msg: error.response.message }));
+    if ( error.response?.data.message) {
+      dispatch(setToastMsgRedux({ msg: error.response.data.message }));
     } else {
       console.error(error);
     }
@@ -279,12 +263,7 @@ const submit: SubmitHandler<FormData> = async (values: FormData) => {
 
   return (
     <div className="csw relative pt-24 flex flex-col justify-between items-center">
-      {showError && (
-        <Err
-          msg="Pleses Fill All The Required Field"
-          handleClick={closeErrorBox}
-        />
-      )}
+    
       <h1 className="text-xl md:text-3xl csw font-bold mb-1 pt-2 text-center dark:text-whites">
         Create Your Portfolio
       </h1>
@@ -337,6 +316,7 @@ const submit: SubmitHandler<FormData> = async (values: FormData) => {
               <input
                 id="email"
                 {...register("personalInfo.email")}
+                autoComplete="email"
                 placeholder="john@example.com"
               />
               {errors.personalInfo?.email && (
@@ -350,6 +330,9 @@ const submit: SubmitHandler<FormData> = async (values: FormData) => {
                 {...register("personalInfo.phone")}
                 placeholder="Phone"
               />
+              {errors.personalInfo?.phone && (
+                <span>{errors.personalInfo.phone.message}</span>
+              )}
               <h3 className="text-lg font-semibold my-2">Social Links</h3>
               {/* LinkedIn URL */}
               <label htmlFor="linkedIn">LinkedIn URL</label>
@@ -357,6 +340,7 @@ const submit: SubmitHandler<FormData> = async (values: FormData) => {
                 id="linkedIn"
                 {...register("personalInfo.socialLinks.linkedIn")}
                 placeholder="https://linkedin.com/in/..."
+                type="url"
               />
 
               {/* GitHub URL */}
@@ -367,6 +351,7 @@ const submit: SubmitHandler<FormData> = async (values: FormData) => {
                   required: false,
                 })}
                 placeholder="https://github.com/..."
+                type="url"
               />
 
               {/* Twitter URL */}
@@ -375,6 +360,7 @@ const submit: SubmitHandler<FormData> = async (values: FormData) => {
                 id="twitter"
                 {...register("personalInfo.socialLinks.twitter")}
                 placeholder="https://twitter.com/..."
+                type="url"
               />
               <div className="w-full flex justify-end mt-3">
                 <button type="button" onClick={nextStep} className="nav-next">
@@ -386,7 +372,7 @@ const submit: SubmitHandler<FormData> = async (values: FormData) => {
 
           {step === 2 && (
             <div className="portfolio">
-              <label htmlFor="aboutMe">About Me</label>
+              <label htmlFor="aboutMe">About Me <div className="text-theme inline">*</div></label>
               <textarea
                 id="aboutMe"
                 {...register("summary.aboutMe")}
@@ -455,7 +441,7 @@ const submit: SubmitHandler<FormData> = async (values: FormData) => {
                 </div>
                 <button
                   type="button"
-                  className="w-[30%]  p-2 bg-yellows rounded-lg text-sm"
+                  className="w-[30%] p-2 bg-blue-500 hover:bg-blue-600 text-white dark:bg-blue-600 dark:hover:bg-blue-700 rounded-lg text-sm transition-colors"
                   onClick={handleAvailability}
                 >
                   Check

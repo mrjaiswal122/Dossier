@@ -258,22 +258,21 @@ function AddSkillForm({
                   </div>
                 ))}
               </span>
-              <div className="relative">
-                <input
-                  type="text"
-                  ref={skillRef}
-                  onKeyDown={(e) => handleSkill(e)}
-                  onChange={() => clearErrors("skills")}
-                  className="w-full p-2 border rounded"
-                  placeholder="Press Enter To Add"
-                />
-                <span
-                  className="rounded-lg py-1 px-2 bg-greens absolute top-[50%] translate-y-[-50%] right-2 text-xs"
-                  onClick={(e) => handleSkillClick(e)}
-                >
-                  Add
-                </span>
-              </div>
+                <div className="w-full  flex justify-between items-center text-white dark:bg-black-bg dark:outline-none   rounded-md  bg-gray-700 text-sm border-[0.1px] border-gray-700 focus:border-white">
+                  <input
+                    type="text"
+                    ref={skillRef}
+                    onKeyDown={(e) => handleSkill(e)}
+                    className="w-full text-white dark:bg-black-bg dark:outline-none outline-none pl-3 py-2 rounded-md  bg-gray-700 text-sm border-[0.1px] border-gray-700 focus:border-none border-none "
+                    placeholder="Press Enter To Add"
+                  />
+                  <span
+                  className=" py-1 px-3 mr-2 bg-black text-xs cursor-pointer hover:text-gray-400 flex items-center justify-center rounded-md w-fit h-fit shadow-sm shadow-gray-500 active:scale-90 transition-all duration-200 ease-in-out"
+                    onClick={(e) => handleSkillClick(e)}
+                  >
+                    Add
+                  </span>
+                </div>
             </label>
             {errors.skills && (
               <span className="text-red-500">{errors.skills.message}</span>

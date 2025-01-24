@@ -29,6 +29,9 @@ updateUser:(state:UserType,action:PayloadAction<UserType>)=>{
 return action.payload;
 
 },
+updateRouteName:(state:UserType,action:PayloadAction<UserType["username"]>)=>{
+return {...state,username:action.payload};
+}
 }
 
 const extraReducers=(builder:ActionReducerMapBuilder<UserType>)=>{
@@ -38,5 +41,5 @@ const extraReducers=(builder:ActionReducerMapBuilder<UserType>)=>{
 
 
 const userSlice=createSlice({name,initialState,reducers,extraReducers})
-export const{updateUser}=userSlice.actions;
+export const{updateUser,updateRouteName}=userSlice.actions;
 export default userSlice.reducer;

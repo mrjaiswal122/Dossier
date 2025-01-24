@@ -12,12 +12,13 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useAppDispatch } from "../_store/hooks";
 import { setToastMsgRedux } from "../_features/toastMsg/toastMsgSlice";
+import { updateRouteName } from "../_features/user/userSlice";
 
 const personalInfoSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),
   profilePicture: z
     .string()
-    .url("Must be a valid URL")
+    .url("Profile Picture must be a valid URL")
     .or(z.literal(""))
     .default(""),
   title: z.string().min(1, "Professional title is required"),
@@ -32,17 +33,17 @@ const personalInfoSchema = z.object({
     .object({
       linkedIn: z
         .string()
-        .url("Must be a valid URL")
+        .url("LinkedIn URL must be a valid URL")
         .or(z.literal(""))
         .default(""),
       github: z
         .string()
-        .url("Must be a valid URL")
+        .url("GitHub URL must be a valid URL")
         .or(z.literal(""))
         .default(""),
       twitter: z
         .string()
-        .url("Must be a valid URL")
+        .url("Twitter URL must be a valid URL")
         .or(z.literal(""))
         .default(""),
     })
@@ -61,7 +62,7 @@ const skillSchema = z.object({
 });
 
 const resumeSchema = z.object({
-  fileUrl: z.string().url("Must be a valid URL").or(z.literal("")).default(""),
+  fileUrl: z.string().url("Resume URL must be a valid URL").or(z.literal("")).default(""),
 });
 
 // Combine all schemas
@@ -244,6 +245,7 @@ const submit: SubmitHandler<FormData> = async (values: FormData) => {
     const response = await axios.post("/api/create-portfolio", payload);
 
     if (response.data.success) {
+      dispatch(updateRouteName(payload.data.routeName))
       router.push("/" + response.data.routename);
       reset();
     }

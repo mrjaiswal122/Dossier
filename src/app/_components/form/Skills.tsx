@@ -1,5 +1,5 @@
 'use client';
-import React from 'react'
+import React, { useRef } from 'react'
 import { RiDeleteBin6Line  } from "react-icons/ri";
 import { Control, FieldErrors, useFieldArray, UseFormClearErrors, UseFormRegister, UseFormSetError, UseFormSetValue, UseFormWatch, } from 'react-hook-form'
 import { FormData } from '@/app/create-portfolio/page'
@@ -21,29 +21,54 @@ export default function Skills({control,register,errors,prevStep,nextStep,watch,
             control,
            name:'skills'
         })
+
+        const skillInputRefs = useRef<HTMLInputElement[]>([]);
+
+        const addSkill = (index: number) => {
+          const input = skillInputRefs.current[index];
+          if (!input) return;
+
+          const skill = input.value.trim();
+    
+          if (skill) {
+            const currentSkills = watch(`skills.${index}.skills`);
+            if (currentSkills.includes(skill)) {
+              setError(`skills.${index}.skills`, {
+                type: "custom",
+                message: "Skill already exists",
+              });
+              return;
+            }
+            setValue(`skills.${index}.skills`, [...currentSkills, skill]);
+            input.value = "";
+            clearErrors(`skills.${index}.skills`);
+            return;
+          }
+
+          setError(`skills.${index}.skills`, {
+            type: "custom",
+            message: "Skill can't be empty",
+          });
+        };
+
         const handleSkill = (
             event: React.KeyboardEvent<HTMLInputElement>,
             index: number
           ) => {
             if (event.key === "Enter") {
               event.preventDefault();
-              let input = event.currentTarget.value;
-              const skill = input.trim();
-        
-              if (skill) {
-                const currentSkills = watch(`skills.${index}.skills`);
-                setValue(`skills.${index}.skills`, [...currentSkills, skill]);
-                event.currentTarget.value = "";
-                clearErrors(`skills.${index}.skills`);
-                return;
-              }
-              // event.currentTarget.value=''
-              setError(`skills.${index}.skills`, {
-                type: "custom",
-                message: "Skill can't be empty",
-              });
+              addSkill(index);
             }
           };
+
+          const handleSkillClick = (
+            e: React.MouseEvent<HTMLSpanElement, MouseEvent>,
+            index: number
+          ) => {
+            e.preventDefault();
+            addSkill(index);
+          };
+
           const deleteSkill = (
             e: React.MouseEvent<HTMLSpanElement, MouseEvent>,
             index: number,
@@ -52,9 +77,10 @@ export default function Skills({control,register,errors,prevStep,nextStep,watch,
             const skills = watch(`skills.${index}.skills`);
             setValue(
               `skills.${index}.skills`,
-              skills.filter((skill, i) => skills[i] !== skilled)
+              skills.filter((skill) => skill !== skilled)
             );
           };
+
   return (
     <div className="portfolio">
    
@@ -82,7 +108,7 @@ export default function Skills({control,register,errors,prevStep,nextStep,watch,
           placeholder="Skill Category-eg.Web Devlopment" 
         />
         <div>
-                  <label htmlFor="skills">Skills (press Enter to add)</label>
+          <label htmlFor="skills">Skills (press Enter to add)</label>
           <div className="flex gap-3 mb-2 flex-wrap">
             {watch(`skills.${index}.skills`).map(
               (skill, skillIndex) => (
@@ -101,12 +127,23 @@ export default function Skills({control,register,errors,prevStep,nextStep,watch,
               )
             )}
           </div>
-          <input
-            id='skills'
-            placeholder="Skill Name-eg.React,NextJs"
-            onKeyDown={(e) => handleSkill(e, index)}
-            className="w-full" name='skills' type='text'
-          />
+          <div className="w-full flex justify-between items-center text-white dark:bg-black-bg dark:outline-none rounded-md bg-gray-700 text-sm border-[0.1px] border-gray-700 focus:border-white">
+            <input
+              id='skills'
+              placeholder="Skill Name-eg.React,NextJs"
+              onKeyDown={(e) => handleSkill(e, index)}
+              ref={(el) => {
+                if (el) skillInputRefs.current[index] = el;
+              }}
+              className="w-full text-white dark:bg-black-bg dark:outline-none outline-none pl-3 py-2 rounded-md bg-gray-700 text-sm border-[0.1px] border-gray-700 focus:border-none border-none"
+            />
+            <div
+              className="py-1 px-3 mr-2 bg-black text-xs cursor-pointer hover:text-gray-400 flex items-center justify-center rounded-md w-fit h-fit shadow-sm shadow-gray-500 active:scale-90 transition-all duration-200 ease-in-out"
+              onClick={(e) => handleSkillClick(e, index)}
+            >
+              Add
+            </div>
+          </div>
           {errors.skills?.[index]?.skills && (
             <span>{errors.skills?.[index]?.skills.message}</span>
           )}
@@ -148,4 +185,3 @@ export default function Skills({control,register,errors,prevStep,nextStep,watch,
   </div>
   )
 }
-

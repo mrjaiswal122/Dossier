@@ -123,7 +123,7 @@ export default function Navbar() {
         <div className="flex justify-between items-center csw">
           {/* left */}
           <div className="flex justify-between items-center gap-3">
-            <Link href="/" className="text-2xl dark:text-theme  text-black font-extrabold ">
+            <Link href="/" className="text-2xl text-theme   font-extrabold ">
               Dossier
             </Link>
           </div>
@@ -174,7 +174,7 @@ export default function Navbar() {
               className=" flex justify-center items-center"
               onClick={() => setToogleSideBar(true)}
             >
-              <BiMenu className="hover:text-theme  dark:text-whites text-black scale-150 cursor-pointer" />
+              <BiMenu className="text-theme   scale-150 cursor-pointer" />
             </div>
           </div>
         </div>
@@ -330,7 +330,7 @@ function SideBar({
             </div>
             {/* settings */}
 
-            <span className="flex mb-16 m-3 px-3 py-1 justify-between  border border-grays rounded-2xl ">
+            <span className="flex mb-16 m-3 px-3 py-3 justify-between  border border-grays rounded-2xl ">
               <div
                 id="light"
                 onClick={handleTheme}
@@ -394,9 +394,7 @@ function ChangeRouteName({ setOpenChangeRouteName }: ChangeRouteNameProps) {
   const pathname = usePathname().slice(1);
   const [routename, setRouteName] = useState(pathname);
   const [isAvailable, setIsAvailable] = useState(false);
-  // useEffect(()=>{
-  //   setRouteName(portfolio.routeName)
-  // },[portfolio.routeName])
+
   const handleChangeRouteForm = (
     e: React.MouseEvent<HTMLElement, MouseEvent>
   ) => {

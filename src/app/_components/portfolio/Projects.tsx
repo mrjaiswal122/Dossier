@@ -476,13 +476,13 @@ function AddProject({
   };
   return (
     <section
-      className="fixed z-10 w-full h-full top-0 left-0 dark:bg-black dark:bg-opacity-90 bg-theme-light bg-opacity-65"
+      className="fixed z-10 w-full h-full top-0 left-0 dark:bg-black dark:bg-opacity-90 bg-white "
       id="addProjects"
       onClick={handleFormClick}
     >
-      <section className="fixed top-[80px] left-[50%] csw max-h-[80vh] overflow-y-auto border translate-x-[-50%]  bg-theme-dark dark:bg-black rounded-lg flex flex-col justify-between dark:text-whites bg-opacity-65">
-        {/* Head of the form */}
-        <div className="sticky top-0 z-10 border-b bg-theme-dark dark:bg-black flex justify-between items-center px-4 py-2 text-lg md:text-xl dark:text-theme">
+      <section className="fixed top-[80px] left-[50%] csw max-h-[80vh] overflow-y-auto border border-black dark:border-gray-500 translate-x-[-50%]  bg-white dark:bg-black rounded-md shadow-2xl shadow-black dark:shadow-gray-500 flex flex-col justify-between text-black dark:text-whites bg-opacity-90">
+        {/* Head of the form */}  
+        <div className="sticky top-0 z-10 border-b border-black dark:border-gray-500 bg-white dark:bg-black flex justify-between items-center px-4 py-2 text-lg md:text-xl dark:text-theme">
           {updatingProjectIndex != null ? "Edit Project" : "Add Project"}
           <span
             onClick={() => {
@@ -515,7 +515,7 @@ function AddProject({
                   {watch("technologies").map((skill, skillIndex) => (
                     <div
                       key={skillIndex}
-                      className=" px-2 py-1 text-black dark:text-gray-400 flex justify-center items-center gap-3 rounded-md bg-theme dark:bg-black-bg2"
+                      className=" px-2 py-1 text-black dark:text-gray-400 flex justify-center items-center gap-3 rounded-md bg-white border border-gray-500  dark:bg-black-bg2"
                     >
                       {skill.toUpperCase()}
                       <span
@@ -527,16 +527,16 @@ function AddProject({
                     </div>
                   ))}
                 </span>
-                <div className="relative">
+                <div className="w-full  flex justify-between items-center text-white dark:bg-black-bg dark:outline-none   rounded-md  bg-gray-700 text-sm border-[0.1px] border-gray-700 focus:border-white">
                   <input
                     type="text"
                     ref={skillRef}
                     onKeyDown={(e) => handleSkill(e)}
-                    className="w-full p-2 border rounded"
+                    className="w-full text-white dark:bg-black-bg dark:outline-none outline-none pl-3 py-2 rounded-md  bg-gray-700 text-sm border-[0.1px] border-gray-700 focus:border-none border-none "
                     placeholder="Press Enter To Add"
                   />
                   <span
-                    className="rounded-lg py-2 px-3 bg-greens absolute top-[50%] translate-y-[-50%] right-2 text-xs"
+                  className=" py-1 px-3 mr-2 bg-black text-xs cursor-pointer hover:text-gray-400 flex items-center justify-center rounded-md w-fit h-fit shadow-sm shadow-gray-500 active:scale-90 transition-all duration-200 ease-in-out"
                     onClick={(e) => handleSkillClick(e)}
                   >
                     Add

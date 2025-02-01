@@ -54,7 +54,7 @@ export default function Navbar() {
           dispatch(updateUser(response.data.data))
         }
       } catch (error:any) {
-       
+       if(error.response.data.message=="No user was found")return;
         if(error.response.data.message)
         dispatch(
           setToastMsgRedux({ msg:error.response.data.message , type: "error" })

@@ -676,10 +676,10 @@ const updateRouteNameAsync = createAppAsyncThunk(
     { changedRouteName }: { changedRouteName: string },
     { getState, dispatch }
   ) => {
-    const { portfolioSlice } = getState();
+    const { userSlice} = getState();
     const formData = new FormData();
     formData.append("updateType", Update.RouteName);
-    formData.append("routeName", portfolioSlice.routeName);
+    formData.append("routeName", userSlice.username!);
     formData.append("data", changedRouteName);
 
     try {

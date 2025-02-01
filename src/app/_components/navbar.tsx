@@ -1,6 +1,6 @@
 "use client";
 import React, { Dispatch,  SetStateAction, useEffect, useState } from "react";
-
+import gsap from "gsap"
 import { BsFillMoonStarsFill } from "react-icons/bs";
 import { MdArrowCircleRight, MdOutlineWork, MdSunny } from "react-icons/md";
 import { HiComputerDesktop } from "react-icons/hi2";
@@ -116,10 +116,17 @@ export default function Navbar() {
   const handleSideBar = (e: React.MouseEvent<HTMLElement>) => {
     if ((e.target as HTMLElement).id === "sideBar") setToogleSideBar(false);
   };
-
+const handleSideBarToogle=async()=>{
+  await setToogleSideBar(true);
+  gsap.to('#sideBar',{
+    right:0,
+    duration:0.3,
+    ease:"power2.in"
+  })
+}
   return (
     <>
-      <nav className="w-full h-16 dark:text-white shadow-2xl flex justify-between items-center relative backdrop-blur-lg">
+      <nav className="w-full h-16 dark:text-white shadow-2xl flex justify-between items-center relative backdrop-blur-lg ">
         <div className="flex justify-between items-center csw">
           {/* left */}
           <div className="flex justify-between items-center gap-3">
@@ -172,7 +179,7 @@ export default function Navbar() {
             {/* hamburger */}
             <div
               className=" flex justify-center items-center"
-              onClick={() => setToogleSideBar(true)}
+              onClick={handleSideBarToogle}
             >
               <BiMenu className="text-theme   scale-150 cursor-pointer" />
             </div>
@@ -182,7 +189,7 @@ export default function Navbar() {
         {/* SIDE Bar */}
         {toogleSideBar && (
           <section
-            className="fixed top-0 right-0 w-screen h-screen bg-black bg-opacity-65"
+            className="fixed top-0 right-[-280px] w-screen h-screen "
             id="sideBar"
             onClick={(e) => {
               handleSideBar(e);
@@ -248,7 +255,7 @@ function SideBar({
             <div className="flex flex-col gap-6 mx-3 md:hidden">
               <Link
                 href={`/${portfolio.routeName}`}
-                className="flex gap-3 items-center hover:bg-gray-600 rounded-lg py-2 px-3"
+                className="flex gap-3 items-center hover:bg-theme-dark dark:hover:bg-gray-600 rounded-lg py-2 px-3"
                 onClick={() => setToogleSideBar(false)}
               >
                 <ImProfile /> Profile
@@ -387,104 +394,133 @@ function SideBar({
 type ChangeRouteNameProps = {
   setOpenChangeRouteName: Dispatch<SetStateAction<boolean>>;
 };
-function ChangeRouteName({ setOpenChangeRouteName }: ChangeRouteNameProps) {
-  const portfolio = useAppSelector((state) => state.portfolioSlice);
-  const [message,setMessage]=useState({message:"",success:false});
+
+interface Message {
+  message: string;
+  success: boolean;
+}
+
+
+export function ChangeRouteName({ setOpenChangeRouteName }: ChangeRouteNameProps) {
+  const { username } = useAppSelector((state) => state.userSlice);
   const dispatch = useAppDispatch();
-  const pathname = usePathname().slice(1);
-  const [routename, setRouteName] = useState(pathname);
+  
+  const [message, setMessage] = useState<Message>({ message: '', success: false });
+  const [routeName, setRouteName] = useState(username);
   const [isAvailable, setIsAvailable] = useState(false);
 
-  const handleChangeRouteForm = (
-    e: React.MouseEvent<HTMLElement, MouseEvent>
-  ) => {
-    const section = e.target as HTMLElement;
-    if (section.id === "changeRoute") {
-      setOpenChangeRouteName(false);
+  const handleClose = () => setOpenChangeRouteName(false);
+
+  const handleBackdropClick = (e: React.MouseEvent<HTMLElement>) => {
+    if (e.target instanceof HTMLElement && e.target.id === 'changeRoute') {
+      handleClose();
     }
   };
 
-  const handleChangeRouteNames = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setRouteName(e.target.value);
-    setMessage({message:'',success:false})
+  const handleRouteNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newRouteName = e.target.value;
+    setRouteName(newRouteName);
+    setMessage({ message: '', success: false });
     setIsAvailable(false);
   };
 
- const handelCheckRouteName = async (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
-
-  const formData = new FormData();
-  formData.append("routeName", routename);
-
-  if (isAvailable === false) {
+  const checkAvailability = async (formData: FormData) => {
+  
+    console.log(formData.get("routeName"));
+    
     try {
-      const response = await axios.post("/api/check-availability", formData);
-      console.log(response);
+      const response = await axios.post('/api/check-availability', formData);
       
-      if ( response.data.success) {
-        setMessage({message:'Route name is available ✔',success:true})
+      if (response.data.success) {
+        setMessage({ message: 'Route name is available ✔', success: true });
         setIsAvailable(true);
-        return;
+        return true;
       }
-    } catch (error:any) {
-     
-      if(error.response?.status==409){
-        setMessage({message:'Routename is not available',success:false})
-      }else{
-        dispatch(setToastMsgRedux({ msg:(error.response.data.msg as string),type:"error",expire:false}));
+    } catch (error: any) {
+      if (error.response?.status === 409) {
+        setMessage({ message: 'Routename is not available', success: false });
+      } else {
+        dispatch(
+          setToastMsgRedux({
+            msg: error.response?.data?.msg || 'An error occurred',
+            type: 'error',
+            expire: false
+          })
+        );
       }
       setIsAvailable(false);
+      return false;
     }
-  } else {
-    const { payload } = await dispatch(updateRouteNameAsync({ changedRouteName: routename }));
+  };
 
-    // Type assertion for TypeScript
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    
+    if (!routeName?.trim()) return;
+
+    if (!isAvailable) {
+      const formData = new FormData();
+      formData.append('routeName', routeName);
+      await checkAvailability(formData);
+      return;
+    }
+ 
+ 
+    const { payload } = await dispatch(updateRouteNameAsync({ changedRouteName: routeName }));
+    
     if ((payload as { redirect: boolean }).redirect) {
-      // router.push(`/${routename.trim()}`);
- window.location.href = `/${routename.trim()}`;    }
+      window.location.href = `/${routeName.trim()}`;
+    }
 
-    setOpenChangeRouteName(false);
-  }
-};
-
+    handleClose();
+  };
 
   return (
-    <>
-      <section
-        className="fixed flex justify-center items-center top-0 right-0 w-screen h-screen bg-black bg-opacity-65 "
-        id="changeRoute"
-        onClick={handleChangeRouteForm}
+    <section
+      className="fixed flex justify-center items-center top-0 right-0 w-screen h-screen bg-black bg-opacity-65"
+      id="changeRoute"
+      onClick={handleBackdropClick}
+    >
+      <form
+        onSubmit={handleSubmit}
+        className="border border-grays rounded-lg w-[300px] flex flex-col p-6 text-whites shadow-2xl bg-black"
       >
-        <form
-        onSubmit={(e)=>handelCheckRouteName(e)}
-          className="border border-grays rounded-lg w-[300px] flex flex-col p-6 text-whites shadow-2xl bg-black"
-        >
-          <div className="flex justify-between items-center text-xl mb-6">
-            <h1>Change Route Name</h1>
-            <GrClose
-              className="hover:text-reds cursor-pointer"
-              onClick={() => setOpenChangeRouteName(false)}
-            />
-          </div>
-          <div className=" flex justify-between">
-            <input
-              id="routeName"
-              type="text"
-              className="border-grays bg-grays"
-              value={routename}
-              onChange={(e) => handleChangeRouteNames(e)}
-            />
-            <button
-              type="submit"
-              className={`py-2 px-3 bg-greens rounded-lg`}
-              disabled={portfolio.routeName == routename}
-            >
-             {isAvailable?'Submit':'Check'}
-            </button>
-          </div>
-          <span className={cn("text-sm mt-3", "text-reds", {" text-greens":message.success})}>{message.message}</span>
-        </form>
-      </section>
-    </>
+        <div className="flex justify-between items-center text-xl mb-6">
+          <h1>Change Route Name</h1>
+          <GrClose
+            className="hover:text-reds cursor-pointer"
+            onClick={handleClose}
+          />
+        </div>
+        
+        <div className="flex justify-between">
+          <input
+            id="routeName"
+            type="text"
+            className="border-grays bg-grays"
+            value={routeName}
+            onChange={handleRouteNameChange}
+          />
+          <button
+            type="submit"
+            className="py-2 px-3 bg-greens rounded-lg"
+            disabled={username === routeName}
+          >
+            {isAvailable ? 'Submit' : 'Check'}
+          </button>
+        </div>
+        
+        {message.message && (
+          <span 
+            className={cn(
+              "text-sm mt-3",
+              message.success ? "text-greens" : "text-reds"
+            )}
+          >
+            {message.message}
+          </span>
+        )}
+      </form>
+    </section>
   );
 }

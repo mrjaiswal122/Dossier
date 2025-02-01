@@ -17,6 +17,7 @@
     "axios": "^1.7.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "gsap": "^3.12.7",
     "jose": "^5.7.0",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.460.0",

@@ -113,7 +113,7 @@ export async function POST(request: NextRequest) {
         userModel.findOneAndUpdate({ username: routeName }, { username: newRouteName })
       ]);
 
-      updateResult = { success: true };
+      return NextResponse.json({ success: true,msg:"RouteName changed suceesfully" },{status:200});
 
     } else if(type === Update.Skills) {
       const skill = JSON.parse(data) as Skill;

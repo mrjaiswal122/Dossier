@@ -200,13 +200,13 @@ function AddSkillForm({
   };
   return (
     <section
-      className="fixed w-full h-full top-0 left-0 dark:bg-black dark:bg-opacity-90 bg-theme-light bg-opacity-65 z-20"
+      className="fixed w-full h-full top-16 left-0 dark:bg-black  bg-white  z-10"
       id="addSkill"
       onClick={handleFormClick}
     >
-      <section className="fixed top-[50%] left-[50%] csw  max-h-[80vh] overflow-y-auto border translate-x-[-50%] -translate-y-[50%]  bg-theme-dark dark:bg-black rounded-lg flex flex-col justify-between dark:text-whites ">
+      <section className="fixed top-[50%] left-[50%] csw  max-h-[80vh] overflow-y-auto border translate-x-[-50%] -translate-y-[50%] shadow-lg shadow-gray-500  border-gray-500 bg-white dark:bg-black rounded-lg flex flex-col justify-between dark:text-whites ">
         {/* Head of the form */}
-        <div className=" sticky top-0  w-full flex justify-between items-center px-4 py-2 text-lg md:text-xl dark:text-theme bg-theme-dark dark:bg-black border-b bg-opacity-65">
+        <div className=" sticky top-0  w-full flex justify-between items-center px-4 py-2 text-lg md:text-xl dark:text-theme bg-white text-black dark:bg-black border-b border-gray-500 bg-opacity-65">
           {updatingSkillIndex != null
             ? "Edit Skill Category"
             : "Add Skill Category"}
@@ -229,6 +229,7 @@ function AddSkillForm({
                 id="category"
                 type="text"
                 className="w-full p-2 border rounded"
+                placeholder="Enter Category"
               />
             </label>
 

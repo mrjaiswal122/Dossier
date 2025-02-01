@@ -6,12 +6,27 @@ import { useRouter } from "next/navigation";
 import { FaArrowRight } from "react-icons/fa6";
 import { useAppDispatch, useAppSelector } from "./_store/hooks";
 import { setToastMsgRedux } from "./_features/toastMsg/toastMsgSlice";
+import { useEffect, useState } from "react";
 
 export default function Home() {
+  const [portfolioCount,setPortofolioCount]=useState(0)
+  const [isLoading,setIsLoading]=useState(true);
   const { data: session, status } = useSession();
   const router = useRouter();
   const user=useAppSelector(state=>state.userSlice)
   const dispatch=useAppDispatch()
+
+useEffect(()=>{
+ const fetch=async()=>{
+   const res=await axios.get("/api/count-portfolio")
+   if (res.data.success){
+    setIsLoading(false);
+    setPortofolioCount(res.data.portfolios);
+   }
+ }
+  fetch()
+},[])
+
   const handlePortfolioCreation = async () => {
     if (status === "loading") return; // Wait for the session to load
     if (session?.user || user.email) {
@@ -69,15 +84,14 @@ export default function Home() {
         </div>
         
         {/* Stats */}
-        <div className="mt-20 grid grid-cols-2 md:grid-cols-3 gap-8 max-w-3xl mx-auto px-4 py-6 rounded-2xl bg-black-bg/50 backdrop-blur-sm border border-theme/10">
+        <div className="mt-20 grid  gap-8 max-w-3xl mx-auto px-4 py-6 rounded-2xl bg-black-bg/50 backdrop-blur-sm border border-theme/10">
           {[
             { number: "10K+", label: "Portfolios Created" },
-            { number: "98%", label: "Satisfaction Rate" },
-            { number: "24/7", label: "Support" }
+            
           ].map((stat, index) => (
             <div key={index} className="text-center">
               <div className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-theme-light to-theme bg-clip-text text-transparent">
-                {stat.number}
+                {portfolioCount}
               </div>
               <div className="text-sm text-grays mt-1">{stat.label}</div>
             </div>

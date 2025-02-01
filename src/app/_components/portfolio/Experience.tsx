@@ -136,13 +136,13 @@ function AddExperienceForm({setShowForm,updatingExperienceIndex,setUpdatingExper
           setUpdatingExperienceIndex(null)}; 
   return (
      <section
-      className='fixed w-full h-full top-0 left-0 dark:bg-black dark:bg-opacity-90 bg-theme-light bg-opacity-65'
+      className='fixed w-full h-full top-0 left-0 dark:bg-black dark:bg-opacity-90 bg-white text-black '
       id='addExperince'
       onClick={handleFormClick}
     >
-      <section className='fixed top-[80px] left-[50%] csw max-h-[80vh] overflow-y-auto border translate-x-[-50%]  bg-theme-dark dark:bg-black rounded-lg flex flex-col justify-between dark:text-whites bg-opacity-65'>
+      <section className='fixed top-[80px] left-[50%] csw max-h-[80vh] overflow-y-auto border translate-x-[-50%]   dark:bg-black rounded-lg flex flex-col justify-between dark:text-whites shadow-lg shadow-gray-500 border-gray-500'>
           {/* Head of the form */}
-          <div className=' sticky top-0  w-full flex justify-between items-center px-4 py-2 text-lg md:text-xl dark:text-theme bg-theme-dark dark:bg-black border-b bg-opacity-65'>
+          <div className=' sticky top-0  w-full flex justify-between items-center px-4 py-2 text-lg md:text-xl dark:text-theme bg-white dark:bg-black border-b border-gray-500 '>
           {updatingExperienceIndex!=null?'Edit Experience':'Add Experience'}
           <span onClick={() => {setShowForm(false);setUpdatingExperienceIndex(null)}}>
             <TiDeleteOutline className='scale-150 dark:text-white cursor-pointer hover:text-reds' />

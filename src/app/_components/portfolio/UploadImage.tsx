@@ -49,9 +49,9 @@ function UploadImage({setUploadingImage}:props) {
          
     };
   return (
-    <section className='z-20 fixed w-full h-full top-0 left-0  dark:bg-black dark:bg-opacity-90 bg-theme-light bg-opacity-65' onClick={handleClick} id='uploadImage'>
+    <section className='z-20 fixed w-full h-full top-0 left-0  dark:bg-black dark:bg-opacity-90 bg-white text-black bg-opacity-65' onClick={handleClick} id='uploadImage'>
 
-        <section className='fixed top-[50%] left-[50%] w-[80vw] md:w-[60vw] lg: border  translate-x-[-50%] translate-y-[-50%] bg-theme-dark dark:bg-black rounded-lg flex flex-col justify-between '>
+        <section className='fixed top-[50%] left-[50%] w-[80vw] md:w-[60vw] lg: border  translate-x-[-50%] translate-y-[-50%] bg-white shadow-lg shadow-gray-500 border-gray-500 dark:bg-black rounded-lg flex flex-col justify-between '>
             <div className='flex justify-between items-center ml-3 text-lg md:text-2xl  dark:text-theme'>
              Profile Picture
              <span  onClick={()=>setUploadingImage(false)}>

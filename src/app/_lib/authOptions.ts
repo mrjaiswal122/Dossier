@@ -4,14 +4,16 @@ import dbConnect from "./database";
 import GoogleProvider from "next-auth/providers/google";
 const GOOGLE_ID = process.env.GOOGLE_ID!;
 const GOOGLE_SECRET = process.env.GOOGLE_SECRET!;
+
+
 export const authOptions: NextAuthOptions = {
   session: {
     strategy: 'jwt',
   },
   providers: [
     GoogleProvider({
-      clientId: GOOGLE_ID,
-      clientSecret: GOOGLE_SECRET,
+      clientId: GOOGLE_ID as string,
+      clientSecret: GOOGLE_SECRET as string,
     }),
     // ...add more providers here
   ],

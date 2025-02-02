@@ -6,6 +6,7 @@ import { SessionProvider } from "next-auth/react";
 import Err from "./Err";
 import { clearToastMsgRedux } from "../_features/toastMsg/toastMsgSlice";
 import { FaGithub, FaTwitter } from "react-icons/fa6";
+import Link from "next/link";
 
 export default function DarkMode({ children }: { children: ReactNode }) {
   const darkMode = useAppSelector((state) => state.darkModeRedux);
@@ -55,6 +56,11 @@ export default function DarkMode({ children }: { children: ReactNode }) {
               </a>
             </div>
           </div>
+          <div className="flex flex-col mt-6">
+            <Link prefetch={false} href="/privacy-policy" className="text-gray-400 hover:text-blue-400 text-sm">Privacy policy</Link>
+            <Link prefetch={false} href="/terms-of-service" className="text-gray-400 hover:text-blue-400 text-sm">Terms of service</Link>
+            
+            </div>
           <div className="mt-8 pt-8 border-t border-black-bg text-center text-grays">
             <p>© {new Date().getFullYear()} Dossier. All rights reserved.</p>
           </div>

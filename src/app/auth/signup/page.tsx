@@ -272,13 +272,13 @@ export default function SignupPage() {
         {/* Footer Text */}
         <p className="text-center text-sm text-gray-600 dark:text-grays pb-40">
           By creating an account, you agree to our{" "}
-          <a href="#" className="text-theme hover:text-theme-dark">
+          <Link prefetch={false} href="/terms-of-service" className="text-theme hover:text-theme-dark">
             Terms of Service
-          </a>{" "}
+          </Link>{" "}
           and{" "}
-          <a href="#" className="text-theme hover:text-theme-dark">
+          <Link prefetch={false} href="/privacy-policy" className="text-theme hover:text-theme-dark">
             Privacy Policy
-          </a>
+          </Link>
         </p>
       </div>
     </section>

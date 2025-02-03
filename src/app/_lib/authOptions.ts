@@ -38,7 +38,7 @@ export const authOptions: NextAuthOptions = {
         }
         
         if(existingUser.userType!="google"){
-          return false;
+          throw new Error("This email is associated with a different sign-in method.");
         }
         
         return true; // User successfully signed in

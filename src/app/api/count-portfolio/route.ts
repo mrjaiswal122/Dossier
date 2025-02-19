@@ -1,5 +1,5 @@
-import portfolioModel from "@/app/_models/portfolio";
-import dbConnect from "@/app/_lib/database";
+import portfolioModel from "@/models/portfolio";
+import dbConnect from "@/lib/database";
 import { NextRequest,NextResponse } from "next/server";
 
 

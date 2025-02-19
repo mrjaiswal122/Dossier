@@ -4,8 +4,8 @@ import { useSearchParams ,useRouter} from "next/navigation";
 import { Loader2, CheckCircle2, XCircle, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import axios from "axios";
-import { useAppDispatch } from "../_store/hooks";
-import { setToastMsgRedux } from "../_features/toastMsg/toastMsgSlice";
+import { useAppDispatch } from "../../store/hooks";
+import { setToastMsgRedux } from "../../features/toastMsg/toastMsgSlice";
 
 type VerificationStatus =
   | "loading"

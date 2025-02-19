@@ -1,5 +1,5 @@
 import { ActionReducerMapBuilder, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { User } from "@/app/_models/user";
+import { User } from "@/models/user";
  
 type UserT=Omit<User,'_id'|"salt"|"password"|"portfolio"|"token"|"createdAt"|"updatedAt">
 type UserTimestamps={

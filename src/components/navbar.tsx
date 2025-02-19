@@ -7,70 +7,38 @@ import { HiComputerDesktop } from "react-icons/hi2";
 import Link from "next/link";
 import axios from "axios";
 import Profile from "./profile";
-import { setThemeRedux } from "../_features/theme/themeSlice";
-import { toggleDarkMode } from "../_features/darkMode/darkSlice";
-import { useAppSelector, useAppDispatch } from "../_store/hooks";
+import { setThemeRedux, ThemeType } from "../features/theme/themeSlice";
+import { toggleDarkMode } from "../features/darkMode/darkSlice";
+import { useAppSelector, useAppDispatch } from "../store/hooks";
 import { BiEdit, BiMenu } from "react-icons/bi";
 import { GrClose, GrProjects } from "react-icons/gr";
 import { FiLogOut } from "react-icons/fi";
 import { signOut } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import { ImProfile } from "react-icons/im";
-import { setToastMsgRedux } from "../_features/toastMsg/toastMsgSlice";
+import { setToastMsgRedux } from "../features/toastMsg/toastMsgSlice";
 import SurePrompt from "./SurePrompt";
-import { updateRouteNameAsync } from "../_features/portfolio/portfolioSlice";
+import { updateRouteNameAsync } from "../features/portfolio/portfolioSlice";
 import { FaGears } from "react-icons/fa6";
-import { updateUser, UserType } from "../_features/user/userSlice";
-import { cn } from "../_util/cn";
+import { updateUser, UserType } from "../features/user/userSlice";
+import { cn } from "../util/cn";
 
-type LogedInUser = {
-  name: string;
-  email: string;
-  imageUrl: string;
-  role: string;
-  username: string;
-};
 export default function Navbar() {
   const dispatch = useAppDispatch();
   const portfolio = useAppSelector((state) => state.portfolioSlice);
-  const [prefersDarkScheme, setPrefersDarkScheme] = useState(false);
-  // const [user, setUser] = useState<LogedInUser>();
-  const user=useAppSelector((state)=>state.userSlice)
+  const user = useAppSelector((state) => state.userSlice);
+  
   const [toogleSideBar, setToogleSideBar] = useState(false);
-  const pathname = usePathname().slice(1);
-  const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname()?.slice(1) ?? "";
+ 
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setPrefersDarkScheme(
-          window.matchMedia("(prefers-color-scheme: dark)").matches
-        );
-        // api call
-        const response = await axios.get("/api/check-login");
-        
-        if (response.data.success) {
-          // setUser(response.data.data);
-          dispatch(updateUser(response.data.data))
-        }
-      } catch (error:any) {
-       if(error.response.data.message=="No user was found")return;
-        if(error.response.data.message)
-        dispatch(
-          setToastMsgRedux({ msg:error.response.data.message , type: "error" })
-        );
-      }
-    };
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const storedTheme = localStorage.getItem("theme") || "system";
 
-    fetchData();
-  }, [dispatch]);
-  useEffect(() => {
-    setPrefersDarkScheme(
-      window.matchMedia("(prefers-color-scheme: dark)").matches
-    );
-    switch (localStorage.getItem("theme")) {
+    switch (storedTheme) {
       case "system":
-        dispatch(toggleDarkMode(prefersDarkScheme));
+        dispatch(toggleDarkMode(prefersDark));
         dispatch(setThemeRedux("system"));
         break;
       case "dark":
@@ -83,47 +51,47 @@ export default function Navbar() {
         break;
       default:
         localStorage.setItem("theme", "system");
-        dispatch(toggleDarkMode(prefersDarkScheme));
+        dispatch(toggleDarkMode(prefersDark));
         dispatch(setThemeRedux("system"));
     }
-  }, [dispatch, prefersDarkScheme]);
+  }, [dispatch]);
+
   const handleTheme = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     const target = e.target as HTMLElement;
-    switch (target.closest("div")?.id) {
-      case "dark":
-        dispatch(toggleDarkMode(true));
-        dispatch(setThemeRedux("dark"));
-        localStorage.setItem("theme", "dark");
-        break;
-      case "system":
-        dispatch(toggleDarkMode(prefersDarkScheme));
-        dispatch(setThemeRedux("system"));
-        localStorage.setItem("theme", "system");
-        break;
-      case "light":
-        dispatch(toggleDarkMode(false));
-        dispatch(setThemeRedux("light"));
-        localStorage.setItem("theme", "light");
-        break;
-      default:
-        handleThemeSection();
+    const theme = target.closest("div")?.id! as ThemeType;
+
+    if (!theme) {
+      handleThemeSection();
+      return;
+    }
+
+    const isDark = theme === "dark";
+    const isSystem = theme === "system";
+    
+    dispatch(toggleDarkMode(isSystem ? window.matchMedia("(prefers-color-scheme: dark)").matches : isDark));
+    dispatch(setThemeRedux(theme));
+    localStorage.setItem("theme", theme);
+  };
+
+  const handleThemeSection = () => {
+    document.getElementById("themeSection")?.classList.toggle("hidden");
+  };
+
+  const handleSideBar = (e: React.MouseEvent<HTMLElement>) => {
+    if ((e.target as HTMLElement).id === "sideBar") {
+      setToogleSideBar(false);
     }
   };
-  const handleThemeSection = () => {
-    const themeSection = document.getElementById("themeSection");
-    themeSection?.classList.toggle("hidden");
-  };
-  const handleSideBar = (e: React.MouseEvent<HTMLElement>) => {
-    if ((e.target as HTMLElement).id === "sideBar") setToogleSideBar(false);
-  };
-const handleSideBarToogle=async()=>{
-  await setToogleSideBar(true);
-  gsap.to('#sideBar',{
-    right:0,
-    duration:0.3,
-    ease:"power2.in"
-  })
-}
+
+  useEffect(() => {
+    if (toogleSideBar) {
+      gsap.to("#sideBar", {
+        right: 0,
+        duration: 0.3,
+        ease: "power2.in",
+      });
+    }
+  }, [toogleSideBar]);
   return (
     <>
       <nav className="w-full h-16 dark:text-white shadow-2xl flex justify-between items-center relative backdrop-blur-lg ">
@@ -179,7 +147,7 @@ const handleSideBarToogle=async()=>{
             {/* hamburger */}
             <div
               className=" flex justify-center items-center"
-              onClick={handleSideBarToogle}
+              onClick={()=>setToogleSideBar(true)}
             >
               <BiMenu className="text-theme   scale-150 cursor-pointer" />
             </div>
@@ -216,7 +184,7 @@ function SideBar({
   handleTheme: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
 }) {
   const portfolio = useAppSelector((state) => state.portfolioSlice);
-  const pathname = usePathname().slice(1);
+  const pathname = usePathname()?.slice(1) ?? "";
   const reduxTheme = useAppSelector((state) => state.theme);
   const [isOpen, setIsOpen] = useState(false);
   const [openChangeRouteName, setOpenChangeRouteName] = useState(false);

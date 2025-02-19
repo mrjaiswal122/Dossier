@@ -2,7 +2,7 @@
 
 import { IoMdCloseCircle } from "react-icons/io";
 import { useEffect, useRef } from "react";
-import { cn } from "../_util/cn";
+import { cn } from "../util/cn";
 
 export default function Err({
   msg,

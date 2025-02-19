@@ -4,8 +4,8 @@ import EmailStep from "./EmailStep";
 import OtpStep from "./OtpStep";
 import PasswordStep from "./PasswordStep";
 import axios from "axios";
-import { useAppDispatch } from "@/app/_store/hooks";
-import { setToastMsgRedux } from "@/app/_features/toastMsg/toastMsgSlice";
+import { useAppDispatch } from "@/store/hooks";
+import { setToastMsgRedux } from "@/features/toastMsg/toastMsgSlice";
 import { useRouter } from "next/navigation";
 type Step = "email" | "otp" | "password";
 

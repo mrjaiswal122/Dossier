@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import UserModel from "@/app/_models/user";
-import dbConnect from "@/app/_lib/database";
-import { verifyToken } from "@/app/_lib/verifyToken";
+import UserModel from "@/models/user";
+import dbConnect from "@/lib/database";
+import { verifyToken } from "@/lib/verifyToken";
 
 
 export async function POST(req: NextRequest) {

@@ -1,17 +1,17 @@
-import { Experience } from "@/app/_components/portfolio/Experience";
-import { Skill } from "@/app/_components/portfolio/Skills";
-import { UpdateProfileType } from "@/app/_components/portfolio/UpdateProfile";
-import dbConnect from "@/app/_lib/database";
-import { redis } from "@/app/_lib/redis-client";
-import portfolioModel, { IPortfolio } from "@/app/_models/portfolio";
-import userModel, { User } from "@/app/_models/user";
+import { Experience } from "@/components/portfolio/Experience";
+import { Skill } from "@/components/portfolio/Skills";
+import { UpdateProfileType } from "@/components/portfolio/UpdateProfile";
+import dbConnect from "@/lib/database";
+import { redis } from "@/lib/redis-client";
+import portfolioModel, { IPortfolio } from "@/models/portfolio";
+import userModel, { User } from "@/models/user";
 import { NextResponse, NextRequest } from "next/server";
-import { Update } from "@/app/_types/Update";
-import { authOptions } from "@/app/_lib/authOptions";
+import { Update } from "@/types/Update";
+import { authOptions } from "@/lib/authOptions";
 import { getServerSession } from "next-auth";
 import jwt from "jsonwebtoken"
 import { cookies } from "next/headers"
-const expTime = Number(process.env.REDIS_EX_TIME);
+// const expTime = Number(process.env.REDIS_EX_TIME);
 
 export async function POST(request: NextRequest) {
   try {

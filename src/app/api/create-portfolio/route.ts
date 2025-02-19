@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { decode } from 'jsonwebtoken';
-import dbConnect from '@/app/_lib/database';
-import userModel from '@/app/_models/user';
-import portfolioModel from '@/app/_models/portfolio';
-import { authOptions } from '@/app/_lib/authOptions';
+import dbConnect from '@/lib/database';
+import userModel from '@/models/user';
+import portfolioModel from '@/models/portfolio';
+import { authOptions } from '@/lib/authOptions';
 import { getServerSession } from 'next-auth';
 
 export async function POST(request: Request) {

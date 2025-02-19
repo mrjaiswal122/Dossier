@@ -1,81 +1,59 @@
-"use client";
-import Hero from "../_components/portfolio/Hero";
-import { useEffect, useState } from "react";
-import axios from "axios";
-import { useAppDispatch, useAppSelector } from "@/app/_store/hooks";
+
+import { IPortfolio } from "@/models/portfolio";
 import {
-  updatePortfolio,
-  updateIsOwner,
   PortfolioStatus,
-  updateStatus,
-} from "@/app/_features/portfolio/portfolioSlice";
-import { usePathname } from "next/navigation";
-import LoadingScreen from "../_components/Loader";
-import Projects from "../_components/portfolio/Projects";
-import WorkExperience from "../_components/portfolio/Experience";
-import Skills from "../_components/portfolio/Skills";
+ 
+} from "@/features/portfolio/portfolioSlice";
+import { makeStore } from "@/store/store";
+import ClientWrapper from "@/components/portfolio/ClientWrapper";
 
-export default function Portfolio() {
-  const dispatch = useAppDispatch();
-  const portfolio = useAppSelector((state) => state.portfolioSlice);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const pathname = usePathname().trim().substring(1);
-
-  useEffect(() => {
-    dispatch(updateStatus(PortfolioStatus.Pending));
-
-    const fetchPortfolioData = async () => {
-      try {
-        // Fetch both owner and portfolio data in parallel
-        const [ownerResponse, portfolioResponse] = await Promise.all([
-          axios.get<{ isOwner: boolean }>(`/api/isOwner?pathname=${pathname}`),
-          axios.get(`/api/fetch-portfolio?pathname=${pathname}`),
-        ]);
-
-        // Check if user is the owner
-        dispatch(updateIsOwner(ownerResponse.data.isOwner));
-
-        // Update portfolio data
-        dispatch(updatePortfolio(portfolioResponse.data));
-
-        dispatch(updateStatus(PortfolioStatus.Ideal));
-      } catch (error) {
-        console.error("Error fetching portfolio or owner data:", error);
-        dispatch(updateStatus(PortfolioStatus.Failed));
-      } finally {
-        setIsLoading(false);
-      }
+async function getPortfolioData(pathname: string) {
+  try {
+    const portfolioResponse = await fetch(
+      `${process.env.HOME_URL}/api/fetch-portfolio?pathname=${pathname}`
+    ).then((res) => res.json());
+    
+    return {
+      isOwner: false,
+      portfolio: portfolioResponse,
+      status: "Ideal",
     };
-
-    fetchPortfolioData();
-  }, [dispatch, pathname]);
-
-  if (isLoading) {
-    return <LoadingScreen />;
+  } catch (error) {
+    console.error("Error fetching portfolio data:", error);
+    return { isOwner: false, portfolio: null, status: "Failed" };
   }
+}
 
-  // Conditional rendering based on portfolio status
-  if (portfolio.status === PortfolioStatus.Pending) {
-    return <LoadingScreen />;
+export default async function Portfolio({
+  params,
+}: {
+  params: Promise<{ username: string }>;
+}) {
+ 
+  const pathname = (await params).username;
+
+  // Fetch portfolio data on the server
+  const { isOwner, portfolio, status } = await getPortfolioData(pathname);
+
+  if (status === "Failed") {
+    return <div>Loading.....</div>;
   }
-
-  if (portfolio.status === PortfolioStatus.Failed) {
-    return (
-      <div className="h-screen w-screen flex justify-center items-center bg-theme-light dark:bg-black text-red-600 text-2xl font-bold">
-        Error loading portfolio. Please try again later.
-      </div>
-    );
-  }
-
+  // const store = makeStore();
+  // store.dispatch(
+  //   updatePortfolio({
+  //     ...(portfolio as IPortfolio),
+  //     isOwner,
+  //     status: PortfolioStatus.Ideal,
+  //   })
+  // );
   return (
-    <div className="csw">
-      <Hero />
-      {(portfolio.isOwner || (portfolio.skills && portfolio.skills.length > 0)) && <Skills />}
-      {(portfolio.isOwner || (portfolio.projects && portfolio.projects.length > 0)) && <Projects />}
-      {(portfolio.isOwner || (portfolio.experience && portfolio.experience.length > 0)) && (
-        <WorkExperience />
-      )}
+    <div className="csw pt-32">
+
+      <ClientWrapper initialData={{
+          ...(portfolio as IPortfolio),
+          isOwner,
+          status: PortfolioStatus.Ideal,
+        }} />
     </div>
   );
 }

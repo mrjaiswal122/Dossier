@@ -1,10 +1,10 @@
 import { cookies } from "next/headers";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/_lib/authOptions";
+import { authOptions } from "@/lib/authOptions";
 import { NextResponse, NextRequest } from "next/server";
 import { verify, decode, TokenExpiredError } from "jsonwebtoken";
-import dbConnect from "@/app/_lib/database";
-import userModel from "@/app/_models/user";
+import dbConnect from "@/lib/database";
+import userModel from "@/models/user";
 
 export async function GET(request: NextRequest) {
   try {

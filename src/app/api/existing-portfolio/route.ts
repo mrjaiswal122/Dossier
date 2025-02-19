@@ -1,7 +1,7 @@
 import { NextResponse, NextRequest } from "next/server";
-import dbConnect from "@/app/_lib/database";
-import userModel from "@/app/_models/user"; // This is your Mongoose model
-import { User } from "@/app/_models/user"; // Assuming you have exported an IUserDocument interface
+import dbConnect from "@/lib/database";
+import userModel from "@/models/user"; // This is your Mongoose model
+import { User } from "@/models/user"; // Assuming you have exported an IUserDocument interface
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);

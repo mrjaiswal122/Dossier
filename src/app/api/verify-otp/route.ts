@@ -1,4 +1,4 @@
-import { redis } from "@/app/_lib/redis-client";
+import { redis } from "@/lib/redis-client";
 import { NextRequest, NextResponse } from "next/server";
 import { RedisOtp } from "../send-otp/route";
 

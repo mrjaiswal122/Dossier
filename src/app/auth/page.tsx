@@ -6,9 +6,9 @@ import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { ArrowRight, Eye, EyeOff, Mail,Lock } from "lucide-react";
 import { FaGoogle } from "react-icons/fa6";
-import { useAppDispatch } from "../_store/hooks";
-import { setToastMsgRedux } from "../_features/toastMsg/toastMsgSlice";
-import { updateUser } from "../_features/user/userSlice";
+import { useAppDispatch } from "../../store/hooks";
+import { setToastMsgRedux } from "../../features/toastMsg/toastMsgSlice";
+import { updateUser } from "../../features/user/userSlice";
 export default function Auth() {
   const [formData, setFormData] = useState<{ email: string; password: string }>(
     { email: "", password: "" }
@@ -162,7 +162,7 @@ export default function Auth() {
 
             {/* Social Login */}
             <button className="w-full bg-white dark:bg-black hover:bg-gray-50 dark:hover:bg-black-bg2 text-gray-700 dark:text-whites font-semibold px-6 py-3 rounded-lg transition-all duration-200 transform hover:scale-[1.02] border border-gray-200 dark:border-theme/10 flex items-center justify-center"
-            onClick={() => signIn("google")}>
+            onClick={() => signIn("google").finally(()=>router.push("/"))}>
               <FaGoogle className="w-5 h-5 mr-2" />
               Continue with Google
             </button>

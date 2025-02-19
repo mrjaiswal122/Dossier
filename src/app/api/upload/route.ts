@@ -1,12 +1,12 @@
-import {  Upload } from "@/app/_features/portfolio/portfolioSlice";
-import dbConnect from "@/app/_lib/database";
-import portfolioModel, { IPortfolio } from "@/app/_models/portfolio";
+import {  Upload } from "@/features/portfolio/portfolioSlice";
+import dbConnect from "@/lib/database";
+import portfolioModel, { IPortfolio } from "@/models/portfolio";
 import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
-import { redis } from "@/app/_lib/redis-client";
+import { redis } from "@/lib/redis-client";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/_lib/authOptions";
-import userModel, { User } from "@/app/_models/user";
+import { authOptions } from "@/lib/authOptions";
+import userModel, { User } from "@/models/user";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 

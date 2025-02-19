@@ -1,5 +1,5 @@
 import React from 'react'
-import ForgotPassword from '../_components/forget-password/ForgetPassword'
+import ForgotPassword from '../../components/forget-password/ForgetPassword'
 
 type Props = {}
 

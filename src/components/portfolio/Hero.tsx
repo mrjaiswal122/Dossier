@@ -1,21 +1,24 @@
 'use client';
-import { useAppDispatch, useAppSelector } from "@/app/_store/hooks";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaLinkedin, FaSquareGithub, FaSquareXTwitter } from "react-icons/fa6";
 import { MdModeEditOutline, MdOutlineMailOutline, MdOutlinePhone } from "react-icons/md";
 import UploadImage from "./UploadImage";
 import Link from "next/link";
 import { IoLocationSharp } from "react-icons/io5";
 import { BsCopy } from "react-icons/bs";
-import {  setToastMsgRedux } from "@/app/_features/toastMsg/toastMsgSlice";
+import {  setToastMsgRedux } from "@/features/toastMsg/toastMsgSlice";
 import UpdateProfile from "./UpdateProfile";
-export default function Hero() {
-    const portfolio = useAppSelector((state) => state.portfolioSlice);
+import { Portfolio, updatePortfolio } from "@/features/portfolio/portfolioSlice";
+export default function Hero({portfolio}:{portfolio:Portfolio}) {
 
+  const dispatch = useAppDispatch();
+   
+    
   
-
-    const dispatch = useAppDispatch();
+    
+ 
     const [updatingProfile,setUpdatingProfile]=useState(false)
     const [uploadingImage,setUploadingImage]=useState(false);
     const [isEmailCopied,setIsEmailCopied]=useState(false);

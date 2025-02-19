@@ -1,5 +1,5 @@
-import dbConnect from "@/app/_lib/database";
-import userModel from "@/app/_models/user";
+import dbConnect from "@/lib/database";
+import userModel from "@/models/user";
 import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { cookies } from "next/headers";

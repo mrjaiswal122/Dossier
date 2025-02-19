@@ -1,13 +1,13 @@
-import { Experience } from "@/app/_components/portfolio/Experience";
-import { ProjectData } from "@/app/_components/portfolio/Projects";
-import { getSignedURL, deleteImage } from "@/app/_lib/s3";
-import { createAppAsyncThunk } from "@/app/_store/hooks";
+import { Experience } from "@/components/portfolio/Experience";
+import { ProjectData } from "@/components/portfolio/Projects";
+import { getSignedURL, deleteImage } from "@/lib/s3";
+import { createAppAsyncThunk } from "@/store/hooks";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Update } from "@/app/_types/Update";
+import { Update } from "@/types/Update";
 import axios from "axios";
 import { Types } from "mongoose";
 import { setToastMsgRedux } from "../toastMsg/toastMsgSlice";
-import {Skill} from "@/app/_components/portfolio/Skills";
+import {Skill} from "@/components/portfolio/Skills";
 
 
 export enum DeleteImageType {
@@ -140,7 +140,6 @@ export type Portfolio = {
   routeName: string;
   isOwner: boolean;
   status: PortfolioStatus;
-  error: string;
   createdAt?: Date;
   updatedAt?: Date;
 };
@@ -238,7 +237,6 @@ const initialState: Portfolio = {
   routeName: "",
   status: PortfolioStatus.Ideal,
   isOwner: false,
-  error: "",
   _id: "" as any,
 };
 

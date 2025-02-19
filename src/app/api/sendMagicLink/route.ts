@@ -1,9 +1,9 @@
-import { signToken } from "@/app/_lib/signToken";
+import { signToken } from "@/lib/signToken";
 import { createTransport } from "nodemailer";
 import { NextRequest, NextResponse } from "next/server";
-import UserModel from "@/app/_models/user";
+import UserModel from "@/models/user";
 import crypto from "crypto"
-import dbConnect from "@/app/_lib/database";
+import dbConnect from "@/lib/database";
 
 interface NodemailerError extends Error {
   code?: string;

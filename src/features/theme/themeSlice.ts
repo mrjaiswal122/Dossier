@@ -1,6 +1,6 @@
 import { createSlice,nanoid, PayloadAction } from "@reduxjs/toolkit";
 // import { ThemeType } from "@/app/_components/navbar";
-type ThemeType='system'|'dark'|'light';
+export type ThemeType='system'|'dark'|'light';
 const initialState='system';
 export const themeSlice=createSlice({
     name:'theme',

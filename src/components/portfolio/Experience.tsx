@@ -4,11 +4,11 @@ import React, { Dispatch, SetStateAction, useEffect, useRef, useState } from 're
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
-import { useAppDispatch, useAppSelector } from "@/app/_store/hooks"
+import { useAppDispatch, useAppSelector } from "@/store/hooks"
 import { TiDeleteOutline } from 'react-icons/ti'
 import { GoPencil } from 'react-icons/go'
 import { FiTrash } from 'react-icons/fi'
-import { Delete, deleteParticularObjectAsync, updateExperienceAsync } from '@/app/_features/portfolio/portfolioSlice'
+import { Delete, deleteParticularObjectAsync, Portfolio, updateExperienceAsync } from '@/features/portfolio/portfolioSlice'
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa6'
 import SurePrompt from '../SurePrompt'
 
@@ -27,14 +27,14 @@ const experienceSchema = z.object({
 export type Experience = z.infer<typeof experienceSchema>
 
 interface Props {
- 
+ portfolio:Portfolio
 }
 
-export default function WorkExperience({}:Props) {
+export default function WorkExperience({portfolio}:Props) {
   const [showForm,setShowForm]=useState(false)
   const [updatingExperienceIndex,setUpdatingExperienceIndex]=useState<number|null>(null);
   
-  const portfolio = useAppSelector((state) => state.portfolioSlice);
+  // const portfolio = useAppSelector((state) => state.portfolioSlice);
   
 
   
@@ -51,7 +51,7 @@ export default function WorkExperience({}:Props) {
       <div className='grid grid-cols-1 lg:grid-cols-2 gap-10'>
 
       {portfolio.experience.map((data,index)=>(
-        <ExperienceCard key={index} experience={data} index={index} isOwner={portfolio.isOwner} setShowForm={setShowForm} setUpdatingExperienceIndex={setUpdatingExperienceIndex}/>
+        <ExperienceCard key={index} portfolio={portfolio} experience={data} index={index} isOwner={portfolio.isOwner} setShowForm={setShowForm} setUpdatingExperienceIndex={setUpdatingExperienceIndex}/>
         
       ))
       
@@ -253,6 +253,7 @@ function AddExperienceForm({setShowForm,updatingExperienceIndex,setUpdatingExper
 interface ExperienceCardProps {
       experience:Experience,
       index:number,
+      portfolio:Portfolio,
       isOwner:boolean,
       setShowForm:Dispatch<React.SetStateAction<boolean>>,
       setUpdatingExperienceIndex: Dispatch<React.SetStateAction<number | null>>
@@ -260,12 +261,12 @@ interface ExperienceCardProps {
 }
 
 
-function ExperienceCard({ experience, index, isOwner, setShowForm, setUpdatingExperienceIndex }: ExperienceCardProps) {
+function ExperienceCard({ experience, index, isOwner, setShowForm, setUpdatingExperienceIndex ,portfolio}: ExperienceCardProps) {
     const [isExpanded, setIsExpanded] = useState(false);
     const dispatch = useAppDispatch();
     const [descHeight,setDescHeight]=useState(0);
     const [isOpen,setIsOpen]=useState(false);
-    const portfolio = useAppSelector((state) => state.portfolioSlice);
+    // const portfolio = useAppSelector((state) => state.portfolioSlice);
     const descriptionRef = useRef<HTMLDivElement>(null);
     
     const formatDate = (dateStr: string | undefined) => {

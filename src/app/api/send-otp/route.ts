@@ -1,8 +1,8 @@
-import dbConnect from "@/app/_lib/database";
-import generateSecureNumericPassword from "@/app/_lib/generateOtp";
-import { redis } from "@/app/_lib/redis-client";
-import { transporter } from "@/app/_lib/transporter";
-import userModel from "@/app/_models/user";
+import dbConnect from "@/lib/database";
+import generateSecureNumericPassword from "@/lib/generateOtp";
+import { redis } from "@/lib/redis-client";
+import { transporter } from "@/lib/transporter";
+import userModel from "@/models/user";
 import { NextRequest, NextResponse } from "next/server";
 
 export type RedisOtp={

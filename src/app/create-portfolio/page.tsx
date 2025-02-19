@@ -3,16 +3,16 @@ import React, { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { SubmitHandler, useForm } from "react-hook-form";
-import Err from "../_components/Err";
+import Err from "../../components/Err";
 
-import Skills from "../_components/form/Skills";
-import FormNavigation from "../_components/form/FormNavigation";
+import Skills from "../../components/form/Skills";
+import FormNavigation from "../../components/form/FormNavigation";
 import axios from "axios";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useAppDispatch } from "../_store/hooks";
-import { setToastMsgRedux } from "../_features/toastMsg/toastMsgSlice";
-import { updateRouteName } from "../_features/user/userSlice";
+import { useAppDispatch } from "../../store/hooks";
+import { setToastMsgRedux } from "../../features/toastMsg/toastMsgSlice";
+import { updateRouteName } from "../../features/user/userSlice";
 
 const personalInfoSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),

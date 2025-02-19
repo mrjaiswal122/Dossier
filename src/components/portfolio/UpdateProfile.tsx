@@ -1,5 +1,5 @@
-import { updateProfileAsync } from '@/app/_features/portfolio/portfolioSlice';
-import { useAppDispatch, useAppSelector } from '@/app/_store/hooks';
+import { updateProfileAsync } from '@/features/portfolio/portfolioSlice';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { watch } from 'fs';
 import React, { Dispatch, SetStateAction, useEffect, useState } from 'react';

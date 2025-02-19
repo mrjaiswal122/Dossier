@@ -6,8 +6,8 @@ import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { FaGoogle } from "react-icons/fa6";
 import { ArrowRight, Eye, EyeOff, Mail, User, Lock } from "lucide-react";
-import { useAppDispatch } from "@/app/_store/hooks";
-import { setToastMsgRedux } from "@/app/_features/toastMsg/toastMsgSlice";
+import { useAppDispatch } from "@/store/hooks";
+import { setToastMsgRedux } from "@/features/toastMsg/toastMsgSlice";
 export default function SignupPage() {
   const [formData, setFormData] = useState({
     name: "",

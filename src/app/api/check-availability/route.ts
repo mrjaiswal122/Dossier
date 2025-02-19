@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import dbConnect from "@/app/_lib/database";
-import portfolioModel from "@/app/_models/portfolio";
+import dbConnect from "@/lib/database";
+import portfolioModel from "@/models/portfolio";
 export async function POST(request: NextRequest) {
   const formData = await request.formData();
   const routeName = formData.get("routeName") as string;

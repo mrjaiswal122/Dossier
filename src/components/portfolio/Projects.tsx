@@ -1,4 +1,5 @@
-import { useAppDispatch, useAppSelector } from "@/app/_store/hooks";
+"use client";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { zodResolver } from "@hookform/resolvers/zod";
 import React, {
   Dispatch,
@@ -14,22 +15,25 @@ import Img from "next/image";
 import {
   Delete,
   deleteParticularObjectAsync,
+  Portfolio,
   updateExistingProjectAsync,
   updateProjectAsync,
-} from "@/app/_features/portfolio/portfolioSlice";
+} from "@/features/portfolio/portfolioSlice";
 import { FaChevronDown, FaChevronUp, FaGithub } from "react-icons/fa6";
 import { FaExternalLinkAlt } from "react-icons/fa";
 import Link from "next/link";
 import { MdDeleteForever } from "react-icons/md";
 import SurePrompt from "../SurePrompt";
-type Props = {};
+type Props = {
+  portfolio:Portfolio
+};
 
 
 
 
-export default function Projects({}: Props) {
+export default function Projects({portfolio}: Props) {
   const [showAddProject, setShowAddProject] = useState(false);
-  const portfolio = useAppSelector((state) => state.portfolioSlice);
+  // const portfolio = useAppSelector((state) => state.portfolioSlice);
   const [updatingProjectIndex, setUpdatingProjectIndex] = useState<
     number | null
   >(null);
@@ -57,6 +61,7 @@ export default function Projects({}: Props) {
             {portfolio.projects.map((data, index) => (
               <Cards
                 key={index}
+                portfolio={portfolio}
                 project={data}
                 index={index}
                 isOwner={portfolio.isOwner}
@@ -99,18 +104,20 @@ type CardsProps = {
   };
   index: number;
   isOwner: boolean;
+  portfolio:Portfolio;
   setShowAddProject: Dispatch<React.SetStateAction<boolean>>;
   setUpdatingProjectIndex: Dispatch<React.SetStateAction<number | null>>;
 };
 function Cards({
   project,
+  portfolio,
   index,
   isOwner,
   setShowAddProject,
   setUpdatingProjectIndex,
 }: CardsProps) {
   const dispatch = useAppDispatch();
-  const portfolio = useAppSelector((state) => state.portfolioSlice);
+  // const portfolio = useAppSelector((state) => state.portfolioSlice);
   const [isOpen,setIsOpen]=useState(false)
   const capitalizeText = (text: string) => {
     return text
@@ -229,21 +236,23 @@ function Cards({
               </div>
               {isOwner && (
                 <div className="flex gap-3 text-sm md:text-base">
-                  <div
-                    className="cursor-pointer px-3 py-2 bg-gray-600 rounded-lg"
+                  <button
+                  type="button"
+                    className="cursor-pointer px-3 py-2 bg-gray-600 hover:bg-gray-500 rounded-lg"
                     onClick={() => {
                       setUpdatingProjectIndex(index);
                       setShowAddProject(true);
                     }}
                   >
                     Edit{" "}
-                  </div>
-                  <div
-                    className="cursor-pointer px-3 py-2  bg-reds rounded-lg"
+                  </button>
+                  <button
+                  type="button"
+                    className="cursor-pointer px-3 py-2 text-whites bg-red-900 hover:bg-red-800 rounded-lg"
                     onClick={()=>setIsOpen(true)}
                   >
                     Delete
-                  </div>
+                  </button>
                 </div>
               )}
             </div>

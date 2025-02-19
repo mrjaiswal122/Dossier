@@ -1,5 +1,5 @@
 import { NextAuthOptions } from "next-auth";
-import userModel from "../_models/user";
+import userModel from "../models/user";
 import dbConnect from "./database";
 import GoogleProvider from "next-auth/providers/google";
 const GOOGLE_ID = process.env.GOOGLE_ID!;

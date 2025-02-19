@@ -1,11 +1,11 @@
 import React, { Dispatch, SetStateAction, useState } from 'react'
 import { TiDeleteOutline } from 'react-icons/ti'
 import Image from "next/image";
-import { useAppDispatch, useAppSelector } from '@/app/_store/hooks';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { MdDelete } from 'react-icons/md';
-import { uploadImageAsync,deleteImageAsync, Purpose } from '@/app/_features/portfolio/portfolioSlice';
+import { uploadImageAsync,deleteImageAsync, Purpose } from '@/features/portfolio/portfolioSlice';
 import { IoCloudUploadOutline } from 'react-icons/io5';
-import { DeleteImageType } from '@/app/_features/portfolio/portfolioSlice';
+import { DeleteImageType } from '@/features/portfolio/portfolioSlice';
 import SurePrompt from '../SurePrompt';
 
 type props={

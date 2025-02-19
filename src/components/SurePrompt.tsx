@@ -25,7 +25,7 @@ function SurePrompt({msg,action,setIsOpen}: Props) {
        <CgClose className='hover:text-reds cursor-pointer' onClick={()=>setIsOpen(false)}/>
         </div>
        <div className='flex justify-between mt-6 text-sm'>
-        <button className='py-2 px-6 rounded-lg bg-reds hover:bg-red-700' onClick={action}>
+        <button className='py-2 px-6 rounded-lg bg-reds hover:bg-red-700' onClick={()=>{setIsOpen(false);action()}}>
          Yes
         </button>
         <button className='py-2 px-7 rounded-lg bg-grays hover:bg-gray-600' onClick={()=>setIsOpen(false)}>

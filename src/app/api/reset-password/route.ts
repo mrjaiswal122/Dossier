@@ -1,8 +1,8 @@
-import { redis } from "@/app/_lib/redis-client";
+import { redis } from "@/lib/redis-client";
 import { NextRequest, NextResponse } from "next/server";
 import { RedisOtp } from "../send-otp/route";
-import dbConnect from "@/app/_lib/database";
-import userModel from "@/app/_models/user";
+import dbConnect from "@/lib/database";
+import userModel from "@/models/user";
 import crypto from "crypto";
 
 export async function POST(req: NextRequest) {

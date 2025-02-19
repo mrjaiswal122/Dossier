@@ -4,8 +4,8 @@ import { BookOpen, Briefcase, Layout, Palette, Rocket, Sparkles, Trophy } from "
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { FaArrowRight } from "react-icons/fa6";
-import { useAppDispatch, useAppSelector } from "./_store/hooks";
-import { setToastMsgRedux } from "./_features/toastMsg/toastMsgSlice";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { setToastMsgRedux } from "../features/toastMsg/toastMsgSlice";
 import { useEffect, useState } from "react";
 
 export default function Home() {

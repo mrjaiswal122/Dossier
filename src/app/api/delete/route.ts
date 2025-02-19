@@ -1,18 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import dbConnect from "@/app/_lib/database";
-import portfolioModel, { IPortfolio } from "@/app/_models/portfolio";
+import dbConnect from "@/lib/database";
+import portfolioModel, { IPortfolio } from "@/models/portfolio";
 import {
   Delete,
   DeleteImageType,
   Purpose,
-} from "@/app/_features/portfolio/portfolioSlice";
-import { redis } from "@/app/_lib/redis-client";
-import { deleteImage } from "@/app/_lib/s3";
+} from "@/features/portfolio/portfolioSlice";
+import { redis } from "@/lib/redis-client";
+import { deleteImage } from "@/lib/s3";
 import { cookies } from "next/headers";
 import jwt from "jsonwebtoken";
 import { getServerSession } from "next-auth";
-import userModel, { User } from "@/app/_models/user";
-import { authOptions } from "@/app/_lib/authOptions";
+import userModel, { User } from "@/models/user";
+import { authOptions } from "@/lib/authOptions";
 
 const expTime = Number(process.env.REDIS_EX_TIME!);
 

@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { UserType } from "../_features/user/userSlice";
+import { UserType } from "../features/user/userSlice";
 type ProfileProps = {
   user: UserType
 };

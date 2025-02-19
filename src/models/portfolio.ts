@@ -1,6 +1,7 @@
 import mongoose, { Model, Schema, Types } from "mongoose";
 
 export type IPortfolio = {
+  _id:Types.ObjectId;
   user: Types.ObjectId;
   personalInfo: {
     fullName: string;
@@ -49,7 +50,7 @@ export type IPortfolio = {
   projects?: Array<{
     title: string;
     description: string;
-    technologies?: string[];
+    technologies: string[];
     projectUrl?: string;
     githubUrl?: string;
     image?: string;

@@ -1,5 +1,5 @@
-"use client ";
-import { useAppDispatch, useAppSelector } from "@/app/_store/hooks";
+"use client";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import React, { Dispatch, useRef, useState } from "react";
 import SurePrompt from "../SurePrompt";
 import { FiTrash } from "react-icons/fi";
@@ -7,10 +7,11 @@ import { GoPencil } from "react-icons/go";
 import {
   Delete,
   deleteParticularObjectAsync,
+  Portfolio,
   updateSkillAsync,
-} from "@/app/_features/portfolio/portfolioSlice";
-import { IPortfolio } from "@/app/_models/portfolio";
-import formatHeading from "@/app/_util/formatHeading";
+} from "@/features/portfolio/portfolioSlice";
+import { IPortfolio } from "@/models/portfolio";
+import formatHeading from "@/util/formatHeading";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -22,14 +23,16 @@ const skillSchema: z.ZodType<NonNullable<IPortfolio["skills"]>[number]> =
     proficiency: z.string().optional(),
   });
 export type Skill = z.infer<typeof skillSchema>;
-type Props = {};
+type Props = {
+  portfolio:Portfolio
+};
 
-export default function Skills({}: Props) {
+export default function Skills({portfolio}:Props) {
   const [showForm, setShowForm] = useState(false);
   const [updatingSkillIndex, setUpdatingSkillIndex] = useState<number | null>(
     null
   );
-  const portfolio = useAppSelector((state) => state.portfolioSlice);
+  // const portfolio = useAppSelector((state) => state.portfolioSlice);
 
   return (
     <section className="csw md:pt-[150px] text-whites pb-24" id="skillSection">
@@ -54,6 +57,7 @@ export default function Skills({}: Props) {
             {portfolio.skills.map((data, index) => (
               <SkillCard
                 key={index}
+                portfolio={portfolio}
                 skillCategory={data}
                 index={index}
                 isOwner={portfolio.isOwner}
@@ -304,9 +308,11 @@ interface SkillCardProps {
   isOwner: boolean;
   setShowForm: Dispatch<React.SetStateAction<boolean>>;
   setUpdatingSkillIndex: Dispatch<React.SetStateAction<number | null>>;
+  portfolio:Portfolio
 }
 
 function SkillCard({
+  portfolio,
   skillCategory,
   index,
   isOwner,
@@ -315,7 +321,7 @@ function SkillCard({
 }: SkillCardProps) {
   const dispatch = useAppDispatch();
   const [isOpen, setIsOpen] = useState(false);
-  const portfolio = useAppSelector((state) => state.portfolioSlice);
+  // const portfolio = useAppSelector((state) => state.portfolioSlice);
 
   //fix this
   const handleDelete = () => {

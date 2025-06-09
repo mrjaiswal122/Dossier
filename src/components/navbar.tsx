@@ -206,7 +206,7 @@ function SideBar({
   };
   return (
     <>
-      <div className=" bg-black w-[280px] h-screen float-right rounded-lg  border-[1px] border-grays text-whites ">
+      <div className=" bg-black w-[280px] h-lvh md:h-screen float-right rounded-lg  border-[1px] border-grays text-whites ">
         {/* close */}
         <button
           className="float-right m-3 hover:text-reds"

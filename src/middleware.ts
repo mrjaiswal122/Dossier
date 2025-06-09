@@ -22,7 +22,7 @@ export async function middleware(request: NextRequest) {
     if (token||nextToken) {
       console.log('USER ALREADY LOGGED IN !!');
      
-      return NextResponse.redirect(new URL(process.env.HOME_URL!, request.url));
+      return NextResponse.redirect(new URL("/", request.url));
     
 
     } else {

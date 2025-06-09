@@ -55,7 +55,7 @@ export default function Hero({portfolio}:{portfolio:Portfolio}) {
   };
   return (
   
-<section id="hero" className="relative pt-16">
+<section id="hero" className="relative">
      
     {/* for the pc view */}
     <section className=" csw  flex flex-col-reverse md:flex-row dark:text-whites">

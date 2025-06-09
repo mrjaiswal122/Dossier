@@ -32,7 +32,7 @@ export default function Auth() {
       if (response.data?.success) {
        
         dispatch(updateUser(response.data.user))
-        router.back();
+        router.push("/");
         
       } else if (response.data?.msg && (typeof response.data.msg)=="string" ) {
           dispatch(setToastMsgRedux({msg:`${response.data.msg}`,type:"error"}))

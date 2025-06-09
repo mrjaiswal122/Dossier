@@ -17,6 +17,17 @@ export const authOptions: NextAuthOptions = {
     }),
     // ...add more providers here
   ],
+  cookies: {
+  sessionToken: {
+    name: `next-auth.session-token`,
+    options: {
+      httpOnly: true,
+      sameSite: "none",
+      path: "/",
+      secure: true,
+    },
+  },
+},
   callbacks: {
     async signIn({ user }) {
       try {

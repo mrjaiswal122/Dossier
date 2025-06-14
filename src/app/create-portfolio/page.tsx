@@ -191,12 +191,12 @@ export default function Page() {
           message: "Something happend wrong !!",
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       await setIsAvailable(false);
       // Handle any network or server errors
       setError("routeName", {
         type: "custom",
-        message: "An error occurred while checking availability",
+        message: error.response?.data?.msg || "An error occurred while checking availability",
       });
       console.error(error);
     }

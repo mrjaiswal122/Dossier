@@ -51,7 +51,7 @@ const personalInfoSchema = z.object({
 });
 
 const summarySchema = z.object({
-  aboutMe: z.string(),
+  aboutMe: z.string().min(1, "About Me is required"),
   careerObjective: z.string().optional(),
 });
 
